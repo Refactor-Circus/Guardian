@@ -141,11 +141,16 @@ describe('composer.json', function (): void {
 });
 
 describe('local install', function (): void {
-    it('has Keen\'s scripts, with Keen\'s local:install and local:update', function (): void {
+    it('has Keen\'s scripts, with Keen\'s local:install and local:update, plus test:browser', function (): void {
         $scripts = guardianComposer()['scripts'];
         $keen = keenComposer()['scripts'];
 
-        expect(array_keys($scripts))->toBe(array_keys($keen))
+        // `composer test:browser` runs the moved SSO and SCIM browser tests,
+        // outside `composer test` (criterion 29).
+        expect($scripts['test:browser'] ?? null)->toBe(['vendor/bin/pest --testsuite=Browser']);
+        unset($scripts['test:browser']);
+
+        expect(array_keys($scripts))->toEqualCanonicalizing(array_keys($keen))
             ->and($scripts['local:install'])->toBe($keen['local:install'])
             ->and($scripts['local:update'])->toBe($keen['local:update']);
     });
@@ -155,14 +160,16 @@ describe('local install', function (): void {
             ->toBe(file_get_contents(KEEN_ROOT.'/bin/composer-local.php'));
     });
 
-    it('runs the Arch, Feature and Modes suites', function (): void {
+    it('runs the Arch, Feature and Modes suites, and Browser only when asked', function (): void {
         $phpunit = simplexml_load_file(GUARDIAN_ROOT.'/phpunit.xml.dist');
 
         expect($phpunit)->not->toBeFalse();
 
         $suites = array_map(fn (SimpleXMLElement $suite): string => (string) $suite['name'], $phpunit->xpath('//testsuite') ?: []);
 
-        expect($suites)->toBe(['Arch', 'Feature', 'Modes']);
+        // Browser tests need Playwright: a bare `pest` leaves them out.
+        expect($suites)->toBe(['Arch', 'Feature', 'Modes', 'Browser'])
+            ->and((string) $phpunit['defaultTestSuite'])->toBe('Arch,Feature,Modes');
     });
 
     it('keeps the generated local manifest out of git', function (): void {

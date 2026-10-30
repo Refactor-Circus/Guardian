@@ -14,6 +14,7 @@
     beStrictAboutOutputDuringTests="true"
     cacheDirectory=".phpunit.cache"
     backupStaticProperties="false"
+    defaultTestSuite="Arch,Feature,Modes"
 >
     <testsuites>
         <testsuite name="Arch">
@@ -24,6 +25,11 @@
         </testsuite>
         <testsuite name="Modes">
             <directory>tests/Modes</directory>
+        </testsuite>
+        <!-- Browser tests need Playwright, so they are left out of the
+             default run and invoked explicitly with `composer test:browser`. -->
+        <testsuite name="Browser">
+            <directory>tests/Browser</directory>
         </testsuite>
     </testsuites>
     <source>

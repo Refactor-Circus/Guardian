@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RefactorCircus\Guardian\Tests;
 
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Gate;
 use Laravel\Mcp\Server\McpServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 use RefactorCircus\Atrium\AtriumServiceProvider;
@@ -39,6 +40,22 @@ abstract class TestCase extends Orchestra
      * servers switched on (`guardian.mcp.*`); both are off as shipped.
      */
     public static bool $mcpServers = false;
+
+    /**
+     * Whether anyone signed in may open the Atrium dashboard (its
+     * `viewAtrium` gate), as in Roster's suite: Guardian's screens are then
+     * answered by their own permission checks alone.
+     */
+    protected bool $openAtrium = true;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        if ($this->openAtrium) {
+            Gate::define('viewAtrium', fn (): bool => true);
+        }
+    }
 
     /**
      * @return array<int, class-string>

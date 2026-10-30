@@ -88,6 +88,9 @@
         "test:unit": [
             "vendor/bin/pest --parallel"
         ],
+        "test:without-atrium": [
+            "vendor/bin/pest tests/Modes/WithoutAtrium"
+        ],
         "test": [
             "@analyse",
             "@lint:check",

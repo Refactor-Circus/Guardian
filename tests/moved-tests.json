@@ -163,6 +163,31 @@
             "tests": [
                 "records SCIM changes with the token that made them, through the scim surface"
             ]
+        },
+        "tests/Feature/Ui/SsoPagesTest.php": {
+            "from": "tests/Feature/Ui/SsoPagesTest.php",
+            "tests": [
+                "creates, edits and deletes a connection from the organization page",
+                "shows only the connection's own protocol settings when editing"
+            ]
+        },
+        "tests/Feature/Ui/ScimPagesTest.php": {
+            "from": "tests/Feature/Ui/ScimPagesTest.php",
+            "tests": [
+                "issues, shows once and revokes tokens from the organization page"
+            ]
+        },
+        "tests/Browser/SsoBrowserTest.php": {
+            "from": "tests/Browser/SsoBrowserTest.php",
+            "tests": [
+                "creates an Entra ID connection and shows its callback URL"
+            ]
+        },
+        "tests/Browser/ScimBrowserTest.php": {
+            "from": "tests/Browser/ScimBrowserTest.php",
+            "tests": [
+                "issues a SCIM token and shows it once"
+            ]
         }
     }
 }

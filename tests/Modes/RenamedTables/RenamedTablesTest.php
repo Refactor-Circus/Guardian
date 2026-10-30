@@ -55,5 +55,8 @@ it('names the renamed table when it refuses to roll back over rows', function ()
     expect(fn () => Artisan::call('migrate:rollback', ['--path' => realpath(dirname(__DIR__, 3).'/database/migrations'), '--realpath' => true]))
         ->toThrow(GuardianException::class, '[acme_sso_connections]');
 
-    expect(Schema::hasTable('acme_scim_tokens'))->toBeTrue();
+    // D-040: the empty SCIM tables go with their own migration; the SSO
+    // migration refuses and keeps its renamed tables.
+    expect(Schema::hasTable('acme_sso_connections'))->toBeTrue()
+        ->and(Schema::hasTable('acme_scim_tokens'))->toBeFalse();
 });

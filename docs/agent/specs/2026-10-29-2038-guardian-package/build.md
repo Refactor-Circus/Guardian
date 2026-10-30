@@ -220,3 +220,11 @@ A salvaged commit (`e110b23`) held the moved source and tests. I diffed every fi
 - `ScimException::$status` is `public protected(set)`, not `public readonly` as in Roster, because Keystone's base declares it `protected int`.
 - Group 5 removes the three SCIM `ui` parity exceptions with the SSO ones.
 - Group 6 gates the SCIM server routes in `ScimServiceProvider::boot()` on `Handover::complete()`. They load unconditionally today, as the Design section says.
+
+### Retry
+
+- Every group 4 task was already committed in `e110b23` and `cee9fa8`. The retry changed no source or test file.
+- Group 4's files still pass: 201 tests. `composer lint:check` and `composer analyse` pass too.
+- One failure outside the group: `PackageWiringTest` "has Keen's scripts", which belongs to group 1. It compares Guardian's `composer.json` scripts with the installed Keen's. `vendor/refactor-circus/keen` had been re-linked by hand at 00:55 to `../Keen--2026-10-29-2038-history-section-by-capability`, an unmerged Keen job branch that adds `test:without-atrium`. That was after group 1's commit, and `composer.local.json` / `composer.local.lock` still name `../Keen`. Keen's `main` and `origin/main` have no such script.
+- I pointed the symlink back at `../Keen`, as the lock records. Nothing was committed for this (`vendor/` is gitignored). With that link, `tests/Feature`, `tests/Modes` and `tests/ArchTest.php` pass: 364 tests.
+- If Keen's without-Atrium work merges, group 5 should add `test:without-atrium` the way Keen does. Group 5 owns `composer.json`, `phpunit.xml.dist` and the WithoutAtrium mode.

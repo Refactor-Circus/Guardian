@@ -255,3 +255,39 @@ A salvaged commit (`e110b23`) held the moved source and tests. I diffed every fi
 - `vendor/bin/pest`: 452 passed, 18 skipped, 26 failed. Every failure is group 6 work: `Upgrade/*`, `HandoverRoutesTest` and `Modes/HandoverPending`.
 - `composer analyse`, `composer lint:check` and type coverage (100%) pass.
 - The browser suite was not run here: `pestphp/pest-plugin-browser` is not installed in this worktree, and `composer update` is off limits. The browser workflow runs it.
+
+## Group 6
+
+### What I found
+
+- An earlier attempt (committed in `a4c8e53`) had already written most of 6.1 to 6.8:
+  - `src/Upgrade/{Handover,RosterUpgrade,UpgradeReport}.php`, `UpgradeFromRosterCommand`, `StrandedTablesException` and the `2026_11_01_000000` upgrade migration (no-op `down()`);
+  - the stranded-state `about` line and the once-per-boot report in `GuardianServiceProvider`;
+  - the `Handover::complete()` gate on the SSO web routes, the SCIM server routes and `keepMorphAliases()` in the two domain providers;
+  - `HandoverPendingTestCase`, the `mysql` CI job (`vendor/bin/pest --group=upgrade-mysql` on MySQL 8);
+  - README, the Boost skill and the CHANGELOG entry;
+  - the tests for criteria 22, 23, 27, 28 and 31.
+- 26 tests failed and 18 skipped, all because the linked Roster (`remove-sso-and-scim`) no longer ships SSO and SCIM. Its migrations no longer create the `roster_*` SSO/SCIM tables, it no longer creates the `roster.sso.*` / `roster.scim.*` permissions, its SSO models and MCP tools are gone, and the real `Handover` reports complete.
+
+### What I changed
+
+- `tests/Fixtures/roster-sso-scim/`: Roster's SSO and SCIM create migrations at the pinned SHA, with their lookup and performance indexes. The base `TestCase` runs them after Roster's migrations. Each create is skipped when the table already exists (a seams Roster made it). The only other change is the table names: they are read as the upgrade reads them (`roster.tables.{key}`, default `roster_{key}`), because Roster's `Tables` no longer knows those keys.
+- `tests/Feature/Upgrade/helpers.php`: `seedRosterPermissions()` puts back `roster.sso.view`, `roster.sso.manage` and `roster.scim.manage`, with Roster's descriptions at the pinned SHA, and grants them to the built-in `admin` role. That is the state the seams Roster left. Each upgrade test file calls it in `beforeEach`.
+- The real-migration test in `CommandTest` seeds the rows as stored (`seedUpgradeRows('roster')`) instead of through Roster's models, which the installed Roster may no longer ship.
+- `HandoverRoutesTest`: the default class-exists check is asserted against `class_exists()` of the literal, so it holds beside either Roster.
+- `HandoverPendingTestCase` binds the real `Handover` while Roster ships its SSO connection model. Beside a Roster that has handed over, it binds a `Handover` whose check also answers yes for that class name.
+- The 18 skips are gone. `ConfigTest` compares the `roster.sso` / `roster.scim` defaults with `tests/Fixtures/roster-6b1833d/roster.php`, Roster's `config/roster.php` captured with `git show` at the pinned SHA. It also asserts that SHA equals `tests/moved-tests.json`. `Mcp/SsoToolsTest` and `Mcp/ScimToolsTest` compare each tool with `tests/Fixtures/roster-6b1833d/mcp-tools.json`, through `pinnedRosterTool()` in `tests/Pest.php`. That file holds each tool's `toArray()`, captured once from the `Roster--2026-10-29-2038-auth-extension-seams` worktree at the pinned SHA, with package discovery off so Cortex description overrides stay out.
+- README and the Boost skill say that SSO enforcement fails open until Guardian is installed after Roster's removal. `DocsTest` asserts it.
+- `docs/agent/standards-feedback.md` has the architecture/dependencies row for `src/Upgrade`.
+- Files outside the group's list: `tests/Fixtures/**` and the Group 2 to 4 tests `tests/Feature/ConfigTest.php`, `tests/Feature/Mcp/SsoToolsTest.php` and `tests/Feature/Mcp/ScimToolsTest.php`.
+
+### Deviations
+
+- Spec criterion 22 asks for a real-migration test that runs Roster's own create migrations and seeds through Roster's models. The migrations are Roster's at the pinned SHA, run from the fixture. The rows are inserted as stored, because the installed Roster may have no SSO/SCIM models.
+- Criterion 28 says the HandoverPending suite uses the real `Handover`. It does only beside a Roster that still ships SSO, such as CI's Roster `main` today. Beside the removal branch, a stand-in reports Roster's SSO connection model as present.
+- `RosterUpgrade` calls Roster's `Permissions::forgetCache()`. Roster has no `Permissions::forget()`, the name the spec uses.
+
+### Results
+
+- `composer test`: analyse OK, lint OK, type coverage 100%, Pest 496 passed (1931 assertions), with no skips or failures.
+- The `mysql` CI job was not run locally (no MySQL 8 here).

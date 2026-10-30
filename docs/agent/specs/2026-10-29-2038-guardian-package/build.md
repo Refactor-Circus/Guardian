@@ -310,3 +310,17 @@ A salvaged commit (`e110b23`) held the moved source and tests. I diffed every fi
 ### Results
 
 - `composer test:unit`: 528 passed (1977 assertions). `composer analyse`, `composer lint:check` and `composer test:types` (100%) pass.
+
+## Group 7: Review follow-ups
+
+### What I changed
+
+- **7.1 / 7.2, D-039.** `IdentityClaims` gains `bool $emailVerified = true` (last constructor argument, so existing callers are unchanged). `Sso::claims()` sets it, for OIDC connections only, from the raw id_token claims that `OidcProvider::user()` already passes through: only a literal `email_verified === true` counts; a false, missing or string value does not. SAML and Entra ID keep `true`. `SsoLoginAction::linkOrCreate()` refuses with `SsoLoginRefused('unverified_email')` after the trusted-domain check and before link-by-email or JIT creation; the failure is recorded on `SsoLoginFailedActionEvent` like the other reasons and shown through the new `guardian::guardian.sso_failed_unverified_email` string. An identity already linked by subject still signs in. README (Sign-in section, intro line), the Boost skill (Upgrading from Roster) and CHANGELOG (`### Changed`) say "Changed from Roster"; `DocsTest` holds all three to it.
+  - Tests: `tests/Feature/Sso/OidcEmailVerifiedTest.php` (JIT refused for false / missing / `"true"`; link refused for false / missing; verified links and creates; a linked identity signs in regardless; `claims()` reads the claim only for OIDC).
+  - Moved test changed: `tests/Feature/Sso/OidcFlowTest.php` now signs id_tokens with `email_verified: true` ("signs a user in end to end" and the verification-failure dataset). `tests/moved-tests.json` has no notes field (it tracks file and test names only), so the change is recorded here; test names are unchanged.
+- **7.3, D-040.** The sso create migration's `down()` checks only `sso_connections` / `sso_identities`; the scim one only `scim_tokens` / `scim_users` / `scim_groups`. A full rollback with SSO rows now drops the empty SCIM tables and refuses at the SSO migration. `MigrationsTest` covers SCIM rows refusing the SCIM rollback, and each migration's `down()` ignoring the other's rows; the existing refusal test and `tests/Modes/RenamedTables/RenamedTablesTest.php` now expect the SCIM tables gone. The `models/migrations` row in `standards-feedback.md` cites D-040.
+- **7.4 / 7.5.** Already done in review round 1 (commit 4c8c3c1, see above): Guardian's `JoinsOrganizations`, `ScimQuery::equals()` and `UserSummaryResource`, the extended `RosterBoundaryTest`, the `guardian-views` publish tag and the `booting()` standards-feedback row. Rechecked: Roster (`../Roster--2026-10-29-2038-remove-sso-and-scim`) still has no public action that joins with a given membership source (`AddMemberAction` forces `direct` and refuses existing members; `JoinOrganizationsByDomainAction` joins every auto-join organization by domain), so the documented `JoinsOrganizations` departure stands.
+
+### Results
+
+- `PAO_DISABLE=1 composer test`: analyse OK, lint OK, type coverage 100%, Pest 546 passed (2043 assertions).

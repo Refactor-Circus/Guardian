@@ -9,6 +9,13 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Version;
 use Laravel\Mcp\Server\ServerContext;
 use Laravel\Mcp\Server\Tool;
+use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\CreateSsoConnectionTool;
+use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\DeleteSsoConnectionTool;
+use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\ListSsoConnectionsTool;
+use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\ListSsoIdentitiesTool;
+use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\ShowSsoConnectionTool;
+use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\UnlinkSsoIdentityTool;
+use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\UpdateSsoConnectionTool;
 use RefactorCircus\Guardian\Support\Integration;
 use RefactorCircus\Keystone\Mcp\Server;
 
@@ -22,9 +29,21 @@ use RefactorCircus\Keystone\Mcp\Server;
 final class GuardianServer extends Server
 {
     /**
+     * Every tool the server offers, with the names, descriptions and output
+     * schemas they had in Roster.
+     *
      * @var array<int, class-string<Tool>>
      */
-    public const array TOOLS = [];
+    public const array TOOLS = [
+        // Single sign-on
+        ListSsoConnectionsTool::class,
+        ShowSsoConnectionTool::class,
+        CreateSsoConnectionTool::class,
+        UpdateSsoConnectionTool::class,
+        DeleteSsoConnectionTool::class,
+        ListSsoIdentitiesTool::class,
+        UnlinkSsoIdentityTool::class,
+    ];
 
     /**
      * @var array<int, class-string<Tool>|Tool>

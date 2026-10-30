@@ -228,3 +228,30 @@ A salvaged commit (`e110b23`) held the moved source and tests. I diffed every fi
 - One failure outside the group: `PackageWiringTest` "has Keen's scripts", which belongs to group 1. It compares Guardian's `composer.json` scripts with the installed Keen's. `vendor/refactor-circus/keen` had been re-linked by hand at 00:55 to `../Keen--2026-10-29-2038-history-section-by-capability`, an unmerged Keen job branch that adds `test:without-atrium`. That was after group 1's commit, and `composer.local.json` / `composer.local.lock` still name `../Keen`. Keen's `main` and `origin/main` have no such script.
 - I pointed the symlink back at `../Keen`, as the lock records. Nothing was committed for this (`vendor/` is gitignored). With that link, `tests/Feature`, `tests/Modes` and `tests/ArchTest.php` pass: 364 tests.
 - If Keen's without-Atrium work merges, group 5 should add `test:without-atrium` the way Keen does. Group 5 owns `composer.json`, `phpunit.xml.dist` and the WithoutAtrium mode.
+
+## Group 5
+
+### What I found
+
+- The earlier attempts (`0714bf0`, `b32b3fe`, `dce2fd3`) had already committed 5.1 to 5.5 and 5.7, and most of 5.6:
+  - `src/Atrium/{GuardianPlugin,Screens}.php` and `Http/Controllers/{Sso,Scim}UiController.php`, the five views and `lang/en/guardian.php`, and `guardian.ui.enabled` with its `ConfigTest` case.
+  - The tests: `Ui/{Sso,Scim}PagesTest`, `Feature/Atrium/*`, `StylesTest`, `Modes/WithoutAtrium` and the browser tests.
+  - The Atrium-only arch rule, the `without-atrium` CI job, and `PARITY_EXCEPTIONS` holding only `SsoLoginAction` / `LinkSsoIdentityAction`.
+- None of the 18 skipped tests belongs to group 5. They are the Roster-comparison cases (`ConfigTest`, `Mcp/SsoToolsTest`, `Mcp/ScimToolsTest`), which skip because the installed Roster (remove-sso-and-scim) no longer ships SSO and SCIM.
+
+### What I changed
+
+- `GuardianPlugin::registerScreens()` places Guardian's screens once per application (a `WeakMap` keyed on Atrium's registry). Booting Guardian's provider a second time, as `Upgrade/StrandedStateTest` does, used to throw Atrium's duplicate-tab `InvalidArgumentException`. There is a new `PlacementTest` case for this.
+- Task 5.6 browser setup, copied from Roster because Keen has none:
+  - a `Browser` testsuite in `phpunit.xml.dist`, with `defaultTestSuite="Arch,Feature,Modes"` so a bare `pest` leaves it out;
+  - the `test:browser` script and `pestphp/pest-plugin-browser` in require-dev;
+  - `package.json` / `package-lock.json` (Playwright);
+  - `.github/workflows/browser-tests.yml`;
+  - gitignore entries for `node_modules` and the browser output folders, and export-ignore entries for the npm files.
+- Files outside the group's list: `tests/Feature/PackageWiringTest.php` (it now allows `test:browser` on top of Keen's scripts, and the `Browser` suite with its default list), `.gitignore`, `.gitattributes`, `package.json`, `package-lock.json` and `.github/workflows/browser-tests.yml`.
+
+### Results
+
+- `vendor/bin/pest`: 452 passed, 18 skipped, 26 failed. Every failure is group 6 work: `Upgrade/*`, `HandoverRoutesTest` and `Modes/HandoverPending`.
+- `composer analyse`, `composer lint:check` and type coverage (100%) pass.
+- The browser suite was not run here: `pestphp/pest-plugin-browser` is not installed in this worktree, and `composer update` is off limits. The browser workflow runs it.

@@ -150,7 +150,7 @@ describe('local install', function (): void {
         expect($scripts['test:browser'] ?? null)->toBe(['vendor/bin/pest --testsuite=Browser']);
         unset($scripts['test:browser']);
 
-        expect(array_keys($scripts))->toEqualCanonicalizing(array_keys($keen))
+        expect(array_keys($scripts))->toBe(array_keys($keen))
             ->and($scripts['local:install'])->toBe($keen['local:install'])
             ->and($scripts['local:update'])->toBe($keen['local:update']);
     });

@@ -66,9 +66,8 @@ it('declares an output schema on every tool that answers with structured content
 it('keeps each tool\'s name, description and schemas from Roster', function (string $tool): void {
     $roster = 'RefactorCircus\\Roster\\Domains\\Sso\\Mcp\\Tools\\'.class_basename($tool);
 
-    expect(toolDefinition($tool))->toBe(toolDefinition($roster));
-})->with(SSO_TOOLS)
-    ->skip(fn (): bool => ! class_exists('RefactorCircus\\Roster\\Domains\\Sso\\Mcp\\Tools\\ListSsoConnectionsTool'), 'The installed Roster no longer ships SSO to compare with.');
+    expect(toolDefinition($tool))->toBe(pinnedRosterTool($roster));
+})->with(SSO_TOOLS);
 
 it('answers over MCP with the same payload as the HTTP API', function (): void {
     organization(attributes: ['name' => 'Acme']);

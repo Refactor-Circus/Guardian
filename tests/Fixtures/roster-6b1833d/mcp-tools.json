@@ -1,0 +1,1215 @@
+{
+    "RefactorCircus\\Roster\\Domains\\Sso\\Mcp\\Tools\\ListSsoConnectionsTool": {
+        "name": "list-sso-connections-tool",
+        "title": "List Sso Connections Tool",
+        "description": "List an organization's single sign-on connections. Secrets are never returned.",
+        "inputSchema": {
+            "properties": {
+                "organization": {
+                    "description": "The organization slug.",
+                    "type": "string"
+                },
+                "per_page": {
+                    "description": "Results per page, 1-100. Defaults to 25.",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "type": "integer"
+                },
+                "page": {
+                    "description": "Page number, from 1.",
+                    "minimum": 1,
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "required": [
+                "organization"
+            ]
+        },
+        "annotations": {
+            "title": "List Sso Connections Tool"
+        },
+        "outputSchema": {
+            "properties": {
+                "data": {
+                    "items": {
+                        "properties": {
+                            "slug": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "protocol": {
+                                "enum": [
+                                    "oidc",
+                                    "saml",
+                                    "azure"
+                                ],
+                                "type": "string"
+                            },
+                            "organization": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "settings": {
+                                "description": "The non-secret settings: issuer, tenant, client_id, metadata_url, entity_id, sso_url.",
+                                "type": "object"
+                            },
+                            "client_secret": {
+                                "description": "\"set\" when a client secret is stored.",
+                                "enum": [
+                                    "set",
+                                    null
+                                ],
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "certificate": {
+                                "description": "\"set\" when a certificate is stored.",
+                                "enum": [
+                                    "set",
+                                    null
+                                ],
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "jit": {
+                                "type": "boolean"
+                            },
+                            "enforced": {
+                                "type": "boolean"
+                            },
+                            "enabled": {
+                                "type": "boolean"
+                            },
+                            "sign_in_url": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "callback_url": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "metadata_url": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "identities_count": {
+                                "description": "When counted.",
+                                "type": "integer"
+                            },
+                            "created_at": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "type": "object",
+                        "required": [
+                            "slug",
+                            "name",
+                            "protocol",
+                            "organization",
+                            "settings",
+                            "client_secret",
+                            "certificate",
+                            "jit",
+                            "enforced",
+                            "enabled",
+                            "sign_in_url",
+                            "callback_url",
+                            "metadata_url",
+                            "created_at"
+                        ]
+                    },
+                    "type": "array"
+                },
+                "meta": {
+                    "description": "The page this answer holds.",
+                    "properties": {
+                        "current_page": {
+                            "type": "integer"
+                        },
+                        "last_page": {
+                            "type": "integer"
+                        },
+                        "per_page": {
+                            "type": "integer"
+                        },
+                        "total": {
+                            "type": "integer"
+                        }
+                    },
+                    "type": "object",
+                    "required": [
+                        "current_page",
+                        "last_page",
+                        "per_page",
+                        "total"
+                    ]
+                }
+            },
+            "type": "object",
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "RefactorCircus\\Roster\\Domains\\Sso\\Mcp\\Tools\\ShowSsoConnectionTool": {
+        "name": "show-sso-connection-tool",
+        "title": "Show Sso Connection Tool",
+        "description": "Show an SSO connection with its callback and metadata URLs. Secrets are never returned.",
+        "inputSchema": {
+            "properties": {
+                "connection": {
+                    "description": "The connection slug.",
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "required": [
+                "connection"
+            ]
+        },
+        "annotations": {
+            "title": "Show Sso Connection Tool"
+        },
+        "outputSchema": {
+            "properties": {
+                "data": {
+                    "properties": {
+                        "slug": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "protocol": {
+                            "enum": [
+                                "oidc",
+                                "saml",
+                                "azure"
+                            ],
+                            "type": "string"
+                        },
+                        "organization": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "settings": {
+                            "description": "The non-secret settings: issuer, tenant, client_id, metadata_url, entity_id, sso_url.",
+                            "type": "object"
+                        },
+                        "client_secret": {
+                            "description": "\"set\" when a client secret is stored.",
+                            "enum": [
+                                "set",
+                                null
+                            ],
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "certificate": {
+                            "description": "\"set\" when a certificate is stored.",
+                            "enum": [
+                                "set",
+                                null
+                            ],
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "jit": {
+                            "type": "boolean"
+                        },
+                        "enforced": {
+                            "type": "boolean"
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "sign_in_url": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "callback_url": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "metadata_url": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "identities_count": {
+                            "description": "When counted.",
+                            "type": "integer"
+                        },
+                        "created_at": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    "type": "object",
+                    "required": [
+                        "slug",
+                        "name",
+                        "protocol",
+                        "organization",
+                        "settings",
+                        "client_secret",
+                        "certificate",
+                        "jit",
+                        "enforced",
+                        "enabled",
+                        "sign_in_url",
+                        "callback_url",
+                        "metadata_url",
+                        "created_at"
+                    ]
+                }
+            },
+            "type": "object",
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "RefactorCircus\\Roster\\Domains\\Sso\\Mcp\\Tools\\CreateSsoConnectionTool": {
+        "name": "create-sso-connection-tool",
+        "title": "Create Sso Connection Tool",
+        "description": "Connect an organization to its identity provider. protocol is oidc (issuer, client_id, client_secret), azure for Microsoft Entra ID (tenant, client_id, client_secret) or saml (metadata_url, or entity_id + sso_url + certificate). Returns the callback URL to register at the provider.",
+        "inputSchema": {
+            "properties": {
+                "organization": {
+                    "description": "The organization slug.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Display name, e.g. Okta.",
+                    "type": "string"
+                },
+                "slug": {
+                    "description": "URL identifier. Omit to generate one.",
+                    "type": "string"
+                },
+                "protocol": {
+                    "description": "oidc, azure or saml.",
+                    "type": "string"
+                },
+                "issuer": {
+                    "description": "OIDC: the issuer URL (https), e.g. https://example.okta.com.",
+                    "type": "string"
+                },
+                "tenant": {
+                    "description": "Microsoft Entra ID: the tenant ID or verified domain. common/organizations/consumers are refused.",
+                    "type": "string"
+                },
+                "client_id": {
+                    "description": "OIDC / Entra ID: the application (client) id.",
+                    "type": "string"
+                },
+                "client_secret": {
+                    "description": "OIDC / Entra ID: the client secret. Never returned; omit on update to keep it.",
+                    "type": "string"
+                },
+                "metadata_url": {
+                    "description": "SAML: the identity provider metadata URL (preferred).",
+                    "type": "string"
+                },
+                "entity_id": {
+                    "description": "SAML without metadata: the IdP entity ID.",
+                    "type": "string"
+                },
+                "sso_url": {
+                    "description": "SAML without metadata: the IdP single sign-on URL.",
+                    "type": "string"
+                },
+                "certificate": {
+                    "description": "SAML without metadata: the IdP x509 signing certificate.",
+                    "type": "string"
+                },
+                "jit": {
+                    "description": "Create accounts on first sign-in for the organization's domains. Defaults to true.",
+                    "type": "boolean"
+                },
+                "enforced": {
+                    "description": "Require SSO for the organization's domains. Defaults to false.",
+                    "type": "boolean"
+                },
+                "enabled": {
+                    "description": "Defaults to true.",
+                    "type": "boolean"
+                }
+            },
+            "type": "object",
+            "required": [
+                "organization",
+                "name",
+                "protocol"
+            ]
+        },
+        "annotations": {
+            "title": "Create Sso Connection Tool"
+        },
+        "outputSchema": {
+            "properties": {
+                "data": {
+                    "properties": {
+                        "slug": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "protocol": {
+                            "enum": [
+                                "oidc",
+                                "saml",
+                                "azure"
+                            ],
+                            "type": "string"
+                        },
+                        "organization": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "settings": {
+                            "description": "The non-secret settings: issuer, tenant, client_id, metadata_url, entity_id, sso_url.",
+                            "type": "object"
+                        },
+                        "client_secret": {
+                            "description": "\"set\" when a client secret is stored.",
+                            "enum": [
+                                "set",
+                                null
+                            ],
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "certificate": {
+                            "description": "\"set\" when a certificate is stored.",
+                            "enum": [
+                                "set",
+                                null
+                            ],
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "jit": {
+                            "type": "boolean"
+                        },
+                        "enforced": {
+                            "type": "boolean"
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "sign_in_url": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "callback_url": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "metadata_url": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "identities_count": {
+                            "description": "When counted.",
+                            "type": "integer"
+                        },
+                        "created_at": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    "type": "object",
+                    "required": [
+                        "slug",
+                        "name",
+                        "protocol",
+                        "organization",
+                        "settings",
+                        "client_secret",
+                        "certificate",
+                        "jit",
+                        "enforced",
+                        "enabled",
+                        "sign_in_url",
+                        "callback_url",
+                        "metadata_url",
+                        "created_at"
+                    ]
+                }
+            },
+            "type": "object",
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "RefactorCircus\\Roster\\Domains\\Sso\\Mcp\\Tools\\UpdateSsoConnectionTool": {
+        "name": "update-sso-connection-tool",
+        "title": "Update Sso Connection Tool",
+        "description": "Change an SSO connection. The protocol cannot change; omit client_secret to keep it.",
+        "inputSchema": {
+            "properties": {
+                "connection": {
+                    "description": "The connection slug.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Display name.",
+                    "type": "string"
+                },
+                "slug": {
+                    "description": "New URL identifier.",
+                    "type": "string"
+                },
+                "issuer": {
+                    "description": "OIDC: the issuer URL (https), e.g. https://example.okta.com.",
+                    "type": "string"
+                },
+                "tenant": {
+                    "description": "Microsoft Entra ID: the tenant ID or verified domain. common/organizations/consumers are refused.",
+                    "type": "string"
+                },
+                "client_id": {
+                    "description": "OIDC / Entra ID: the application (client) id.",
+                    "type": "string"
+                },
+                "client_secret": {
+                    "description": "OIDC / Entra ID: the client secret. Never returned; omit on update to keep it.",
+                    "type": "string"
+                },
+                "metadata_url": {
+                    "description": "SAML: the identity provider metadata URL (preferred).",
+                    "type": "string"
+                },
+                "entity_id": {
+                    "description": "SAML without metadata: the IdP entity ID.",
+                    "type": "string"
+                },
+                "sso_url": {
+                    "description": "SAML without metadata: the IdP single sign-on URL.",
+                    "type": "string"
+                },
+                "certificate": {
+                    "description": "SAML without metadata: the IdP x509 signing certificate.",
+                    "type": "string"
+                },
+                "jit": {
+                    "description": "Create accounts on first sign-in for the organization's domains. Defaults to true.",
+                    "type": "boolean"
+                },
+                "enforced": {
+                    "description": "Require SSO for the organization's domains. Defaults to false.",
+                    "type": "boolean"
+                },
+                "enabled": {
+                    "description": "Defaults to true.",
+                    "type": "boolean"
+                }
+            },
+            "type": "object",
+            "required": [
+                "connection"
+            ]
+        },
+        "annotations": {
+            "title": "Update Sso Connection Tool"
+        },
+        "outputSchema": {
+            "properties": {
+                "data": {
+                    "properties": {
+                        "slug": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "protocol": {
+                            "enum": [
+                                "oidc",
+                                "saml",
+                                "azure"
+                            ],
+                            "type": "string"
+                        },
+                        "organization": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "settings": {
+                            "description": "The non-secret settings: issuer, tenant, client_id, metadata_url, entity_id, sso_url.",
+                            "type": "object"
+                        },
+                        "client_secret": {
+                            "description": "\"set\" when a client secret is stored.",
+                            "enum": [
+                                "set",
+                                null
+                            ],
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "certificate": {
+                            "description": "\"set\" when a certificate is stored.",
+                            "enum": [
+                                "set",
+                                null
+                            ],
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "jit": {
+                            "type": "boolean"
+                        },
+                        "enforced": {
+                            "type": "boolean"
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "sign_in_url": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "callback_url": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "metadata_url": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "identities_count": {
+                            "description": "When counted.",
+                            "type": "integer"
+                        },
+                        "created_at": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    "type": "object",
+                    "required": [
+                        "slug",
+                        "name",
+                        "protocol",
+                        "organization",
+                        "settings",
+                        "client_secret",
+                        "certificate",
+                        "jit",
+                        "enforced",
+                        "enabled",
+                        "sign_in_url",
+                        "callback_url",
+                        "metadata_url",
+                        "created_at"
+                    ]
+                }
+            },
+            "type": "object",
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "RefactorCircus\\Roster\\Domains\\Sso\\Mcp\\Tools\\DeleteSsoConnectionTool": {
+        "name": "delete-sso-connection-tool",
+        "title": "Delete Sso Connection Tool",
+        "description": "Delete an SSO connection and its linked identities. Accounts stay.",
+        "inputSchema": {
+            "properties": {
+                "connection": {
+                    "description": "The connection slug.",
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "required": [
+                "connection"
+            ]
+        },
+        "annotations": {
+            "title": "Delete Sso Connection Tool"
+        }
+    },
+    "RefactorCircus\\Roster\\Domains\\Sso\\Mcp\\Tools\\ListSsoIdentitiesTool": {
+        "name": "list-sso-identities-tool",
+        "title": "List Sso Identities Tool",
+        "description": "List the identity-provider accounts linked to a user.",
+        "inputSchema": {
+            "properties": {
+                "user": {
+                    "description": "The user id, as returned in the `id` field of list-users-tool.",
+                    "type": "string"
+                },
+                "per_page": {
+                    "description": "Results per page, 1-100. Defaults to 25.",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "type": "integer"
+                },
+                "page": {
+                    "description": "Page number, from 1.",
+                    "minimum": 1,
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "required": [
+                "user"
+            ]
+        },
+        "annotations": {
+            "title": "List Sso Identities Tool"
+        },
+        "outputSchema": {
+            "properties": {
+                "data": {
+                    "items": {
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "connection": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "organization": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "user": {
+                                "properties": {
+                                    "id": {
+                                        "description": "The user's route key.",
+                                        "type": [
+                                            "integer",
+                                            "string"
+                                        ]
+                                    },
+                                    "name": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "email": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    }
+                                },
+                                "type": [
+                                    "object",
+                                    "null"
+                                ],
+                                "required": [
+                                    "id",
+                                    "name",
+                                    "email"
+                                ]
+                            },
+                            "subject": {
+                                "type": "string"
+                            },
+                            "email": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "last_login_at": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "linked_at": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "type": "object",
+                        "required": [
+                            "id",
+                            "connection",
+                            "organization",
+                            "user",
+                            "subject",
+                            "email",
+                            "last_login_at",
+                            "linked_at"
+                        ]
+                    },
+                    "type": "array"
+                },
+                "meta": {
+                    "description": "The page this answer holds.",
+                    "properties": {
+                        "current_page": {
+                            "type": "integer"
+                        },
+                        "last_page": {
+                            "type": "integer"
+                        },
+                        "per_page": {
+                            "type": "integer"
+                        },
+                        "total": {
+                            "type": "integer"
+                        }
+                    },
+                    "type": "object",
+                    "required": [
+                        "current_page",
+                        "last_page",
+                        "per_page",
+                        "total"
+                    ]
+                }
+            },
+            "type": "object",
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "RefactorCircus\\Roster\\Domains\\Sso\\Mcp\\Tools\\UnlinkSsoIdentityTool": {
+        "name": "unlink-sso-identity-tool",
+        "title": "Unlink Sso Identity Tool",
+        "description": "Unlink an identity-provider account from its user. Users may unlink their own.",
+        "inputSchema": {
+            "properties": {
+                "identity": {
+                    "description": "The identity id.",
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "required": [
+                "identity"
+            ]
+        },
+        "annotations": {
+            "title": "Unlink Sso Identity Tool"
+        }
+    },
+    "RefactorCircus\\Roster\\Domains\\Scim\\Mcp\\Tools\\ListScimTokensTool": {
+        "name": "list-scim-tokens-tool",
+        "title": "List Scim Tokens Tool",
+        "description": "List an organization's SCIM provisioning tokens (never the token values) with when each was last used.",
+        "inputSchema": {
+            "properties": {
+                "organization": {
+                    "description": "The organization slug.",
+                    "type": "string"
+                },
+                "per_page": {
+                    "description": "Results per page, 1-100. Defaults to 25.",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "type": "integer"
+                },
+                "page": {
+                    "description": "Page number, from 1.",
+                    "minimum": 1,
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "required": [
+                "organization"
+            ]
+        },
+        "annotations": {
+            "title": "List Scim Tokens Tool"
+        },
+        "outputSchema": {
+            "properties": {
+                "data": {
+                    "items": {
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "organization": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "sso_connection": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "base_url": {
+                                "description": "The SCIM base URL to give the identity provider.",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "usable": {
+                                "type": "boolean"
+                            },
+                            "last_used_at": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "expires_at": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "revoked_at": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "created_at": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "type": "object",
+                        "required": [
+                            "id",
+                            "name",
+                            "organization",
+                            "sso_connection",
+                            "base_url",
+                            "usable",
+                            "last_used_at",
+                            "expires_at",
+                            "revoked_at",
+                            "created_at"
+                        ]
+                    },
+                    "type": "array"
+                },
+                "meta": {
+                    "description": "The page this answer holds.",
+                    "properties": {
+                        "current_page": {
+                            "type": "integer"
+                        },
+                        "last_page": {
+                            "type": "integer"
+                        },
+                        "per_page": {
+                            "type": "integer"
+                        },
+                        "total": {
+                            "type": "integer"
+                        }
+                    },
+                    "type": "object",
+                    "required": [
+                        "current_page",
+                        "last_page",
+                        "per_page",
+                        "total"
+                    ]
+                }
+            },
+            "type": "object",
+            "required": [
+                "data"
+            ]
+        }
+    },
+    "RefactorCircus\\Roster\\Domains\\Scim\\Mcp\\Tools\\CreateScimTokenTool": {
+        "name": "create-scim-token-tool",
+        "title": "Create Scim Token Tool",
+        "description": "Issue a SCIM token for an identity provider to provision the organization. The token is returned once; hand it to the operator configuring the identity provider, along with base_url.",
+        "inputSchema": {
+            "properties": {
+                "organization": {
+                    "description": "The organization slug.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "What uses it, e.g. Okta provisioning.",
+                    "type": "string"
+                },
+                "expires_in_days": {
+                    "description": "Expire after this many days. Omit for no expiry.",
+                    "minimum": 1,
+                    "type": "integer"
+                },
+                "sso_connection": {
+                    "description": "An SSO connection slug: provisioned users' externalIds become its SSO subjects.",
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "required": [
+                "organization",
+                "name"
+            ]
+        },
+        "annotations": {
+            "title": "Create Scim Token Tool"
+        },
+        "outputSchema": {
+            "properties": {
+                "data": {
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "organization": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "sso_connection": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "base_url": {
+                            "description": "The SCIM base URL to give the identity provider.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "usable": {
+                            "type": "boolean"
+                        },
+                        "last_used_at": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "expires_at": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "revoked_at": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "created_at": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    "type": "object",
+                    "required": [
+                        "id",
+                        "name",
+                        "organization",
+                        "sso_connection",
+                        "base_url",
+                        "usable",
+                        "last_used_at",
+                        "expires_at",
+                        "revoked_at",
+                        "created_at"
+                    ]
+                },
+                "token": {
+                    "description": "The token itself. Shown only this once; give it to the identity provider.",
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "required": [
+                "data",
+                "token"
+            ]
+        }
+    },
+    "RefactorCircus\\Roster\\Domains\\Scim\\Mcp\\Tools\\RevokeScimTokenTool": {
+        "name": "revoke-scim-token-tool",
+        "title": "Revoke Scim Token Tool",
+        "description": "Revoke a SCIM token so it stops working immediately.",
+        "inputSchema": {
+            "properties": {
+                "token": {
+                    "description": "The token id (not its value).",
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "required": [
+                "token"
+            ]
+        },
+        "annotations": {
+            "title": "Revoke Scim Token Tool"
+        },
+        "outputSchema": {
+            "properties": {
+                "data": {
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "organization": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "sso_connection": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "base_url": {
+                            "description": "The SCIM base URL to give the identity provider.",
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "usable": {
+                            "type": "boolean"
+                        },
+                        "last_used_at": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "expires_at": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "revoked_at": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "created_at": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    "type": "object",
+                    "required": [
+                        "id",
+                        "name",
+                        "organization",
+                        "sso_connection",
+                        "base_url",
+                        "usable",
+                        "last_used_at",
+                        "expires_at",
+                        "revoked_at",
+                        "created_at"
+                    ]
+                }
+            },
+            "type": "object",
+            "required": [
+                "data"
+            ]
+        }
+    }
+}

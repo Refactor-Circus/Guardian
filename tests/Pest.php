@@ -104,6 +104,25 @@ function organization(?User $owner = null, array $attributes = []): Organization
 }
 
 /**
+ * One of Roster's moved MCP tools as a client saw it at the pinned SHA
+ * (tests/moved-tests.json), captured once into tests/Fixtures because the
+ * Roster installed here may no longer ship it, with permission names written
+ * Guardian's way.
+ *
+ * @return array<string, mixed>
+ */
+function pinnedRosterTool(string $class): array
+{
+    /** @var array<string, array<string, mixed>> $tools */
+    $tools = json_decode((string) file_get_contents(__DIR__.'/Fixtures/roster-6b1833d/mcp-tools.json'), true, 512, JSON_THROW_ON_ERROR);
+
+    expect($tools)->toHaveKey($class);
+
+    /** @var array<string, mixed> */
+    return json_decode(str_replace(['roster.sso.', 'roster.scim.'], ['guardian.sso.', 'guardian.scim.'], (string) json_encode($tools[$class])), true);
+}
+
+/**
  * Actions deliberately left off a surface, with the reason.
  *
  * @var array<string, array<int, string>>

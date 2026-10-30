@@ -93,14 +93,13 @@ it('keeps Roster\'s SCIM defaults, throttled by Guardian\'s limiter', function (
         ->toBe(array_diff_key(CONFIG_ROSTER_SCIM, ['middleware' => true]));
 });
 
-it('matches the installed Roster while it still ships SSO and SCIM', function (): void {
-    $roster = require dirname(__DIR__, 2).'/vendor/refactor-circus/roster/config/roster.php';
+it('pins Roster\'s SSO and SCIM defaults as Roster shipped them at the pinned SHA', function (): void {
+    // config/roster.php at CONFIG_ROSTER_SHA, captured once: the Roster
+    // installed here may already have dropped both sections.
+    $roster = require dirname(__DIR__).'/Fixtures/roster-6b1833d/roster.php';
 
-    if (! isset($roster['sso'], $roster['scim'])) {
-        $this->markTestSkipped('The installed Roster no longer ships SSO and SCIM; the pinned values at '.CONFIG_ROSTER_SHA.' stand.');
-    }
-
-    expect($roster['sso'])->toBe(CONFIG_ROSTER_SSO, 'roster.sso differs from '.CONFIG_ROSTER_SHA)
+    expect(CONFIG_ROSTER_SHA)->toBe(json_decode((string) file_get_contents(dirname(__DIR__).'/moved-tests.json'), true)['sha'])
+        ->and($roster['sso'])->toBe(CONFIG_ROSTER_SSO, 'roster.sso differs from '.CONFIG_ROSTER_SHA)
         ->and($roster['scim'])->toBe(CONFIG_ROSTER_SCIM, 'roster.scim differs from '.CONFIG_ROSTER_SHA);
 });
 

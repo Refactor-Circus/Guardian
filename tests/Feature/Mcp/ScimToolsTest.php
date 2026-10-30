@@ -86,9 +86,8 @@ it('lists exactly the ten tools that moved from Roster', function (): void {
 });
 
 it('keeps each of the ten tools\' name, description and schemas from Roster', function (string $tool): void {
-    expect(scimToolDefinition($tool))->toBe(scimToolDefinition(rosterToolFor($tool)));
-})->with(GUARDIAN_TOOLS)
-    ->skip(fn (): bool => ! class_exists('RefactorCircus\\Roster\\Domains\\Scim\\Mcp\\Tools\\ListScimTokensTool'), 'The installed Roster no longer ships SSO and SCIM to compare with.');
+    expect(scimToolDefinition($tool))->toBe(pinnedRosterTool(rosterToolFor($tool)));
+})->with(GUARDIAN_TOOLS);
 
 it('declares an output schema on every SCIM tool, as each answers with structured content', function (string $tool): void {
     /** @var Tool $instance */

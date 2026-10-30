@@ -1,6 +1,8 @@
 # Release Notes
 
-## [Unreleased](https://github.com/refactor-circus/guardian/compare/v0.1.0...1.x)
+## [Unreleased](https://github.com/Refactor-Circus/Guardian/compare/v0.1.0...main)
+
+## [v0.1.0](https://github.com/Refactor-Circus/Guardian/commits/v0.1.0) - 2026-10-30
 
 ### Added
 
@@ -12,8 +14,3 @@
 ### Changed
 
 - Changed from Roster: OIDC sign-in links an existing account by email, or creates one just in time, only when the id_token's `email_verified` claim is `true`. Otherwise the sign-in is refused (reason `unverified_email`). Identities already linked, SAML and Microsoft Entra ID are unchanged.
-
-
-## [v0.1.0](https://github.com/refactor-circus/guardian/compare/...v0.1.0) - 202x-xx-xx
-
-Initial pre-release.

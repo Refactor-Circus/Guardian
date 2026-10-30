@@ -62,7 +62,7 @@ describe('composer.json', function (): void {
         expect($require)->toHaveKeys(['php', 'laravel/framework', 'refactor-circus/keystone'])
             ->and(array_keys($require))->toHaveCount(3)
             ->and($require['php'])->toBe('^8.5')
-            ->and($require['refactor-circus/keystone'])->toBe('dev-main')
+            ->and($require['refactor-circus/keystone'])->toBe('^0.1')
             ->and($require['laravel/framework'])->toBe(keenComposer()['require']['laravel/framework']);
     });
 
@@ -88,8 +88,8 @@ describe('composer.json', function (): void {
     it('develops against Roster, Atrium, Keen, Ringside, Standards, the SSO vendors and Keen\'s dev tools', function (): void {
         $requireDev = guardianComposer()['require-dev'];
 
-        foreach (['roster', 'atrium', 'keen', 'ringside', 'standards'] as $package) {
-            expect($requireDev['refactor-circus/'.$package] ?? null)->toBe('dev-main', 'refactor-circus/'.$package);
+        foreach (['roster' => '^0.1', 'atrium' => '^0.1', 'keen' => '^0.1', 'ringside' => 'dev-main', 'standards' => 'dev-main'] as $package => $constraint) {
+            expect($requireDev['refactor-circus/'.$package] ?? null)->toBe($constraint, 'refactor-circus/'.$package);
         }
 
         expect($requireDev)->toHaveKeys(array_keys(ROSTER_SSO_VENDOR_SUGGESTIONS));

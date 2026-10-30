@@ -10,9 +10,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use RefactorCircus\Guardian\Console\Commands\UpgradeFromRosterCommand;
 use RefactorCircus\Guardian\Domains\DomainServiceProvider;
+use RefactorCircus\Guardian\Exceptions\StrandedTablesException;
 use RefactorCircus\Guardian\Mcp\GuardianServer;
 use RefactorCircus\Guardian\Support\Integration;
+use RefactorCircus\Guardian\Upgrade\Handover;
+use RefactorCircus\Guardian\Upgrade\RosterUpgrade;
+use Throwable;
 use RefactorCircus\Keystone\Packages\Package;
 use RefactorCircus\Keystone\Support\PackageServiceProvider;
 
@@ -44,6 +49,7 @@ class GuardianServiceProvider extends PackageServiceProvider
 
         $this->app->singleton(Guardian::class);
         $this->app->singleton(Integration::class);
+        $this->app->singleton(Handover::class);
 
         // Before any provider boots, so the domain providers boot with the rest.
         $this->app->booting(function (): void {
@@ -93,6 +99,44 @@ class GuardianServiceProvider extends PackageServiceProvider
             $this->publishesMigrations([
                 __DIR__.'/../database/migrations' => database_path('migrations'),
             ], ['guardian', 'guardian-migrations']);
+
+            $this->commands([UpgradeFromRosterCommand::class]);
+        }
+
+        $this->app->booted(fn () => $this->reportStranded());
+    }
+
+    /**
+     * Once per boot, while Roster's tables still hold rows Guardian's lack
+     * (D-029): reported, never thrown, so the app keeps running. SSO
+     * enforcement stays off for those connections until the command runs.
+     */
+    private function reportStranded(): void
+    {
+        $stranded = $this->stranded();
+
+        if ($stranded !== []) {
+            report(StrandedTablesException::forTables($stranded));
+        }
+    }
+
+    /**
+     * Roster's tables still holding rows Guardian's lack. A database that
+     * cannot be asked (none configured yet, or down) has nothing to warn
+     * about: a warning must never stop the app from booting.
+     *
+     * @return list<string>
+     */
+    private function stranded(): array
+    {
+        if (! $this->app->make(Integration::class)->rosterInstalled()) {
+            return [];
+        }
+
+        try {
+            return $this->app->make(RosterUpgrade::class)->stranded();
+        } catch (Throwable) {
+            return [];
         }
     }
 
@@ -117,11 +161,18 @@ class GuardianServiceProvider extends PackageServiceProvider
 
     /**
      * Guardian's `php artisan about` section: whether it is active, and if
-     * not, what to install. Asked when the command runs.
+     * not, what to install; and Roster tables the upgrade has yet to move.
+     * Asked when the command runs.
      */
     private function registerAbout(): void
     {
-        AboutCommand::add('Guardian', fn (): array => ['Status' => $this->status()]);
+        AboutCommand::add('Guardian', function (): array {
+            $stranded = $this->stranded();
+
+            return ['Status' => $this->status()] + ($stranded === [] ? [] : [
+                'Upgrade' => 'Data left in '.StrandedTablesException::named($stranded).': run php artisan guardian:upgrade-from-roster',
+            ]);
+        });
     }
 
     private function status(): string

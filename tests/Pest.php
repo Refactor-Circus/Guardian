@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Laravel\Mcp\Server\Testing\TestResponse;
 use Laravel\Mcp\Server\Tool;
 use RefactorCircus\Guardian\Mcp\GuardianServer;
+use RefactorCircus\Guardian\Tests\HandoverPendingTestCase;
 use RefactorCircus\Guardian\Tests\Modes\SsoUnavailable\SsoUnavailableTestCase;
 use RefactorCircus\Guardian\Tests\RenamedTablesTestCase;
 use RefactorCircus\Guardian\Tests\StandaloneTestCase;
@@ -25,6 +26,7 @@ use Workbench\Database\Factories\UserFactory;
 uses(TestCase::class)->in('Feature');
 uses(RenamedTablesTestCase::class)->in('Modes/RenamedTables');
 uses(SsoUnavailableTestCase::class)->in('Modes/SsoUnavailable');
+uses(HandoverPendingTestCase::class)->in('Modes/HandoverPending');
 // Also run by the `standalone` CI job, with Roster, Atrium and Keen
 // uninstalled: nothing it loads may name them.
 uses(StandaloneTestCase::class)->in('Modes/Standalone');

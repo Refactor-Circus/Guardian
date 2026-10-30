@@ -129,3 +129,54 @@ jobs:
 
       - name: Standalone suite
         run: vendor/bin/pest tests/Modes/Standalone
+
+  # The upgrade renames Roster's tables, and DDL behaves differently on MySQL
+  # (no transactional DDL, foreign keys that must follow a rename): its
+  # rename and FK-survival cases run on MySQL 8 too (D-034).
+  mysql:
+    runs-on: ubuntu-latest
+
+    name: Upgrade on MySQL 8
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: testing
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -ppassword"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: testing
+      DB_USERNAME: root
+      DB_PASSWORD: password
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: 8.5
+          extensions: dom, curl, libxml, mbstring, zip, fileinfo, pdo_mysql, bcmath, intl, sockets
+          ini-values: error_reporting=E_ALL
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies
+        run: |
+          composer update --prefer-dist --no-interaction --no-progress --no-scripts
+          composer run prepare
+
+      - name: Upgrade suite on MySQL
+        run: vendor/bin/pest --group=upgrade-mysql

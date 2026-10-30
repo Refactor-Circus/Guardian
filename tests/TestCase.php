@@ -4,16 +4,26 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Guardian\Tests;
 
+use Illuminate\Support\Facades\Artisan;
 use Laravel\Mcp\Server\McpServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 use RefactorCircus\Atrium\AtriumServiceProvider;
 use RefactorCircus\Guardian\GuardianServiceProvider;
+use RefactorCircus\Guardian\Upgrade\Handover;
 use RefactorCircus\Roster\RosterServiceProvider;
 use Workbench\App\Models\User;
 
 /**
  * Guardian as an application installs it: with Roster and Atrium, on an
  * in-memory database migrated per test with foreign keys enforced.
+ *
+ * Roster here is the seams branch, which still ships its own SSO and SCIM.
+ * The suite runs Guardian as it will run once Roster has handed them over
+ * (`Handover` bound complete), with Roster's live routes moved out of the
+ * way (criterion 28). tests/Modes/HandoverPending runs the real Handover.
+ *
+ * The `mysql` CI job runs the `upgrade-mysql` group on MySQL 8: set
+ * DB_CONNECTION to use another of Testbench's connections.
  */
 abstract class TestCase extends Orchestra
 {
@@ -46,7 +56,7 @@ abstract class TestCase extends Orchestra
     protected function defineEnvironment($app): void
     {
         $app['config']->set('app.key', 'base64:'.base64_encode(str_repeat('a', 32)));
-        $app['config']->set('database.default', 'testing');
+        $app['config']->set('database.default', self::connection());
         $app['config']->set('database.connections.testing.foreign_key_constraints', true);
         $app['config']->set('cache.default', 'array');
         $app['config']->set('hashing.bcrypt.rounds', 4);
@@ -64,18 +74,59 @@ abstract class TestCase extends Orchestra
         // routes off Guardian's identical URIs (criterion 28).
         $app['config']->set('roster.sso.prefix', 'roster-legacy/sso');
         $app['config']->set('roster.scim.enabled', false);
+
+        $app->instance(Handover::class, new Handover(fn (string $class): bool => false));
+
+        // Roster's role-assignment unique key, named from its default table,
+        // is longer than MySQL's 64-character limit: a shorter table name
+        // keeps Roster's migrations running in the `mysql` CI job.
+        if (self::connection() === 'mysql') {
+            $app['config']->set('roster.tables.role_assignments', 'roster_grants');
+        }
     }
 
     /**
-     * Guardian's migrations run last, in a batch of their own, so a test can
-     * roll back just them.
+     * The database connection the suite runs on: Testbench's in-memory
+     * SQLite `testing` connection unless DB_CONNECTION names another.
+     */
+    protected static function connection(): string
+    {
+        $connection = getenv('DB_CONNECTION');
+
+        return is_string($connection) && $connection !== '' ? $connection : 'testing';
+    }
+
+    /**
+     * Guardian's create migrations run last, in a batch of their own, so a
+     * test can roll back just them.
+     *
+     * The upgrade migration is left out here: with the handover complete it
+     * would rename the empty SSO and SCIM tables the seams-branch Roster
+     * still creates. tests/Feature/Upgrade runs it on the states it handles,
+     * and tests/Modes/HandoverPending runs every migration.
      */
     protected function defineDatabaseMigrations(): void
     {
+        // A server database outlives the test: start each one empty.
+        if (self::connection() !== 'testing') {
+            Artisan::call('db:wipe', ['--force' => true]);
+        }
+
         $this->loadLaravelMigrations();
         $this->loadMigrationsFrom(dirname(__DIR__).'/vendor/refactor-circus/roster/database/migrations');
         $this->loadMigrationsFrom(dirname(__DIR__).'/vendor/refactor-circus/atrium/database/migrations');
-        $this->loadMigrationsFrom(dirname(__DIR__).'/database/migrations');
+        $this->loadMigrationsFrom(['--path' => $this->guardianMigrations()]);
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function guardianMigrations(): array
+    {
+        return array_values(array_filter(
+            (array) glob(dirname(__DIR__).'/database/migrations/*.php'),
+            fn (mixed $path): bool => is_string($path) && ! str_ends_with($path, '_upgrade_guardian_from_roster.php'),
+        ));
     }
 
     /**

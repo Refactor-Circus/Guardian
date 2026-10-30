@@ -7,9 +7,11 @@ namespace RefactorCircus\Guardian\Domains\Sso;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
+use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Guardian\Domains\Sso\Services\Sso;
 use RefactorCircus\Guardian\Domains\Sso\Services\SsoSignInRequirement;
 use RefactorCircus\Guardian\Domains\Sso\Support\SsoAudit;
+use RefactorCircus\Guardian\Upgrade\Handover;
 use RefactorCircus\Keystone\Audit\AuditHooks;
 use RefactorCircus\Keystone\Support\ServiceProvider;
 use RefactorCircus\Roster\Domains\Permission\Services\PermissionCatalogue;
@@ -25,6 +27,10 @@ use RefactorCircus\Roster\Roster;
  * connection policy from `guardian.policies`, and the sign-in requirement
  * that holds an enforced connection's domains to single sign-on. Its audit
  * entries get the subject and organization Roster gave them.
+ *
+ * The sign-in routes and the morph aliases for Roster's old class names wait
+ * for `Handover::complete()`: while Roster still ships SSO it serves the
+ * same URIs and owns those names (D-022, D-027, criterion 31).
  */
 class SsoServiceProvider extends ServiceProvider
 {
@@ -39,6 +45,17 @@ class SsoServiceProvider extends ServiceProvider
         $this->app->make(Roster::class)->requireSignIn(SsoSignInRequirement::class);
 
         $this->loadApiRoutesFrom(__DIR__.'/routes.php');
+
+        if (! $this->app->make(Handover::class)->complete()) {
+            return;
+        }
+
+        // Keen entries stored while Roster owned these models resolve to
+        // Guardian's (models/stored-identifiers).
+        $this->keepMorphAliases([
+            'RefactorCircus\\Roster\\Domains\\Sso\\Models\\SsoConnectionModel' => SsoConnectionModel::class,
+            'RefactorCircus\\Roster\\Domains\\Sso\\Models\\SsoIdentityModel' => SsoIdentityModel::class,
+        ]);
 
         if (! $this->app->make(Sso::class)->available()) {
             return;

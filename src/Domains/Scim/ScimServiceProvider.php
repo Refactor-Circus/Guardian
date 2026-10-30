@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace RefactorCircus\Guardian\Domains\Scim;
 
 use Illuminate\Contracts\Config\Repository;
+use RefactorCircus\Guardian\Domains\Scim\Models\ScimGroupModel;
 use RefactorCircus\Guardian\Domains\Scim\Models\ScimTokenModel;
+use RefactorCircus\Guardian\Domains\Scim\Models\ScimUserModel;
 use RefactorCircus\Guardian\Domains\Scim\Services\ScimContext;
 use RefactorCircus\Guardian\Domains\Scim\Support\ScimAudit;
+use RefactorCircus\Guardian\Upgrade\Handover;
 use RefactorCircus\Keystone\Audit\AuditHooks;
 use RefactorCircus\Keystone\Audit\Contracts\AuditTrail;
 use RefactorCircus\Keystone\Packages\PackageRegistry;
@@ -28,6 +31,10 @@ use Throwable;
  * source the members SCIM provisions join with. Its audit entries get the
  * organization Roster gave them, and Roster's entries the token a change
  * came through.
+ *
+ * The SCIM server routes and the morph aliases for Roster's old class names
+ * wait for `Handover::complete()`: while Roster still ships SCIM it serves
+ * the same URIs and owns those names (D-022, D-027, criterion 31).
  */
 class ScimServiceProvider extends ServiceProvider
 {
@@ -58,6 +65,18 @@ class ScimServiceProvider extends ServiceProvider
         });
 
         $this->loadApiRoutesFrom(__DIR__.'/routes.php');
+
+        if (! $this->app->make(Handover::class)->complete()) {
+            return;
+        }
+
+        // Keen entries stored while Roster owned these models resolve to
+        // Guardian's (models/stored-identifiers).
+        $this->keepMorphAliases([
+            'RefactorCircus\\Roster\\Domains\\Scim\\Models\\ScimTokenModel' => ScimTokenModel::class,
+            'RefactorCircus\\Roster\\Domains\\Scim\\Models\\ScimUserModel' => ScimUserModel::class,
+            'RefactorCircus\\Roster\\Domains\\Scim\\Models\\ScimGroupModel' => ScimGroupModel::class,
+        ]);
 
         if ($this->app->make(Repository::class)->get('guardian.scim.enabled') === true) {
             $this->loadRoutesFrom(__DIR__.'/scim.php');

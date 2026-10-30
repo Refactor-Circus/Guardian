@@ -1,0 +1,29 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * Criterion 27: the README and the Boost skill cover install, the vendors,
+ * config, permissions, Atrium placement, the API, MCP and the upgrade from
+ * Roster.
+ */
+
+it('covers what an installer needs', function (string $file): void {
+    $contents = (string) file_get_contents(dirname(__DIR__, 2).'/'.$file);
+
+    foreach (['guardian:upgrade-from-roster', 'atrium.screens', 'guardian.sso.manage', 'roster:sync-permissions', 'GUARDIAN_FORCE_ROLLBACK'] as $needle) {
+        expect($contents)->toContain($needle);
+    }
+
+    foreach (['Upgrading from Roster', 'Permissions', 'MCP'] as $heading) {
+        expect(preg_match('/^#+ '.preg_quote($heading, '/').'$/m', $contents))->toBe(1, "{$file} has no \"{$heading}\" heading");
+    }
+})->with(['README.md', 'resources/boost/skills/guardian/SKILL.md']);
+
+it('says Guardian is inactive without Roster, and keeps the roster/sso prefix', function (string $file): void {
+    $contents = (string) file_get_contents(dirname(__DIR__, 2).'/'.$file);
+
+    expect($contents)->toContain('Inactive: install refactor-circus/roster')
+        ->and($contents)->toContain('roster/sso')
+        ->and($contents)->toContain('socialiteproviders/saml2');
+})->with(['README.md', 'resources/boost/skills/guardian/SKILL.md']);

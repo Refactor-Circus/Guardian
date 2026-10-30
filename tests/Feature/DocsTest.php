@@ -20,10 +20,11 @@ it('covers what an installer needs', function (string $file): void {
     }
 })->with(['README.md', 'resources/boost/skills/guardian/SKILL.md']);
 
-it('says Guardian is inactive without Roster, and keeps the roster/sso prefix', function (string $file): void {
+it('says Guardian is inactive without Roster, keeps the roster/sso prefix, and that enforcement fails open in between', function (string $file): void {
     $contents = (string) file_get_contents(dirname(__DIR__, 2).'/'.$file);
 
     expect($contents)->toContain('Inactive: install refactor-circus/roster')
         ->and($contents)->toContain('roster/sso')
-        ->and($contents)->toContain('socialiteproviders/saml2');
+        ->and($contents)->toContain('socialiteproviders/saml2')
+        ->and($contents)->toContain('SSO enforcement fails open until Guardian is installed after Roster\'s removal');
 })->with(['README.md', 'resources/boost/skills/guardian/SKILL.md']);

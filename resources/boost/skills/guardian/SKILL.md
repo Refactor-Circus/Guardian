@@ -57,6 +57,7 @@ Use this skill when a Laravel application uses `refactor-circus/guardian`, the a
 ## Upgrading from Roster
 
 - Install Guardian, then upgrade Roster to the release without SSO and SCIM. Until Roster lets go, Guardian loads no sign-in or SCIM server routes and the upgrade changes nothing.
+- SSO enforcement fails open until Guardian is installed after Roster's removal: a Roster without SSO enforces nothing, so enforced domains can sign in with a password until Guardian is installed and the upgrade has run.
 - `php artisan guardian:upgrade-from-roster` renames the `roster_*` SSO and SCIM tables to `guardian_*` and the `roster.sso.*` / `roster.scim.*` permissions to `guardian.*`, keeping grants. It is idempotent and never deletes rows.
 - Rename published `roster.sso.*` / `roster.scim.*` config and env keys to `guardian.*` by hand: Guardian never reads the old keys. The command lists leftovers.
 - Audit entries move from package `roster` to `guardian`, with new event class names.

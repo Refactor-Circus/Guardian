@@ -56,6 +56,8 @@ Use this skill when a Laravel application uses `refactor-circus/guardian`, the a
 
 ## Upgrading from Roster
 
+- Changed from Roster: an OIDC sign-in links an account by email or creates one just in time only when the id_token's `email_verified` claim is `true`; otherwise it is refused with reason `unverified_email`. Identities already linked, SAML and Entra ID are unchanged.
+
 - Install Guardian, then upgrade Roster to the release without SSO and SCIM. Until Roster lets go, Guardian loads no sign-in or SCIM server routes and the upgrade changes nothing.
 - SSO enforcement fails open until Guardian is installed after Roster's removal: a Roster without SSO enforces nothing, so enforced domains can sign in with a password until Guardian is installed and the upgrade has run.
 - `php artisan guardian:upgrade-from-roster` renames the `roster_*` SSO and SCIM tables to `guardian_*` and the `roster.sso.*` / `roster.scim.*` permissions to `guardian.*`, keeping grants. It is idempotent and never deletes rows.

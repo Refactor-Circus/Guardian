@@ -10,7 +10,7 @@
     <a href="https://packagist.org/packages/refactor-circus/guardian"><img src="https://img.shields.io/packagist/dt/refactor-circus/guardian.svg?style=flat-square" alt="Total Downloads"></a>
 </p>
 
-Auth and security for the Refactor Circus suite: single sign-on (OIDC, SAML, Microsoft Entra ID) and SCIM 2.0 provisioning for [refactor-circus/roster](https://github.com/refactor-circus/roster)'s organizations, moved out of Roster with their behaviour unchanged.
+Auth and security for the Refactor Circus suite: single sign-on (OIDC, SAML, Microsoft Entra ID) and SCIM 2.0 provisioning for [refactor-circus/roster](https://github.com/refactor-circus/roster)'s organizations, moved out of Roster with their behaviour unchanged but for one hardening: OIDC sign-in needs a verified email (below).
 
 ## Installation
 
@@ -99,6 +99,8 @@ With `routes.enabled` on (add authentication middleware first), under `/guardian
 | DELETE | `scim-tokens/{token}` | `guardian.scim-tokens.destroy` |
 
 The sign-in routes (`guardian.sso.discover`, `start`, `callback`, `metadata`, `link`) live under `sso.prefix`.
+
+**Changed from Roster: OIDC needs a verified email.** An OIDC sign-in links an existing account by email, or creates one just in time, only when the id_token's `email_verified` claim is `true`. A false, missing or non-boolean claim refuses the sign-in ("Your identity provider has not verified this email address."), and the failed sign-in is recorded with the reason `unverified_email`. Roster trusted the email alone. Identities already linked keep signing in, and SAML and Microsoft Entra ID are unchanged. If your provider omits the claim, turn it on there (most send it with the `email` scope), or have users link their identity from their account.
 
 ## SCIM
 

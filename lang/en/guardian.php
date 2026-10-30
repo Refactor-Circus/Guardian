@@ -30,6 +30,7 @@ return [
     'sso_failed_disabled' => 'This sign-in method is turned off.',
     'sso_failed_inactive' => 'Your account is not active.',
     'sso_failed_untrusted_email' => 'Your identity provider cannot sign in this email address. Sign in another way and link it from your account.',
+    'sso_failed_unverified_email' => 'Your identity provider has not verified this email address. Verify it there, or sign in another way and link it from your account.',
     'sso_failed_no_account' => 'There is no account for this email yet. Ask for an invitation.',
     'sso_failed_invalid_response' => 'The identity provider\'s response could not be verified.',
     'sso_failed_pending' => 'Your account is awaiting approval. You will be able to sign in once it is approved.',

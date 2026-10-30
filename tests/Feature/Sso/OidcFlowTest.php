@@ -27,7 +27,7 @@ it('signs a user in end to end', function (): void {
         ->and($query['scope'])->toBe('openid email profile')
         ->and($query['redirect_uri'])->toBe(route('guardian.sso.callback', 'acme-sso'));
 
-    $this->idp->idToken = $this->idp->sign(['sub' => 'okta-1', 'email' => 'ada@acme.test', 'name' => 'Ada', 'nonce' => $query['nonce']]);
+    $this->idp->idToken = $this->idp->sign(['sub' => 'okta-1', 'email' => 'ada@acme.test', 'email_verified' => true, 'name' => 'Ada', 'nonce' => $query['nonce']]);
 
     $this->get(route('guardian.sso.callback', ['acme-sso', 'code' => 'c', 'state' => $query['state']]))->assertRedirect('/');
 
@@ -41,7 +41,7 @@ it('discovers the connection from an email domain', function (): void {
 
 it('refuses tokens that fail verification', function (string $case): void {
     $query = startOidc();
-    $claims = ['sub' => 'okta-1', 'email' => 'ada@acme.test', 'nonce' => $query['nonce']];
+    $claims = ['sub' => 'okta-1', 'email' => 'ada@acme.test', 'email_verified' => true, 'nonce' => $query['nonce']];
     $state = $query['state'];
 
     $this->idp->idToken = match ($case) {

@@ -28,3 +28,10 @@ it('says Guardian is inactive without Roster, keeps the roster/sso prefix, and t
         ->and($contents)->toContain('socialiteproviders/saml2')
         ->and($contents)->toContain('SSO enforcement fails open until Guardian is installed after Roster\'s removal');
 })->with(['README.md', 'resources/boost/skills/guardian/SKILL.md']);
+
+it('documents that OIDC needs a verified email, a change from Roster (D-039)', function (string $file): void {
+    $contents = (string) file_get_contents(dirname(__DIR__, 2).'/'.$file);
+
+    expect($contents)->toContain('email_verified')
+        ->and($contents)->toContain('Changed from Roster');
+})->with(['README.md', 'resources/boost/skills/guardian/SKILL.md', 'CHANGELOG.md']);

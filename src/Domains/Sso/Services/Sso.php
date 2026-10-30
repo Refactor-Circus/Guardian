@@ -97,6 +97,9 @@ class Sso
             email: $email === null ? null : strtolower($email),
             name: $user->getName(),
             raw: $raw,
+            // An OIDC provider may hand back an address it never checked:
+            // only a literal `true` lets it link or create an account (D-039).
+            emailVerified: $connection->protocol !== SsoConnectionModel::OIDC || ($raw['email_verified'] ?? null) === true,
         );
     }
 

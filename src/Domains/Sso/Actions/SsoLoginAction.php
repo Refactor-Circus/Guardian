@@ -42,7 +42,7 @@ final class SsoLoginAction extends Action
      *
      * In order: an identity already linked to this subject; else an account
      * with the same email, linked automatically only when the organization
-     * owns the email's domain; else a new account (just-in-time), under the
+     * owns the email's domain and the provider verified it (D-039); else a new account (just-in-time), under the
      * same domain rule, with the status the organization gives the accounts
      * it provisions (`Roster::provisionedStatus()`). The user ends up a member
      * of the organization.
@@ -125,6 +125,10 @@ final class SsoLoginAction extends Action
 
         if ($email === null || ! $connection->trusts($email)) {
             $this->fail('untrusted_email');
+        }
+
+        if (! $claims->emailVerified) {
+            $this->fail('unverified_email');
         }
 
         $existing = $this->users->findByEmail($email);

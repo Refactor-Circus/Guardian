@@ -151,3 +151,8 @@ Two salvaged commits (`ad29b12` with the moved source, `838f588` with the tests 
 - The ten-tool listing of criterion 26 is group 4's, once the SCIM tools exist. `SsoToolsTest` checks the seven SSO tools.
 - Criterion 10's re-check: Roster's migrations at the pinned SHA store role scope only as the `scope` enum column. No column holds a resource key, so the upgrade needs no resource-key step.
 - Cortex is not installed here, so `registerCortex()` runs as a no-op in tests. Keen tests it the same way.
+
+### Retry
+
+- Every group 3 task was already committed in `ad29b12`, `838f588` and `7283fc8`, and the working tree was clean. The retry changed no code.
+- Re-checked: the group's tests with `tests/Modes`, `tests/ArchTest.php`, `PackageShapeTest` and `ConfigTest` (197 passed, run file by file, not the whole suite), `composer lint:check` and `composer analyse` all pass. The criterion 9 boundary and criterion 10 grep tests scan the paths the spec names, and `PARITY_EXCEPTIONS` holds Roster's two entries plus the temporary "Atrium UI group" ones.

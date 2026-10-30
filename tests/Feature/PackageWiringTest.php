@@ -94,8 +94,11 @@ describe('composer.json', function (): void {
 
         expect($requireDev)->toHaveKeys(array_keys(ROSTER_SSO_VENDOR_SUGGESTIONS));
 
+        // laravel/mcp ^1.1: the tool snapshots carry the title annotation 1.1 added.
+        expect($requireDev['laravel/mcp'] ?? null)->toBe('^1.1');
+
         foreach (keenComposer()['require-dev'] as $package => $constraint) {
-            if (! str_starts_with($package, 'refactor-circus/')) {
+            if (! str_starts_with($package, 'refactor-circus/') && $package !== 'laravel/mcp') {
                 expect($requireDev[$package] ?? null)->toBe($constraint, $package);
             }
         }

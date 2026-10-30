@@ -1,0 +1,193 @@
+{
+    "source": "refactor-circus/roster",
+    "sha": "6b1833dae7ed21ba352612a13693d662bc7354cc",
+    "files": {
+        "tests/Feature/Sso/AzureFlowTest.php": {
+            "from": "tests/Feature/Sso/AzureFlowTest.php",
+            "tests": [
+                "signs in through Microsoft Entra ID using the tenant-specific authority",
+                "trusts the userPrincipalName, never the mail attribute",
+                "refuses multi-tenant authorities"
+            ]
+        },
+        "tests/Feature/Sso/OidcFlowTest.php": {
+            "from": "tests/Feature/Sso/OidcFlowTest.php",
+            "tests": [
+                "signs a user in end to end",
+                "discovers the connection from an email domain",
+                "refuses tokens that fail verification"
+            ]
+        },
+        "tests/Feature/Sso/SsoLoginActionTest.php": {
+            "from": "tests/Feature/Sso/SsoLoginActionTest.php",
+            "tests": [
+                "creates an account just in time for the organization's domains",
+                "matches returning users by subject, even after an email change",
+                "links an existing account on a trusted domain",
+                "refuses emails outside the organization's domains",
+                "records refused sign-ins",
+                "refuses new accounts when just-in-time is off",
+                "refuses inactive users and disabled connections",
+                "creates no duplicate users across logins",
+                "keeps a just-in-time account the organization wants approved, and refuses its sign-in until then"
+            ]
+        },
+        "tests/Feature/Sso/SsoWiringTest.php": {
+            "from": "tests/Feature/Sso/SsoWiringTest.php",
+            "tests": [
+                "maps SAML connections to the provider config and serves SP metadata",
+                "accepts the SAML assertion post without a CSRF token",
+                "links an identity to the signed-in account",
+                "enforces SSO for the organization's domains, except for super-admins",
+                "points the enforced sign-in at the connection's start page, in the same message",
+                "ignores connections that are not enforced or not enabled, and values that are not emails",
+                "registers SSO enforcement as a sign-in requirement",
+                "fails the password login closed when a sign-in requirement throws",
+                "keeps secrets encrypted, hidden and redacted",
+                "validates the settings each protocol needs"
+            ]
+        },
+        "tests/Feature/Http/SsoHttpTest.php": {
+            "from": "tests/Feature/Http/SsoHttpTest.php",
+            "tests": [
+                "manages connections over HTTP and MCP without exposing secrets",
+                "lists and unlinks identities"
+            ]
+        },
+        "tests/Modes/SsoUnavailable/SsoUnavailableTest.php": {
+            "from": "tests/Modes/SsoUnavailable/SsoUnavailableTest.php",
+            "tests": [
+                "registers no sign-in routes but still manages connections",
+                "explains which packages to install"
+            ]
+        },
+        "tests/Feature/Authorization/HttpAuthorizationTest.php": {
+            "from": "tests/Authorization/HttpAuthorizationTest.php",
+            "tests": [
+                "covers every guardian API route",
+                "rejects guests with 401",
+                "rejects users without the permission with 403",
+                "lets a super-admin through"
+            ]
+        },
+        "tests/Feature/Sso/SsoAuditTest.php": {
+            "from": "tests/Modes/Keen/KeenAuditTest.php",
+            "tests": [
+                "redacts connection secrets"
+            ]
+        },
+        "tests/Feature/Authorization/McpAuthorizationTest.php": {
+            "from": "tests/Authorization/McpAuthorizationTest.php",
+            "tests": [
+                "refuses every tool to guests and to users without the permission",
+                "lets a super-admin past authorization on every tool"
+            ]
+        },
+        "tests/Feature/Scim/ScimAuthTest.php": {
+            "from": "tests/Feature/Scim/ScimAuthTest.php",
+            "tests": [
+                "accepts a valid token and stamps its use",
+                "refuses missing, wrong, revoked, expired and other-organization tokens"
+            ]
+        },
+        "tests/Feature/Scim/ScimGroupsTest.php": {
+            "from": "tests/Feature/Scim/ScimGroupsTest.php",
+            "tests": [
+                "creates a group as a team with members",
+                "adds, removes and replaces members with PATCH",
+                "refuses members from outside the organization",
+                "deletes a group and its team"
+            ]
+        },
+        "tests/Feature/Scim/ScimProtocolTest.php": {
+            "from": "tests/Feature/Scim/ScimProtocolTest.php",
+            "tests": [
+                "rejects unsupported filters",
+                "pages with startIndex and count",
+                "honours ETags",
+                "runs bulk requests with bulkId references",
+                "stops bulk work after failOnErrors",
+                "limits bulk size",
+                "describes itself",
+                "matches eq filters exactly, even with LIKE wildcards in the value"
+            ]
+        },
+        "tests/Feature/Scim/ScimUsersTest.php": {
+            "from": "tests/Feature/Scim/ScimUsersTest.php",
+            "tests": [
+                "provisions a new member from Okta",
+                "gets, lists and filters users the way identity providers probe",
+                "never matches a different account through LIKE wildcards",
+                "links an existing account on the organization's domain",
+                "refuses emails outside the organization's domains",
+                "refuses duplicates",
+                "deprovisions with Okta's PATCH and restores",
+                "deprovisions with Entra's capitalised ops and string booleans",
+                "keeps accounts that belong to other organizations active",
+                "protects the organization's owner",
+                "replaces a user with PUT",
+                "patches names and emails by path",
+                "links the SSO identity from externalId when the token names a connection",
+                "writes nothing for a PATCH that only echoes the current view"
+            ]
+        },
+        "tests/Feature/Scim/ScimAuditContextTest.php": {
+            "from": "tests/Feature/Scim/ScimAuditContextTest.php",
+            "tests": [
+                "records the SCIM token a change came through, with the same shape",
+                "adds the SCIM token to Roster entries only, not to other packages' events",
+                "writes the entry without the SCIM token, and reports why, when the SCIM context throws",
+                "registers the SCIM audit context only while an audit log is available"
+            ]
+        },
+        "tests/Feature/Http/ScimTokensHttpTest.php": {
+            "from": "tests/Feature/Http/ScimTokensHttpTest.php",
+            "tests": [
+                "issues a token once, lists without it, and revokes"
+            ]
+        },
+        "tests/Feature/Scim/UserApprovalTest.php": {
+            "from": "tests/Feature/UserApprovalTest.php",
+            "tests": [
+                "lets organizations choose whether their SCIM accounts need approval"
+            ]
+        },
+        "tests/Feature/Scim/ProvisionedStatusTest.php": {
+            "from": "tests/Feature/ProvisionedStatusTest.php",
+            "tests": [
+                "provisions SCIM accounts through it, so a bad stored value never fails provisioning"
+            ]
+        },
+        "tests/Feature/Scim/ScimAuditTest.php": {
+            "from": "tests/Modes/Keen/KeenAuditTest.php",
+            "tests": [
+                "records SCIM changes with the token that made them, through the scim surface"
+            ]
+        },
+        "tests/Feature/Ui/SsoPagesTest.php": {
+            "from": "tests/Feature/Ui/SsoPagesTest.php",
+            "tests": [
+                "creates, edits and deletes a connection from the organization page",
+                "shows only the connection's own protocol settings when editing"
+            ]
+        },
+        "tests/Feature/Ui/ScimPagesTest.php": {
+            "from": "tests/Feature/Ui/ScimPagesTest.php",
+            "tests": [
+                "issues, shows once and revokes tokens from the organization page"
+            ]
+        },
+        "tests/Browser/SsoBrowserTest.php": {
+            "from": "tests/Browser/SsoBrowserTest.php",
+            "tests": [
+                "creates an Entra ID connection and shows its callback URL"
+            ]
+        },
+        "tests/Browser/ScimBrowserTest.php": {
+            "from": "tests/Browser/ScimBrowserTest.php",
+            "tests": [
+                "issues a SCIM token and shows it once"
+            ]
+        }
+    }
+}

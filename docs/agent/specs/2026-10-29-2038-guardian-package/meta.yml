@@ -1,6 +1,6 @@
 id: 2026-10-29-2038-guardian-package
 title: 'Guardian package'
-status: building
+status: in-review
 created: '2026-10-29 20:38'
 standards:
   refactor-circus/standards:
@@ -13,3 +13,10 @@ new_packages:
     features: [config, migrations, routes, views, translations, commands, facade]
     depends_on: [Keystone]   # suggests Roster, Atrium, laravel/mcp and the SSO vendors (Atrium D-018)
 review_passes: 1
+runs:
+  - workflow: ring-master-factory
+    run_id: wf_e98c383c-d71
+    result: approved
+    round: 2
+    date: '2026-10-30'
+pr: https://github.com/Refactor-Circus/Guardian/pull/1

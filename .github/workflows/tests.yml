@@ -19,15 +19,13 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        php: [8.3, 8.4, 8.5]
-        laravel: [12.*, 13.*]
+        php: [8.5]
+        laravel: [13.*]
         stability: [prefer-lowest, prefer-stable]
         include:
-          - laravel: 12.*
-            testbench: 10.*
           - laravel: 13.*
             testbench: 11.*
 
@@ -41,7 +39,7 @@ jobs:
         uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, fileinfo, sqlite, pdo_sqlite, bcmath, intl
+          extensions: dom, curl, libxml, mbstring, zip, fileinfo, sqlite, pdo_sqlite, bcmath, intl, sockets
           ini-values: error_reporting=E_ALL
           tools: composer:v2
           coverage: none
@@ -51,9 +49,29 @@ jobs:
           composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress --no-scripts
           composer run prepare
+          # The matrix pins above rewrote composer.json; PackageWiringTest reads the committed one.
+          git checkout -- composer.json
+
+      # The install skips scripts, so Ringside's plugin has not synced: the
+      # gitignored generated files are rebuilt here, and the committed ones
+      # (the AGENTS.md block, agent settings) must come out unchanged.
+      - name: Ring Master generated files
+        if: runner.os != 'Windows'
+        run: |
+          vendor/bin/ringside sync
+          git diff --exit-code -- AGENTS.md .agents docs/agent
+
+      - name: Ring Master check
+        if: runner.os != 'Windows'
+        run: vendor/bin/ringside check
 
       - name: PHPStan
+        if: runner.os != 'Windows'
         run: composer analyse
+
+      - name: PHPStan (Windows)
+        if: runner.os == 'Windows'
+        run: vendor/bin/phpstan analyse --configuration=phpstan.windows.neon --no-progress
 
       - name: Linter
         run: composer lint:check
@@ -66,6 +84,136 @@ jobs:
         if: runner.os != 'Windows'
         run: composer test:unit
 
+      # Bare `pest` would pick up the Browser suite, which needs Playwright.
+      # That is installed and run by the browser-tests workflow instead.
       - name: Test Suite (Windows)
         if: runner.os == 'Windows'
-        run: vendor/bin/pest
+        run: vendor/bin/pest --exclude-testsuite=Browser
+
+  # Guardian requires only Keystone: without Roster it must boot, say so in
+  # `php artisan about`, and register nothing else (criterion 7). Roster,
+  # Atrium and Keen are dev dependencies, so they are removed here first.
+  standalone:
+    runs-on: ubuntu-latest
+
+    name: Standalone (no Roster, Atrium or Keen)
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: 8.5
+          extensions: dom, curl, libxml, mbstring, zip, fileinfo, sqlite, pdo_sqlite, bcmath, intl, sockets
+          ini-values: error_reporting=E_ALL
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies without Roster, Atrium and Keen
+        run: |
+          composer remove --dev --no-update refactor-circus/roster refactor-circus/atrium refactor-circus/keen
+          composer update --prefer-dist --no-interaction --no-progress --no-scripts
+          composer run prepare
+
+      - name: Roster, Atrium and Keen are absent
+        run: |
+          php -r '
+            require "vendor/autoload.php";
+            foreach (["RefactorCircus\\Roster\\Roster", "RefactorCircus\\Atrium\\Atrium", "RefactorCircus\\Keen\\Keen"] as $class) {
+                if (class_exists($class)) {
+                    fwrite(STDERR, "{$class} is still installed.\n");
+                    exit(1);
+                }
+            }
+          '
+
+      - name: Standalone suite
+        run: vendor/bin/pest tests/Modes/Standalone
+
+  # Guardian runs without Atrium (criterion 30, D-020): the JSON API, MCP
+  # tools and the SSO and SCIM endpoints work, and nothing reaches Atrium.
+  # No other dev dependency requires Atrium (Roster and Keen only suggest
+  # it), so only Atrium is removed.
+  without-atrium:
+    runs-on: ubuntu-latest
+
+    name: Without Atrium
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: 8.5
+          extensions: dom, curl, libxml, mbstring, zip, fileinfo, sqlite, pdo_sqlite, bcmath, intl, sockets
+          ini-values: error_reporting=E_ALL
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies without Atrium
+        run: |
+          composer remove --dev --no-update refactor-circus/atrium
+          composer update --prefer-dist --no-interaction --no-progress --no-scripts
+          composer run prepare
+
+      - name: Atrium is not installed
+        run: |
+          php -r "require 'vendor/autoload.php'; exit(class_exists('RefactorCircus\\Atrium\\Atrium') ? 1 : 0);"
+
+      - name: Without-Atrium suite
+        run: composer test:without-atrium
+
+  # The upgrade renames Roster's tables, and DDL behaves differently on MySQL
+  # (no transactional DDL, foreign keys that must follow a rename): its
+  # rename and FK-survival cases run on MySQL 8 too (D-034).
+  mysql:
+    runs-on: ubuntu-latest
+
+    name: Upgrade on MySQL 8
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: testing
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -ppassword"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: testing
+      DB_USERNAME: root
+      DB_PASSWORD: password
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: 8.5
+          extensions: dom, curl, libxml, mbstring, zip, fileinfo, pdo_mysql, bcmath, intl, sockets
+          ini-values: error_reporting=E_ALL
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies
+        run: |
+          composer update --prefer-dist --no-interaction --no-progress --no-scripts
+          composer run prepare
+
+      - name: Upgrade suite on MySQL
+        run: vendor/bin/pest --group=upgrade-mysql

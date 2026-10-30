@@ -103,3 +103,33 @@ Earlier D-ids are recorded in shape.md.
 - Rationale: The user accepted the recommendation.
 - Date: 2026-10-29
 - Raised by: spec review; the user accepted all recommendations (2026-10-29)
+
+## D-037: Support\Integration has a third public method, rosterPresent(), and an injected method_exists check. Keep it?
+- Choice: Keep rosterPresent() public and the injected method check, and mark rosterPresent() @internal.
+- Rationale: The about line must tell "no Roster" from "Roster without the seams"; the Standalone test can only stub a seam-less Roster through the injected check.
+- Date: 2026-10-30
+- Raised by: build (group 2)
+
+## D-038: How does group 5 register GuardianPlugin, given Keystone's registerAtriumPlugin() needs guardian.ui.enabled?
+- Choice: Add 'ui' => ['enabled' => true] to config/guardian.php and call registerAtriumPlugin(GuardianPlugin::class) behind atriumInstalled().
+- Rationale: Same path as every other suite package.
+- Date: 2026-10-30
+- Raised by: build (group 2)
+
+## D-039: Should OIDC sign-in require the id_token email_verified claim before linking or JIT-creating by email?
+- Choice: Require email_verified=true for OIDC now, a deliberate behaviour change in Guardian's first release.
+- Rationale: The user chose to harden it now rather than keep Roster's behaviour.
+- Date: 2026-10-30
+- Raised by: review (security)
+
+## D-040: Which tables does each create migration's down() check before refusing a rollback?
+- Choice: Each migration checks only the tables it drops.
+- Rationale: Matches the spec wording; a targeted SSO rollback is no longer blocked by SCIM rows.
+- Date: 2026-10-30
+- Raised by: review (code)
+
+## D-041: Read actions (List*, ShowSsoConnection) dispatch event pairs, but actions-events says read actions have none. Keep them?
+- Choice: Keep the events.
+- Rationale: Keystone's Arch::actionEventGaps() requires the pair on every action, and Roster behaved the same; the departure is recorded in standards-feedback.md.
+- Date: 2026-10-30
+- Raised by: review (standards)

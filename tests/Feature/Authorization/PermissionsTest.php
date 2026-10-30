@@ -128,10 +128,13 @@ it('answers guardian.sso.manage through the connection policy, per organization'
 });
 
 it('names no roster.sso or roster.scim permission outside the upgrade', function (): void {
-    $root = dirname(__DIR__, 3);
+    $root = str_replace('\\', '/', dirname(__DIR__, 3));
     $offenders = [];
 
     foreach ([...phpFiles($root.'/src'), ...phpFiles($root.'/config'), ...phpFiles($root.'/resources')] as $file) {
+        // Forward slashes on Windows too, so the prefix below matches.
+        $file = str_replace('\\', '/', $file);
+
         if (str_starts_with($file, $root.'/src/Upgrade/')) {
             continue;
         }

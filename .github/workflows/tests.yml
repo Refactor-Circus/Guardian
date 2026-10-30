@@ -49,6 +49,8 @@ jobs:
           composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress --no-scripts
           composer run prepare
+          # The matrix pins above rewrote composer.json; PackageWiringTest reads the committed one.
+          git checkout -- composer.json
 
       # The install skips scripts, so Ringside's plugin has not synced: the
       # gitignored generated files are rebuilt here, and the committed ones

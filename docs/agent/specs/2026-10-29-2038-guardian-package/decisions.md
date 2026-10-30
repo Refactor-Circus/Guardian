@@ -115,3 +115,15 @@ Earlier D-ids are recorded in shape.md.
 - Rationale: Same path as every other suite package.
 - Date: 2026-10-30
 - Raised by: build (group 2)
+
+## D-039: Should OIDC sign-in require the id_token email_verified claim before linking or JIT-creating by email?
+- Choice: Require email_verified=true for OIDC now, a deliberate behaviour change in Guardian's first release.
+- Rationale: The user chose to harden it now rather than keep Roster's behaviour.
+- Date: 2026-10-30
+- Raised by: review (security)
+
+## D-040: Which tables does each create migration's down() check before refusing a rollback?
+- Choice: Each migration checks only the tables it drops.
+- Rationale: Matches the spec wording; a targeted SSO rollback is no longer blocked by SCIM rows.
+- Date: 2026-10-30
+- Raised by: review (code)

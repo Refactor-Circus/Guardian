@@ -92,3 +92,16 @@ criteria: 22, 23, 27, 28, 29, 31
 - [x] 6.7 Add tests/Modes/HandoverPending with HandoverPendingTestCase (real Handover) and the `mysql` CI job running vendor/bin/pest --group=upgrade-mysql against a MySQL 8 service.
 - [x] 6.8 Write README.md and resources/boost/skills/guardian/SKILL.md covering every item of criterion 27, including "Upgrading from Roster", "Permissions" and "MCP" headings and GUARDIAN_FORCE_ROLLBACK, plus a CHANGELOG.md entry.
 - [x] 6.9 Run composer test and vendor/bin/pest; all green.
+
+## Group 7: Review follow-ups
+package: Guardian
+depends on: 6
+files: src/Domains/Sso/**, src/Domains/Scim/**, src/Support/**, src/GuardianServiceProvider.php, database/migrations/2026_11_01_000001_create_guardian_sso_tables.php, database/migrations/2026_11_01_000002_create_guardian_scim_tables.php, tests/**, README.md, resources/boost/skills/guardian/SKILL.md, CHANGELOG.md, lang/en/guardian.php, docs/agent/standards-feedback.md
+criteria: 9, 21
+
+- [ ] 7.1 Write tests: OIDC login with email_verified false or missing is refused for both link-by-email and JIT creation and true still links (D-039); each create migration's down() refuses only on rows in the tables it drops (D-040); RosterBoundaryTest denies Roster Domains/*/Concerns, Support helpers and Domains/*/Resources; the guardian-views publish tag.
+- [ ] 7.2 Require email_verified=true in the OIDC path (Sso.php claims() / OidcProvider::user()) before linkOrCreate, with a SsoLoginRefused reason and lang string, and document the change from Roster in README, the Boost skill and CHANGELOG (D-039).
+- [ ] 7.3 Make each create migration's down() check only the tables it drops (D-040).
+- [ ] 7.4 Stop using Roster's ManagesMemberships trait, Support\CaseInsensitive and Domains\User\Resources\UserSummaryResource: reach memberships through Roster's public actions or seams and move the small helpers (case-insensitive where, user summary schema) into Guardian; extend RosterBoundaryTest accordingly.
+- [ ] 7.5 Add publishes() for resources/views tagged ['guardian', 'guardian-views'] behind runningInConsole(), and a standards-feedback row for registering DomainServiceProvider from a booting callback.
+- [ ] 7.6 Run composer test; all green.

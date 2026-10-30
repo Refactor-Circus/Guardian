@@ -346,3 +346,5 @@ Both are recorded in `docs/agent/standards-feedback.md` (workspace root) by the 
 
 - D-037: `Support\Integration` has three public methods: `rosterInstalled()`, `atriumInstalled()` and `rosterPresent()` (marked `@internal`), with injected class-exists and method-exists checks (amends criterion 7).
 - D-038: `config/guardian.php` gains `ui.enabled` (default `true`); `GuardianPlugin` registers through Keystone's `registerAtriumPlugin()` behind `atriumInstalled()` (amends criterion 6 and group 5).
+- D-039: OIDC sign-in refuses to link an existing account by email or create one just-in-time unless the id_token's `email_verified` claim is `true`; the refusal is a `SsoLoginRefused` with its own reason, documented in README and CHANGELOG as a change from Roster. SAML is unchanged.
+- D-040: each create migration's `down()` checks only the tables it drops (amends criterion 21).

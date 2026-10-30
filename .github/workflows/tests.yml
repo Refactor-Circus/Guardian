@@ -19,15 +19,13 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        php: [8.3, 8.4, 8.5]
-        laravel: [12.*, 13.*]
+        php: [8.5]
+        laravel: [13.*]
         stability: [prefer-lowest, prefer-stable]
         include:
-          - laravel: 12.*
-            testbench: 10.*
           - laravel: 13.*
             testbench: 11.*
 
@@ -41,7 +39,7 @@ jobs:
         uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, fileinfo, sqlite, pdo_sqlite, bcmath, intl
+          extensions: dom, curl, libxml, mbstring, zip, fileinfo, sqlite, pdo_sqlite, bcmath, intl, sockets
           ini-values: error_reporting=E_ALL
           tools: composer:v2
           coverage: none
@@ -52,8 +50,26 @@ jobs:
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress --no-scripts
           composer run prepare
 
+      # The install skips scripts, so Ringside's plugin has not synced: the
+      # gitignored generated files are rebuilt here, and the committed ones
+      # (the AGENTS.md block, agent settings) must come out unchanged.
+      - name: Ring Master generated files
+        if: runner.os != 'Windows'
+        run: |
+          vendor/bin/ringside sync
+          git diff --exit-code -- AGENTS.md .agents docs/agent
+
+      - name: Ring Master check
+        if: runner.os != 'Windows'
+        run: vendor/bin/ringside check
+
       - name: PHPStan
+        if: runner.os != 'Windows'
         run: composer analyse
+
+      - name: PHPStan (Windows)
+        if: runner.os == 'Windows'
+        run: vendor/bin/phpstan analyse --configuration=phpstan.windows.neon --no-progress
 
       - name: Linter
         run: composer lint:check
@@ -66,6 +82,8 @@ jobs:
         if: runner.os != 'Windows'
         run: composer test:unit
 
+      # Bare `pest` would pick up the Browser suite, which needs Playwright.
+      # That is installed and run by the browser-tests workflow instead.
       - name: Test Suite (Windows)
         if: runner.os == 'Windows'
-        run: vendor/bin/pest
+        run: vendor/bin/pest --exclude-testsuite=Browser

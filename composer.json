@@ -5,7 +5,9 @@
     "keywords": [
         "laravel",
         "refactor-circus",
-        "guardian"
+        "guardian",
+        "sso",
+        "scim"
     ],
     "homepage": "https://github.com/Refactor-Circus/Guardian",
     "license": "MIT",
@@ -22,16 +24,24 @@
         "laravel/framework": "^13.35"
     },
     "require-dev": {
+        "firebase/php-jwt": "^7.2.1",
         "larastan/larastan": "^3.13",
+        "laravel/mcp": "^1.0.1",
         "laravel/pao": "^1.1.5",
         "laravel/pint": "^1.32.1",
+        "laravel/socialite": "^5.31",
         "orchestra/testbench": "^11.3",
         "pestphp/pest": "^5.3.4",
         "pestphp/pest-plugin-laravel": "^5.0.1",
         "pestphp/pest-plugin-type-coverage": "^5.0.3",
         "phpstan/extension-installer": "^1.4.3",
+        "refactor-circus/atrium": "dev-main",
+        "refactor-circus/keen": "dev-main",
         "refactor-circus/ringside": "dev-main",
-        "refactor-circus/standards": "dev-main"
+        "refactor-circus/roster": "dev-main",
+        "refactor-circus/standards": "dev-main",
+        "socialiteproviders/microsoft-azure": "^5.2.1",
+        "socialiteproviders/saml2": "^4.10"
     },
     "autoload": {
         "psr-4": {
@@ -85,6 +95,16 @@
         ],
         "clear": [
             "@php vendor/bin/testbench package:purge-skeleton --ansi"
+        ],
+        "local:install": [
+            "@php bin/composer-local.php",
+            "@putenv COMPOSER=composer.local.json",
+            "@composer install"
+        ],
+        "local:update": [
+            "@php bin/composer-local.php",
+            "@putenv COMPOSER=composer.local.json",
+            "@composer update"
         ]
     },
     "extra": {
@@ -107,10 +127,34 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
+    "suggest": {
+        "refactor-circus/roster": "Required for SSO and SCIM: Guardian signs in and provisions Roster's users and organizations, and is inactive without it (dev-main).",
+        "refactor-circus/atrium": "Manage SSO connections and SCIM tokens from Roster's organization and user screens in Atrium (dev-main).",
+        "laravel/mcp": "Manage SSO connections and SCIM tokens from MCP clients and Cortex agents (^1.0).",
+        "laravel/socialite": "Required for SSO login (^5.31).",
+        "socialiteproviders/saml2": "Required for SAML SSO connections (^4.10).",
+        "firebase/php-jwt": "Required for OIDC SSO connections, to verify id_tokens (^7.2).",
+        "socialiteproviders/microsoft-azure": "Required for Microsoft Entra ID (Azure) SSO connections (^5.2)."
+    },
+    "conflict": {
+        "refactor-circus/atrium": "<0.1.0"
+    },
     "repositories": [
         {
             "type": "vcs",
             "url": "https://github.com/Refactor-Circus/Keystone.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/Refactor-Circus/Roster.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/Refactor-Circus/Atrium.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/Refactor-Circus/Keen.git"
         },
         {
             "type": "vcs",

@@ -1,8 +1,12 @@
-VERDICT: CHANGES
+VERDICT: PASS
 
-Standards review, round 1.
+Standards review, round 1 (re-run on the current diff). The earlier majors are fixed: the Roster-boundary classes were replaced or recorded in standards-feedback.md, views are publishable with the guardian and guardian-views tags, and the booting() registration of DomainServiceProvider has a feedback row.
 
-- major (architecture/dependencies, spec criterion 9): Guardian uses Roster classes outside the allowed list (seams plus models, actions and Data, Roster, Authorizer, Users, Statuses, UserKey, Tables). Roster Domains/Organization/Concerns/ManagesMemberships (SsoLoginAction, ScimUsers), Roster Support/CaseInsensitive (ScimQuery) and Roster Domains/User/Resources/UserSummaryResource (SsoIdentityResource) are Roster helpers or HTTP-layer classes. Fix: use Roster public actions/seams, or move the small helper logic into Guardian, and extend tests/Feature/RosterBoundaryTest.php to deny them.
-- minor (architecture/service-providers): views are loaded but not publishable. Add a publishes() group tagged guardian and guardian-views behind runningInConsole() in GuardianServiceProvider.
-- minor (architecture/service-providers, domain-modules): DomainServiceProvider is registered from a booting callback instead of register(). The spec needs the Integration check at boot, so keep it, but add a row to docs/agent/standards-feedback.md.
-- nit: SsoLoginRefused uses a public constructor instead of a forX() named constructor (exceptions). Uncast config reads in scim.php/Bulk.php (configuration).
+No finding at minor or above. The nits below start no round.
+
+- nit (errors/exceptions): Domains/Sso/Exceptions/SsoLoginRefused.php has a public constructor, not a forX() named constructor.
+- nit (architecture/configuration): Domains/Scim/Services/Bulk.php interpolates an uncast config('guardian.scim.bulk.max_payload_bytes') into the 413 message. The other reads cast.
+- nit (actions/actions-events): SsoWebController dispatches SsoLoginFailedActionEvent itself for an invalid provider response, outside the action. SsoLoginAction also has a third (failed) event beside the starting/finished pair.
+- nit (architecture/public-api): Domains/Sso/Services/Sso.php is not final. Make it final unless tests need to subclass it.
+
+Decision for the user: read actions (List*, ShowSsoConnection) dispatch event pairs, which actions-events.md says they should not. Keystone's Arch::actionEventGaps() requires a pair from every action, and Roster behaved the same. Recommend keeping them.

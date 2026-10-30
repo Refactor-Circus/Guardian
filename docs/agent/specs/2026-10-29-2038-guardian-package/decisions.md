@@ -127,3 +127,9 @@ Earlier D-ids are recorded in shape.md.
 - Rationale: Matches the spec wording; a targeted SSO rollback is no longer blocked by SCIM rows.
 - Date: 2026-10-30
 - Raised by: review (code)
+
+## D-041: Read actions (List*, ShowSsoConnection) dispatch event pairs, but actions-events says read actions have none. Keep them?
+- Choice: Keep the events.
+- Rationale: Keystone's Arch::actionEventGaps() requires the pair on every action, and Roster behaved the same; the departure is recorded in standards-feedback.md.
+- Date: 2026-10-30
+- Raised by: review (standards)

@@ -31,3 +31,7 @@ Wire the package into the suite (criteria 1 to 4).
 - "Actions are final" is written as a reflection filter over `Arch::domainClasses()` instead of Keen's `->classes()->toBeFinal()` on `domainNamespaces()`, so it passes on an empty `src/Domains`.
 - The Roster SSO vendor wording is pinned in the test as constants with the Roster SHA, not read from the installed Roster, because Roster `remove-sso-and-scim` drops those `suggest` entries.
 - `tests/Feature/ExampleTest.php` and the scaffold placeholders (`config/guardian.php` `placeholder`, `routes/guardian.php`, `GuardianCommand`, the placeholder migration and view) are left for group 2, which owns those files.
+
+### Retry
+
+- Every group 1 task was already committed in `aba413c`; the retry changed no code. Checked again in the job worktree: `composer lint:check` and `composer analyse` pass, `ringside check` passes, and `tests/Feature/PackageWiringTest.php` with `tests/ArchTest.php` pass (42 tests). `ring-master.yml` already has Keen's `commands` block, and `CLAUDE.md` is a symlink to `AGENTS.md`, as in Keen. `composer.local.json` still points Roster and Atrium at the two PR worktrees, aliased `dev-main`, and `composer local:install` was not run.

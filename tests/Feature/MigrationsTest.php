@@ -51,6 +51,16 @@ function rollBackGuardian(): array
     return $rolledBack;
 }
 
+function insertScimToken(OrganizationModel $organization): void
+{
+    DB::table('guardian_scim_tokens')->insert([
+        'id' => (string) Str::ulid(),
+        'organization_id' => $organization->id,
+        'name' => 'Okta',
+        'token_hash' => str_repeat('b', 64),
+    ]);
+}
+
 /**
  * @return array<int, string>
  */
@@ -132,7 +142,9 @@ it('refuses to roll back over rows, naming the tables that hold them', function 
     expect(fn () => rollBackGuardian())
         ->toThrow(GuardianException::class, 'guardian_sso_connections');
 
-    expect(guardianTablesPresent())->toBe(GUARDIAN_TABLES)
+    // D-040: the empty SCIM tables went with their own migration; the SSO
+    // migration refused and kept its tables and rows.
+    expect(guardianTablesPresent())->toBe(['guardian_sso_connections', 'guardian_sso_identities'])
         ->and(SsoConnectionModel::query()->count())->toBe(1);
 });
 
@@ -150,6 +162,41 @@ it('names only the tables that hold rows', function (): void {
     }
 
     $this->fail('The rollback dropped tables that hold rows.');
+});
+
+it('refuses the SCIM rollback over SCIM rows, before the SSO migration runs', function (): void {
+    insertScimToken(OrganizationModel::factory()->create());
+
+    expect(fn () => rollBackGuardian())
+        ->toThrow(GuardianException::class, '[guardian_scim_tokens]');
+
+    expect(guardianTablesPresent())->toBe(GUARDIAN_TABLES)
+        ->and(DB::table('guardian_scim_tokens')->count())->toBe(1);
+});
+
+it('checks only the tables each migration drops', function (): void {
+    $organization = OrganizationModel::factory()->create();
+    $sso = require guardianMigrations().'/2026_11_01_000001_create_guardian_sso_tables.php';
+    $scim = require guardianMigrations().'/2026_11_01_000002_create_guardian_scim_tables.php';
+
+    // SCIM rows do not hold back the SSO migration (D-040)...
+    insertScimToken($organization);
+    $sso->down();
+
+    expect(Schema::hasTable('guardian_sso_connections'))->toBeFalse()
+        ->and(Schema::hasTable('guardian_sso_identities'))->toBeFalse()
+        ->and(DB::table('guardian_scim_tokens')->count())->toBe(1);
+
+    // ...and SSO rows do not hold back the SCIM migration.
+    $sso->up();
+    DB::table('guardian_scim_tokens')->delete();
+    SsoConnectionModel::factory()->create(['organization_id' => $organization->id]);
+    $scim->down();
+
+    expect(Schema::hasTable('guardian_scim_tokens'))->toBeFalse()
+        ->and(Schema::hasTable('guardian_scim_users'))->toBeFalse()
+        ->and(Schema::hasTable('guardian_scim_groups'))->toBeFalse()
+        ->and(SsoConnectionModel::query()->count())->toBe(1);
 });
 
 it('drops tables with rows when guardian.migrations.force_rollback is on', function (): void {

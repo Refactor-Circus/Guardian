@@ -7,7 +7,7 @@
         "refactor-circus",
         "guardian"
     ],
-    "homepage": "https://github.com/refactor-circus/guardian",
+    "homepage": "https://github.com/Refactor-Circus/Guardian",
     "license": "MIT",
     "authors": [
         {
@@ -18,17 +18,20 @@
     ],
     "require": {
         "php": "^8.5",
-        "illuminate/support": "^12.0||^13.0"
+        "refactor-circus/keystone": "dev-main",
+        "laravel/framework": "^13.35"
     },
     "require-dev": {
-        "larastan/larastan": "^3.9",
-        "laravel/pint": "^1.29",
-        "laravel/pao": "^1.0",
-        "orchestra/testbench": "^10.0||^11.0",
-        "pestphp/pest": "^4.6||^5.0",
-        "pestphp/pest-plugin-laravel": "^4.1||^5.0",
-        "pestphp/pest-plugin-type-coverage": "^4.0||^5.0",
-        "phpstan/extension-installer": "^1.4"
+        "larastan/larastan": "^3.13",
+        "laravel/pao": "^1.1.5",
+        "laravel/pint": "^1.32.1",
+        "orchestra/testbench": "^11.3",
+        "pestphp/pest": "^5.3.4",
+        "pestphp/pest-plugin-laravel": "^5.0.1",
+        "pestphp/pest-plugin-type-coverage": "^5.0.3",
+        "phpstan/extension-installer": "^1.4.3",
+        "refactor-circus/ringside": "dev-main",
+        "refactor-circus/standards": "dev-main"
     },
     "autoload": {
         "psr-4": {
@@ -98,9 +101,24 @@
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "phpstan/extension-installer": true
+            "phpstan/extension-installer": true,
+            "refactor-circus/ringside": true
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/Refactor-Circus/Keystone.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/Refactor-Circus/Ringside.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/Refactor-Circus/Standards.git"
+        }
+    ]
 }

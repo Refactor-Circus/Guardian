@@ -1,0 +1,15 @@
+id: 2026-10-29-2038-guardian-package
+title: 'Guardian package'
+status: approved
+created: '2026-10-29 20:38'
+standards:
+  refactor-circus/standards:
+    version: dev-main
+    reference: a5b675396232
+new_packages:
+  - name: Guardian
+    type: laravel
+    description: Auth and security for the Refactor Circus suite, starting with SSO and SCIM extracted from Roster
+    features: [config, migrations, routes, views, translations, commands, facade]
+    depends_on: [Keystone]   # suggests Roster, Atrium, laravel/mcp and the SSO vendors (Atrium D-018)
+review_passes: 1

@@ -13,3 +13,5 @@ arch('it will not use dd(), ddd(), env(), or exit()')
 arch('the package source declares strict types')
     ->expect('RefactorCircus\Guardian')
     ->toUseStrictTypes();
+
+arch()->preset()->refactorCircus();

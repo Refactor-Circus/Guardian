@@ -9,3 +9,19 @@ composer.lock
 .DS_Store
 .idea
 .vscode
+composer.local.json
+composer.local.lock
+
+# ringside generated files
+/docs/agent/standards.index.yml
+/docs/agent/standards.summary.md
+/.claude/skills/ring-master-*/
+/.claude/agents/ring-master-*.md
+/.agents/skills/ring-master-*/
+/.agents/agents/ring-master-*.md
+
+# ringside generated files
+/docs/agent/specs/*/.*
+/docs/agent/specs/**/*.tmp.*
+/docs/agent/specs/*/*body*.md
+/docs/agent/specs/*/replay/

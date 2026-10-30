@@ -340,3 +340,9 @@ Both are recorded in `docs/agent/standards-feedback.md` (workspace root) by the 
 - D-034: criterion 22: SQLite in `composer test` plus a `mysql` CI lane for the rename and FK-survival cases.
 - D-035: section 6 and Risks: the Atrium UI group runs after Roster `adopt-atrium-screen-registry` merges; the stand-in option is dropped.
 - Review round 1 finding left open (CI resolution of Roster and Atrium branches): settled by D-035 and the build-time `composer.local.json` paths in criterion 2.
+
+
+## Addendum 2026-10-30
+
+- D-037: `Support\Integration` has three public methods: `rosterInstalled()`, `atriumInstalled()` and `rosterPresent()` (marked `@internal`), with injected class-exists and method-exists checks (amends criterion 7).
+- D-038: `config/guardian.php` gains `ui.enabled` (default `true`); `GuardianPlugin` registers through Keystone's `registerAtriumPlugin()` behind `atriumInstalled()` (amends criterion 6 and group 5).

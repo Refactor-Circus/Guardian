@@ -103,3 +103,15 @@ Earlier D-ids are recorded in shape.md.
 - Rationale: The user accepted the recommendation.
 - Date: 2026-10-29
 - Raised by: spec review; the user accepted all recommendations (2026-10-29)
+
+## D-037: Support\Integration has a third public method, rosterPresent(), and an injected method_exists check. Keep it?
+- Choice: Keep rosterPresent() public and the injected method check, and mark rosterPresent() @internal.
+- Rationale: The about line must tell "no Roster" from "Roster without the seams"; the Standalone test can only stub a seam-less Roster through the injected check.
+- Date: 2026-10-30
+- Raised by: build (group 2)
+
+## D-038: How does group 5 register GuardianPlugin, given Keystone's registerAtriumPlugin() needs guardian.ui.enabled?
+- Choice: Add 'ui' => ['enabled' => true] to config/guardian.php and call registerAtriumPlugin(GuardianPlugin::class) behind atriumInstalled().
+- Rationale: Same path as every other suite package.
+- Date: 2026-10-30
+- Raised by: build (group 2)

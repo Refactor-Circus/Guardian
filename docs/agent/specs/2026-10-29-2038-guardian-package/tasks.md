@@ -42,6 +42,7 @@ criteria: 8, 9, 10, 12, 13, 15, 24, 25, 26
 - [ ] 3.5 Load the SSO API routes through loadApiRoutesFrom() under guardian.routes with the guardian.* names of criterion 25, and the SSO web routes named guardian.sso.discover|start|callback|metadata|link under guardian.sso.prefix.
 - [ ] 3.6 Register the seven SSO tools on GuardianServer with Roster's names, descriptions and output schemas, and wire guardian.mcp.* web and local servers and Cortex as in Keen.
 - [ ] 3.7 Add the SSO parity exceptions (SsoLoginAction and LinkSsoIdentityAction for http and mcp with Roster's reasons) and temporary "Atrium UI group" UI exceptions for the SSO actions whose UI lands in group 5.
+- [ ] 3.7a Mark Support\Integration::rosterPresent() @internal (D-037) and amend the criterion 7 test if it counts public methods.
 - [ ] 3.8 Run vendor/bin/pest; all green.
 
 ## Group 4: SCIM domain with HTTP API and MCP
@@ -67,6 +68,7 @@ criteria: 8, 16, 17, 18, 19, 20, 24, 30
 > Starts only after Roster 2026-10-29-2038-adopt-atrium-screen-registry has merged (D-035); before starting, point the worktree's composer.local.json Roster path at a checkout holding both the seams and the adoption.
 
 - [ ] 5.1 Copy Roster's Ui/SsoPagesTest, Ui/ScimPagesTest and the SSO/SCIM browser tests from the pinned SHA with only the criterion 8 renames, and write the placement-by-config (including throw in testing, report-and-skip in production), tab, section, own-screen slot, back-link, styles and WithoutAtrium tests (criteria 8, 16 to 20, 30).
+- [ ] 5.1a Add 'ui' => ['enabled' => true] with its banner to config/guardian.php and its ConfigTest case, and register GuardianPlugin with registerAtriumPlugin() behind atriumInstalled() (D-038).
 - [ ] 5.2 Implement src/Atrium/Screens.php parsing atrium.screens into ScreenExtensions::tab() and section() calls, throwing InvalidArgumentException in local/testing and reporting once and skipping in other environments, and GuardianPlugin (key guardian, no nav items) registering them only when atriumInstalled() and rosterInstalled().
 - [ ] 5.3 Define the guardian.sso and guardian.scim TabDefinitions and the guardian.sso-identities aside SectionDefinition with the labels, icons, views, permissions, one-exists authorize and resolvers of criteria 17 and 18.
 - [ ] 5.4 Implement SsoUiController and ScimUiController with the seven atrium.guardian.* routes of criterion 19, and the guardian.sso-connection show page declaring Screen::standard('guardian.sso-connection', 'detail') with the Authorizer access closure, guardian.sso.view check before resolve() and the guardian.atrium.organization_route back link.

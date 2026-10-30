@@ -175,11 +175,16 @@ it('places the tabs and section on Roster\'s screens, and links back to the orga
     ]);
 });
 
+it('turns its Atrium screens on by default, as every suite package does (D-038)', function (): void {
+    expect(shippedGuardianConfig()['ui'])->toBe(['enabled' => true])
+        ->and(config('guardian.ui.enabled'))->toBeTrue();
+});
+
 it('has exactly the documented sections, each under a banner', function (): void {
     $source = (string) file_get_contents(dirname(__DIR__, 2).'/config/guardian.php');
 
     expect(array_keys(shippedGuardianConfig()))->toBe([
-        'sso', 'scim', 'routes', 'rate_limit', 'audit', 'policies', 'tables', 'mcp', 'cortex', 'migrations', 'atrium',
+        'sso', 'scim', 'routes', 'rate_limit', 'audit', 'policies', 'tables', 'mcp', 'cortex', 'migrations', 'ui', 'atrium',
     ])->and(substr_count($source, '|--------------------------------------------------------------------------'))
         ->toBe(2 * count(shippedGuardianConfig()));
 });

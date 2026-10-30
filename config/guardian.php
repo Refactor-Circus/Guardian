@@ -252,6 +252,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Atrium Screens
+    |--------------------------------------------------------------------------
+    |
+    | With refactor-circus/atrium installed, Guardian manages SSO connections
+    | and SCIM tokens from the Atrium dashboard: the tabs and section placed
+    | under Atrium below, and its own SSO connection page.
+    |
+    | enabled: Set to false to add nothing to Atrium. The JSON API, MCP tools
+    |          and the sign-in and SCIM endpoints keep working.
+    |
+    */
+
+    'ui' => [
+        'enabled' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Atrium
     |--------------------------------------------------------------------------
     |

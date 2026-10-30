@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 use Laravel\Mcp\Server\Testing\TestResponse;
 use Laravel\Mcp\Server\Tool;
+use RefactorCircus\Atrium\Testing\ResetsScreenExtensions;
 use RefactorCircus\Guardian\Mcp\GuardianServer;
+use RefactorCircus\Guardian\Tests\Browser\BrowserTestCase;
 use RefactorCircus\Guardian\Tests\HandoverPendingTestCase;
 use RefactorCircus\Guardian\Tests\Modes\SsoUnavailable\SsoUnavailableTestCase;
 use RefactorCircus\Guardian\Tests\RenamedTablesTestCase;
 use RefactorCircus\Guardian\Tests\StandaloneTestCase;
 use RefactorCircus\Guardian\Tests\TestCase;
+use RefactorCircus\Guardian\Tests\WithoutAtriumTestCase;
 use RefactorCircus\Keystone\Testing\McpTools;
 use RefactorCircus\Keystone\Testing\Parity;
 use RefactorCircus\Roster\Domains\Organization\Actions\CreateOrganizationAction;
@@ -23,13 +26,35 @@ use RefactorCircus\Standards\Pest\ArchPreset;
 use Workbench\App\Models\User;
 use Workbench\Database\Factories\UserFactory;
 
+// pest-plugin-browser removes its output directories with @rmdir() when it
+// boots. A missing directory raises a (suppressed) warning that failOnWarning
+// turns into a failed run, even with every test passing, so make sure each
+// one it removes exists; empty directories remove cleanly.
+foreach (['Traces', 'Screenshots', 'Screenshots/Sliders', 'Screenshots/ImageDiffView'] as $directory) {
+    if (! is_dir(__DIR__.'/Browser/'.$directory)) {
+        @mkdir(__DIR__.'/Browser/'.$directory, recursive: true);
+    }
+}
+
 uses(TestCase::class)->in('Feature');
+
+// Screen extensions live on Atrium's app-lifetime registry: whatever a test
+// registers is gone after it. Atrium is optional, so only while it is installed.
+if (trait_exists(ResetsScreenExtensions::class)) {
+    uses(ResetsScreenExtensions::class)->in('Feature', 'Browser');
+}
+
+// `composer test:browser` only: Playwright drives Atrium in a real browser.
+uses(BrowserTestCase::class)->in('Browser');
 uses(RenamedTablesTestCase::class)->in('Modes/RenamedTables');
 uses(SsoUnavailableTestCase::class)->in('Modes/SsoUnavailable');
 uses(HandoverPendingTestCase::class)->in('Modes/HandoverPending');
 // Also run by the `standalone` CI job, with Roster, Atrium and Keen
 // uninstalled: nothing it loads may name them.
 uses(StandaloneTestCase::class)->in('Modes/Standalone');
+// Also run by the `without-atrium` CI job, with Atrium uninstalled: nothing
+// it loads may name an Atrium class.
+uses(WithoutAtriumTestCase::class)->in('Modes/WithoutAtrium');
 
 ArchPreset::register();
 
@@ -88,18 +113,6 @@ const PARITY_EXCEPTIONS = [
     // identity provider; there is nothing for an API caller to send.
     'SsoLoginAction' => ['http', 'mcp'],
     'LinkSsoIdentityAction' => ['http', 'mcp'],
-    // Temporary, "Atrium UI group": their screens land with Guardian's
-    // Atrium plugin (task group 5), which removes these entries.
-    'ListSsoConnectionsAction' => ['ui'],
-    'ShowSsoConnectionAction' => ['ui'],
-    'CreateSsoConnectionAction' => ['ui'],
-    'UpdateSsoConnectionAction' => ['ui'],
-    'DeleteSsoConnectionAction' => ['ui'],
-    'ListSsoIdentitiesAction' => ['ui'],
-    'UnlinkSsoIdentityAction' => ['ui'],
-    'ListScimTokensAction' => ['ui'],
-    'CreateScimTokenAction' => ['ui'],
-    'RevokeScimTokenAction' => ['ui'],
 ];
 
 /**

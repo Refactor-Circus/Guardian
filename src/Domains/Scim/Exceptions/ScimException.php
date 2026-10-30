@@ -13,8 +13,13 @@ use RefactorCircus\Guardian\Exceptions\GuardianException;
  */
 final class ScimException extends GuardianException
 {
+    /**
+     * The HTTP status, readable by the Bulk runner. It widens the read side
+     * of Keystone's `protected int $status`, which a readonly property may
+     * not redeclare.
+     */
     public function __construct(
-        public readonly int $status,
+        public protected(set) int $status,
         string $detail,
         public readonly ?string $scimType = null,
     ) {

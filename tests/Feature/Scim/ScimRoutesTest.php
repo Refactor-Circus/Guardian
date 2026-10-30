@@ -85,6 +85,10 @@ it('serves no SCIM endpoint while guardian.scim.enabled is off', function (): vo
 
     $this->app->register(ScimServiceProvider::class, true);
 
+    // Routes named after they are added reach the name lookup on refresh,
+    // which the application does once it has booted.
+    Route::getRoutes()->refreshNameLookups();
+
     expect(Route::has('guardian.scim.users.index'))->toBeFalse()
         ->and(Route::has('guardian.organizations.scim-tokens.index'))->toBeTrue();
 });

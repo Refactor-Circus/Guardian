@@ -12,6 +12,7 @@ use RefactorCircus\Keystone\Audit\AuditHooks;
 use RefactorCircus\Keystone\Audit\Contracts\AuditTrail;
 use RefactorCircus\Keystone\Packages\PackageRegistry;
 use RefactorCircus\Keystone\Support\ServiceProvider;
+use RefactorCircus\Keystone\Support\Surface;
 use RefactorCircus\Roster\Domains\Organization\Services\MembershipSources;
 use RefactorCircus\Roster\Domains\Permission\Services\PermissionCatalogue;
 use RefactorCircus\Roster\Domains\Permission\Services\Resources;
@@ -34,6 +35,13 @@ class ScimServiceProvider extends ServiceProvider
     {
         // One per request (and per queued job or Octane request), never shared.
         $this->app->scoped(ScimContext::class);
+
+        // Calls to the SCIM server come through the `scim` surface, as they
+        // did in Roster. The shared surface is scoped, so name the prefix
+        // each time it is resolved.
+        $this->app->afterResolving(Surface::class, function (Surface $surface): void {
+            $surface->route('guardian.scim.', 'scim');
+        });
     }
 
     public function boot(): void

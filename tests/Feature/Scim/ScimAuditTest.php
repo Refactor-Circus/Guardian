@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use RefactorCircus\Guardian\Domains\Scim\Actions\CreateScimTokenAction;
 use RefactorCircus\Guardian\Domains\Scim\Data\CreateScimTokenData;
-use RefactorCircus\Guardian\Domains\Scim\Models\ScimUserModel;
 use RefactorCircus\Keen\Domains\Audit\Models\AuditEntryModel;
 use RefactorCircus\Keen\KeenServiceProvider;
 
@@ -72,18 +71,6 @@ it('records an issued token as Guardian\'s, about the token, in its organization
         ->and($entry->scope_type)->toBe($acme->getMorphClass())
         ->and($entry->scope_id)->toBe((string) $acme->getKey())
         ->and(json_encode($entry->toArray()))->not->toContain((string) $token->token_hash);
-});
-
-it('records a provisioned SCIM user as Guardian\'s, in the token\'s organization', function (): void {
-    [$acme, $this->scimToken] = scimOrg();
-
-    scim('POST', '/Users', oktaUser())->assertCreated();
-
-    $scimUser = ScimUserModel::query()->sole();
-    $entry = AuditEntryModel::query()->where('source', 'guardian')->where('subject_type', $scimUser->getMorphClass())->latest('id')->firstOrFail();
-
-    expect($entry->subject_id)->toBe((string) $scimUser->getKey())
-        ->and($entry->scope_id)->toBe((string) $acme->getKey());
 });
 
 it('records nothing of the SCIM domain\'s while guardian.audit.enabled is off', function (): void {

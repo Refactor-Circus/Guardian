@@ -156,3 +156,67 @@ Two salvaged commits (`ad29b12` with the moved source, `838f588` with the tests 
 
 - Every group 3 task was already committed in `ad29b12`, `838f588` and `7283fc8`, and the working tree was clean. The retry changed no code.
 - Re-checked: the group's tests with `tests/Modes`, `tests/ArchTest.php`, `PackageShapeTest` and `ConfigTest` (197 passed, run file by file, not the whole suite), `composer lint:check` and `composer analyse` all pass. The criterion 9 boundary and criterion 10 grep tests scan the paths the spec names, and `PARITY_EXCEPTIONS` holds Roster's two entries plus the temporary "Atrium UI group" ones.
+
+## Group 4
+
+SCIM domain with HTTP API and MCP (criteria 8, 10, 11, 13, 14, 15, 24, 25, 26).
+
+### What I found
+
+A salvaged commit (`e110b23`) held the moved source and tests. I diffed every file against Roster at `6b1833dae7ed21ba352612a13693d662bc7354cc`, then ran analysis and the group's tests. That turned up five problems, all fixed:
+
+- `ScimException` promoted `public readonly int $status` over Keystone `PackageException`'s `protected int $status`, which is a fatal redeclare (PHPStan `property.readOnly`). It is now `public protected(set) int $status`, which `Bulk` can still read.
+- SCIM audit entries had surface `http`, not `scim`. Roster named `roster.scim.` as the `scim` surface in `RosterServiceProvider::registerSurfaces()`. `ScimServiceProvider::register()` now names `guardian.scim.` the same way, through `afterResolving(Surface::class)`.
+- The ten-tool listing test read the server's entry points, which are ToolSearch's `search_tools` / `execute_tools`. It now browses the catalogue through `search_tools`, as a client does.
+- `ScimRoutesTest` "serves no SCIM endpoint while guardian.scim.enabled is off" re-registers the provider after boot, so it now calls `refreshNameLookups()` before asserting route names.
+- The salvaged "records a provisioned SCIM user as Guardian's" test asserted an entry with a `ScimUserModel` subject. Keen records only action events, and `ScimUsers` writes that model outside any Guardian action, so Roster never wrote that entry either. I removed the test. Criterion 15 is covered by the token-issued and disabled-audit cases.
+
+### Files
+
+- `src/Domains/Scim/**`: Roster's `Domains/Scim` at the pinned SHA, moved with the renames only, except:
+  - Actions extend Keystone's `Action` (`protected handle()`).
+  - `ScimException` extends `GuardianException`.
+  - `ScimOrganizationRequest` / `ScimOrganizationMcpRequest` replace Roster's `Organization` request bases, as group 3 did for SSO.
+  - Tools use Guardian's `Mcp\Concerns\DescribesOrganization`.
+  - Strings come from `guardian::guardian.*`.
+- `ScimServiceProvider`:
+  - binds `ScimContext` scoped and names the `scim` surface.
+  - registers the `guardian.scim` resource and the `guardian.scim.manage` permission through `Resources::resource()` / `PermissionCatalogue::permission()`, and `Support\ScimAudit` (organization scope for SCIM events).
+  - inside `booted()`, registers the `scim` membership source only when `has('scim')` is false. It also registers the audit context when `AuditTrail::available()`, filtered by `guardian.scim.audit_context_packages`, with try/catch and `report()`.
+  - loads the API routes through `loadApiRoutesFrom()`, and the SCIM server routes (`guardian.scim.*`, `guardian.scim.prefix`, `guardian.scim.middleware` with `throttle:guardian`) when `guardian.scim.enabled`.
+- `ScimUsers` already took `Roster::provisionedStatus()` and `join(..., 'scim')` at the seams SHA. It is unchanged apart from the renames.
+- `src/Mcp/GuardianServer.php`: the three SCIM tools appended to `TOOLS`.
+- `lang/en/guardian.php`: `scim_deprovisioned` and `unknown_sso_connection`, word for word from Roster.
+- `tests/Pest.php`: temporary "Atrium UI group" `ui` parity exceptions for `ListScimTokensAction`, `CreateScimTokenAction` and `RevokeScimTokenAction`.
+
+### Tests
+
+- Moved from Roster at the pinned SHA and recorded in `tests/moved-tests.json`:
+  - `tests/Feature/Scim/{ScimAuthTest,ScimGroupsTest,ScimProtocolTest,ScimUsersTest,ScimAuditContextTest,helpers}.php`
+  - `tests/Feature/Http/ScimTokensHttpTest.php`
+  - the SCIM cases of `Authorization/{HttpAuthorizationTest,McpAuthorizationTest,fixtures}`
+  - `Scim/UserApprovalTest` and `Scim/ProvisionedStatusTest` (the SCIM cases of Roster's `UserApprovalTest` / `ProvisionedStatusTest`)
+  - the SCIM case of `Modes/Keen/KeenAuditTest`, in `Scim/ScimAuditTest`
+
+  Diffed against the originals, the only changes are namespaces, route names, config keys and translation keys, except in `ScimAuditContextTest`:
+  - the Billing fixture events moved under `tests/Feature/Scim/Fixtures`.
+  - Keen's migrations are loaded.
+  - "registers the SCIM audit context only while Roster audits" became "only while an audit log is available", because criterion 14 gates on `AuditTrail::available()`, not on `roster.audit.enabled`.
+  - A case for `guardian.scim.audit_context_packages` was added.
+- New:
+  - `Scim/MembershipSourceTest`: stores and labels `scim`, registers it itself, and boots without throwing when `scim` is already registered (criterion 11).
+  - `Scim/ScimRoutesTest`: API and server route names, URIs and middleware, no API routes with `routes.enabled` off, no server routes with `scim.enabled` off (criterion 25).
+  - `Scim/ScimAuditTest`: the issued-token entry as `guardian` with the token as subject and its organization as scope, and nothing with `guardian.audit.enabled = false` (criterion 15).
+  - `Mcp/ScimToolsTest`: exactly ten tools in the catalogue, each name, description and schema equal to Roster's, output schemas on the SCIM tools, and MCP structured content equal to the HTTP payload (criterion 26).
+  - `Authorization/PermissionsTest`: SCIM cases for the resource, the permission, system rows held by a new admin, and the per-organization check (criterion 10).
+- Results:
+  - The group's files (`tests/Feature/Scim`, `Http/ScimTokensHttpTest`, `tests/Feature/Mcp`, `tests/Feature/Authorization`, `MovedTestsManifestTest`, `tests/ArchTest.php`): 201 passed.
+  - `tests/Modes`: 21 passed.
+  - `composer lint:check`, `composer analyse` and `composer test:types` (100%) pass.
+  - The full suite is left to the gate.
+
+### Deviations and notes for later groups
+
+- `ScimException::$status` is `public protected(set)`, not `public readonly` as in Roster, because Keystone's base declares it `protected int`.
+- Group 5 removes the three SCIM `ui` parity exceptions with the SSO ones.
+- Group 6 gates the SCIM server routes in `ScimServiceProvider::boot()` on `Handover::complete()`. They load unconditionally today, as the Design section says.

@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use Laravel\Mcp\Request;
 use Laravel\Mcp\Server\Tool;
+use Laravel\Mcp\Server\Tools\SearchTools;
 use Laravel\Mcp\Server\Transport\FakeTransporter;
 use RefactorCircus\Guardian\Domains\Scim\Mcp\Tools\CreateScimTokenTool;
 use RefactorCircus\Guardian\Domains\Scim\Mcp\Tools\ListScimTokensTool;
@@ -68,11 +70,19 @@ function rosterToolFor(string $tool): string
 }
 
 it('lists exactly the ten tools that moved from Roster', function (): void {
-    $tools = (new GuardianServer(new FakeTransporter))->createContext()->tools();
+    // The tools sit behind tool search, so browse the catalog as a client does.
+    $search = (new GuardianServer(new FakeTransporter))->createContext()->tools()
+        ->first(fn (Tool $tool): bool => $tool instanceof SearchTools);
 
-    expect($tools->map(fn (Tool $tool): string => $tool::class)->all())->toBe(GUARDIAN_TOOLS)
-        ->and($tools)->toHaveCount(10)
-        ->and($tools->map(fn (Tool $tool): string => $tool->name())->unique())->toHaveCount(10);
+    expect($search)->toBeInstanceOf(SearchTools::class);
+
+    /** @var SearchTools $search */
+    $catalog = json_decode((string) $search->handle(new Request(['query' => '', 'limit' => 50]))->content(), true, 512, JSON_THROW_ON_ERROR);
+
+    expect($catalog['hasMore'])->toBeFalse()
+        ->and(array_column($catalog['tools'], 'name'))
+        ->toBe(array_map(fn (string $tool): string => app($tool)->name(), GUARDIAN_TOOLS))
+        ->toHaveCount(10);
 });
 
 it('keeps each of the ten tools\' name, description and schemas from Roster', function (string $tool): void {

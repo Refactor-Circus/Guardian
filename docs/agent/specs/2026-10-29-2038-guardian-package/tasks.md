@@ -51,13 +51,13 @@ depends on: 3
 files: src/Domains/Scim/**, src/Domains/DomainServiceProvider.php, src/Mcp/GuardianServer.php, src/GuardianServiceProvider.php, config/guardian.php, lang/en/guardian.php, tests/TestCase.php, tests/ArchTest.php, tests/moved-tests.json, tests/Feature/Scim/**, tests/Feature/Http/ScimTokensHttpTest.php, tests/Feature/Authorization/**, tests/Feature/Mcp/**
 criteria: 8, 10, 11, 13, 14, 15, 24, 25, 26
 
-- [ ] 4.1 Copy Roster's SCIM tests (tests/Feature/Scim, Http/ScimTokensHttpTest, the SCIM cases of Authorization/*, the SCIM MCP tests) from the pinned SHA with only the criterion 8 renames, add them to tests/moved-tests.json, and write the membership-source, SCIM audit-context, ten-tool listing and structured-content-equals-HTTP tests (criteria 8, 11, 14, 26).
-- [ ] 4.2 Move Roster's Domains/Scim (actions, data, events, exceptions, HTTP, MCP, resources, services, ScimContext, SCIM 2.0 server, routes) into Guardian with guardian namespaces, guardian.scim config reads and ScimContext bound scoped.
-- [ ] 4.3 Register the guardian.scim resource and the guardian.scim.manage permission, rename every roster.scim permission string, and make ScimUsers use Roster::provisionedStatus() and join() with 'scim'.
-- [ ] 4.4 Register MembershipSources 'scim' ("SCIM") inside booted() only when MembershipSources::has('scim') is false, and the AuditHooks::context() closure inside booted() when AuditTrail::available(), with the package-key filter and try/catch report.
-- [ ] 4.5 Load the SCIM token API routes under guardian.routes with the guardian.* names and the SCIM server routes named guardian.scim.* under guardian.scim.prefix with throttle:guardian, when guardian.scim.enabled.
-- [ ] 4.6 Register the three SCIM tools on GuardianServer with Roster's names, descriptions and output schemas, and add temporary "Atrium UI group" UI parity exceptions for the SCIM actions whose UI lands in group 5.
-- [ ] 4.7 Run vendor/bin/pest; all green.
+- [x] 4.1 Copy Roster's SCIM tests (tests/Feature/Scim, Http/ScimTokensHttpTest, the SCIM cases of Authorization/*, the SCIM MCP tests) from the pinned SHA with only the criterion 8 renames, add them to tests/moved-tests.json, and write the membership-source, SCIM audit-context, ten-tool listing and structured-content-equals-HTTP tests (criteria 8, 11, 14, 26).
+- [x] 4.2 Move Roster's Domains/Scim (actions, data, events, exceptions, HTTP, MCP, resources, services, ScimContext, SCIM 2.0 server, routes) into Guardian with guardian namespaces, guardian.scim config reads and ScimContext bound scoped.
+- [x] 4.3 Register the guardian.scim resource and the guardian.scim.manage permission, rename every roster.scim permission string, and make ScimUsers use Roster::provisionedStatus() and join() with 'scim'.
+- [x] 4.4 Register MembershipSources 'scim' ("SCIM") inside booted() only when MembershipSources::has('scim') is false, and the AuditHooks::context() closure inside booted() when AuditTrail::available(), with the package-key filter and try/catch report.
+- [x] 4.5 Load the SCIM token API routes under guardian.routes with the guardian.* names and the SCIM server routes named guardian.scim.* under guardian.scim.prefix with throttle:guardian, when guardian.scim.enabled.
+- [x] 4.6 Register the three SCIM tools on GuardianServer with Roster's names, descriptions and output schemas, and add temporary "Atrium UI group" UI parity exceptions for the SCIM actions whose UI lands in group 5.
+- [x] 4.7 Run vendor/bin/pest; all green.
 
 ## Group 5: Atrium UI and the without-Atrium proof
 package: Guardian

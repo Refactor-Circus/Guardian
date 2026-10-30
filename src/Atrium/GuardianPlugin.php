@@ -7,8 +7,10 @@ namespace RefactorCircus\Guardian\Atrium;
 use Illuminate\Support\Facades\Route;
 use RefactorCircus\Atrium\Atrium;
 use RefactorCircus\Atrium\Domains\Plugins\Support\Plugin;
+use RefactorCircus\Atrium\Domains\Screens\Services\ScreenExtensions;
 use RefactorCircus\Guardian\Atrium\Http\Controllers\ScimUiController;
 use RefactorCircus\Guardian\Atrium\Http\Controllers\SsoUiController;
+use WeakMap;
 
 /**
  * Guardian in the Atrium dashboard: no navigation of its own (D-025). Its
@@ -21,6 +23,13 @@ use RefactorCircus\Guardian\Atrium\Http\Controllers\SsoUiController;
  */
 final class GuardianPlugin extends Plugin
 {
+    /**
+     * The registries Guardian has placed its screens on: one per application.
+     *
+     * @var WeakMap<ScreenExtensions, true>|null
+     */
+    private static ?WeakMap $placed = null;
+
     public function key(): string
     {
         return 'guardian';
@@ -48,10 +57,22 @@ final class GuardianPlugin extends Plugin
     }
 
     /**
-     * Place Guardian's tabs and sections as `guardian.atrium.screens` says.
+     * Place Guardian's tabs and sections as `guardian.atrium.screens` says,
+     * once per application: booting Guardian's provider again (as a test or
+     * a long-running worker may) leaves them as they are, where Atrium would
+     * otherwise refuse each one as a duplicate.
      */
     public static function registerScreens(): void
     {
-        Screens::register(app(Atrium::class)->screens(), config('guardian.atrium.screens', []));
+        $registry = app(Atrium::class)->screens();
+        self::$placed ??= new WeakMap;
+
+        if (isset(self::$placed[$registry])) {
+            return;
+        }
+
+        self::$placed[$registry] = true;
+
+        Screens::register($registry, config('guardian.atrium.screens', []));
     }
 }

@@ -9,6 +9,7 @@ use RefactorCircus\Atrium\Domains\Screens\Data\TabDefinition;
 use RefactorCircus\Atrium\Domains\Screens\Services\ScreenExtensions;
 use RefactorCircus\Guardian\Atrium\GuardianPlugin;
 use RefactorCircus\Guardian\Atrium\Screens;
+use RefactorCircus\Guardian\GuardianServiceProvider;
 
 // Criterion 16: where Guardian's tabs and section go is config alone
 // (`guardian.atrium.screens`); a bad entry throws in local and testing, and
@@ -51,6 +52,13 @@ it('registers the plugin under the guardian key, with no navigation', function (
 
     expect($plugin)->toBeInstanceOf(GuardianPlugin::class)
         ->and($plugin?->navigation())->toBe([]);
+});
+
+it('places its screens once per application, however often its provider boots', function (): void {
+    (new GuardianServiceProvider($this->app))->boot();
+
+    expect(tabKeys('roster.organization'))->toBe(['guardian.sso', 'guardian.scim'])
+        ->and(sectionKeys('roster.user', 'aside'))->toBe(['guardian.sso-identities']);
 });
 
 it('registers nothing when the placement is empty', function (): void {

@@ -34,4 +34,35 @@ Wire the package into the suite (criteria 1 to 4).
 
 ### Retry
 
-- Every group 1 task was already committed in `aba413c`; the retry changed no code. Checked again in the job worktree: `composer lint:check` and `composer analyse` pass, `ringside check` passes, and `tests/Feature/PackageWiringTest.php` with `tests/ArchTest.php` pass (42 tests). `ring-master.yml` already has Keen's `commands` block, and `CLAUDE.md` is a symlink to `AGENTS.md`, as in Keen. `composer.local.json` still points Roster and Atrium at the two PR worktrees, aliased `dev-main`, and `composer local:install` was not run.
+- Every group 1 task was already committed in `aba413c`; the retry changed no code.
+
+## Group 2 (salvaged)
+
+Package shape, config, integration, models and create migrations (criteria 5, 6, 7, 21).
+
+### What I found
+
+No index lock, merge or rebase. Nothing of group 2 was committed. The earlier agent had left uncommitted: the tests (`PackageShapeTest`, `ConfigTest`, `MigrationsTest`, `tests/Modes/Standalone`, `tests/Modes/RenamedTables`, `StandaloneTestCase`, `RenamedTablesTestCase`, the `Pest.php` and `TestCase.php` changes, the two new arch rules), `config/guardian.php`, `lang/en/guardian.php`, `Support\Tables`, `Support\Integration`, `GuardianException`, `RollbackRefusedException`, `GuardianServer`, the domain providers, the facade, staged deletions of the scaffold placeholders, and `database/factories/` in `composer.json` / `composer.local.json` autoload. Missing: the provider (still the scaffold's), the models, lifecycle events, policies, factory, migrations, the request, MCP request and policy bases, the CI job and the standards-feedback row.
+
+### What I committed
+
+- `GuardianServiceProvider` on Keystone's `PackageServiceProvider` (`guardian`, label `Guardian`, `GuardianServer`). `Integration` is a singleton; `DomainServiceProvider` is registered from a `booting()` callback, only when `rosterInstalled()`, so an `Integration` bound after providers register (Testbench's `defineEnvironment()`, an app) is the one asked. `boot()` always defines the `guardian` limiter (Roster's keying, null `per_minute` off), the `about` section (`Active`, `Inactive: needs a newer refactor-circus/roster`, `Inactive: install refactor-circus/roster`, resolved when the command runs), translations and the config/lang publishes; policies, not-found responses, MCP server, Cortex, migrations and `guardian-migrations` sit behind `rosterInstalled()` in `bootWithRoster()`.
+- The five models in `Domains/Sso/Models` and `Domains/Scim/Models` (Roster's at `6b1833d`, tables from `Support\Tables`), their 50 lifecycle events, five policies on Guardian's `Policies\Policy` (Roster `Authorizer::permits()`, `guardian.*` permissions), and `database/factories/SsoConnectionFactory`.
+- `Http\Requests\Request` and `Mcp\Requests\Request` on Keystone's bases, authorizing `ability()` / `scope()` / `self()` through Roster's `Authorizer::check()`, with the across-organizations list rule (Roster's `AuthorizesWithRoster`, which Guardian may not use, re-done in each base).
+- Create migrations `2026_11_01_000001` / `000002`: Roster's columns, unique keys, the `_lookup_index` and `_organization_created_index` indexes, Roster `Tables` / `UserKey` for organizations, teams and user columns, a `hasTable()` guard per create. `down()` throws `RollbackRefusedException` (a `GuardianException`) naming every Guardian table that holds rows, and drops nothing, unless `guardian.migrations.force_rollback === true`. Both migrations check all five tables, so the scim rollback (which runs first) does not drop its tables when the sso one is going to refuse.
+- `StandaloneTestCase` clears `ServiceProvider::$publishes` / `$publishGroups` before each boot (they are static, and the suite runs in random order beside Feature).
+- The `standalone` job in `.github/workflows/tests.yml`; the models/migrations row in `docs/agent/standards-feedback.md`.
+- `composer analyse`, `composer lint:check` and `composer test:types` pass. The Pest suite was not run (left to the gate).
+
+### Outside the group's file list
+
+- `src/Exceptions/RollbackRefusedException.php`: `GuardianException` is abstract (errors/exceptions), so the refusal is a final subclass with `forTables()`.
+- `composer.json` (and the gitignored `composer.local.json`): `RefactorCircus\Guardian\Database\Factories\` → `database/factories/` autoload.
+- `phpstan.neon.dist`: dropped the deleted `routes` path, and added `configDirectories` so Larastan accepts `env('GUARDIAN_FORCE_ROLLBACK')` in `config/guardian.php`.
+- Deleted the scaffold placeholders: `routes/guardian.php`, `src/Console/Commands/GuardianCommand.php`, `resources/views/placeholder.blade.php`, `lang/en/messages.php`, the placeholder migration, `tests/Feature/ExampleTest.php` and `tests/Modes/.gitkeep`.
+
+### Left
+
+- 2.8: the full Pest run, by the gate.
+- The Atrium plugin call: `GuardianPlugin` is group 5's. It goes in `bootWithRoster()` behind `Integration::atriumInstalled()`; note Keystone's `registerAtriumPlugin()` also requires `guardian.ui.enabled`, which `config/guardian.php` does not have (criterion 6's key list).
+- No views are loaded yet (`resources/views` is empty until group 5). Checked again in the job worktree: `composer lint:check` and `composer analyse` pass, `ringside check` passes, and `tests/Feature/PackageWiringTest.php` with `tests/ArchTest.php` pass (42 tests). `ring-master.yml` already has Keen's `commands` block, and `CLAUDE.md` is a symlink to `AGENTS.md`, as in Keen. `composer.local.json` still points Roster and Atrium at the two PR worktrees, aliased `dev-main`, and `composer local:install` was not run.

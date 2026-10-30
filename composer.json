@@ -45,7 +45,8 @@
     },
     "autoload": {
         "psr-4": {
-            "RefactorCircus\\Guardian\\": "src/"
+            "RefactorCircus\\Guardian\\": "src/",
+            "RefactorCircus\\Guardian\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {

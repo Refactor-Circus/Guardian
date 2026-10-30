@@ -80,14 +80,62 @@ arch('every model has a policy in guardian.policies')
     ))
     ->toBeEmpty();
 
-// Support\Tables arrives with the package shape; until then there are no
-// table names to look for.
 arch('tables are named through Tables, never as literals')
-    ->expect(fn (): array => class_exists(Tables::class) ? Arch::literalTableNames(
+    ->expect(fn (): array => Arch::literalTableNames(
         [...array_values(array_filter(
             phpFiles(__DIR__.'/../src'),
             fn (string $path): bool => ! str_ends_with($path, 'Support/Tables.php'),
         )), ...(array) glob(__DIR__.'/../database/migrations/*.php')],
         array_values(Tables::DEFAULTS),
-    ) : [])
+    ))
+    ->toBeEmpty();
+
+// Without Roster, Guardian must boot (criterion 7): only the layers that
+// load behind Integration::rosterInstalled() may name Roster's classes.
+// Support\Integration names them as strings, for class_exists().
+arch('only the Roster-facing layers name Roster\'s classes')
+    ->expect('RefactorCircus\Guardian')
+    ->not->toUse('RefactorCircus\Roster')
+    ->ignoring([
+        'RefactorCircus\Guardian\Domains',
+        'RefactorCircus\Guardian\Atrium',
+        'RefactorCircus\Guardian\Mcp',
+        'RefactorCircus\Guardian\Upgrade',
+        'RefactorCircus\Guardian\Policies',
+        'RefactorCircus\Guardian\Http',
+        'RefactorCircus\Guardian\Console',
+        'RefactorCircus\Guardian\Database',
+        'RefactorCircus\Guardian\Tests',
+    ]);
+
+arch('the package provider reaches the Roster-facing layers only once Roster is installed')
+    ->expect(function (): array {
+        $source = (string) file_get_contents(__DIR__.'/../src/GuardianServiceProvider.php');
+        $gated = [
+            'DomainServiceProvider::class',
+            'registerPolicies(',
+            'registerMcpServer(',
+            'registerCortex(',
+            'registerAtriumPlugin(',
+            'loadMigrationsFrom(',
+            'publishesMigrations(',
+        ];
+        $early = [];
+
+        // Each method (or closure) on its own: a gated call must come after
+        // the rosterInstalled() check in the same body.
+        foreach (preg_split('/\bfunction\s+/', $source) ?: [] as $body) {
+            $gate = strpos($body, 'rosterInstalled()');
+
+            foreach ($gated as $call) {
+                $at = strpos($body, $call);
+
+                if ($at !== false && ($gate === false || $at < $gate)) {
+                    $early[] = strtok($body, '(').': '.$call;
+                }
+            }
+        }
+
+        return $early;
+    })
     ->toBeEmpty();

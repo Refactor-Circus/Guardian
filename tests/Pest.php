@@ -2,11 +2,17 @@
 
 declare(strict_types=1);
 
+use RefactorCircus\Guardian\Tests\RenamedTablesTestCase;
+use RefactorCircus\Guardian\Tests\StandaloneTestCase;
 use RefactorCircus\Guardian\Tests\TestCase;
 use RefactorCircus\Keystone\Testing\Parity;
 use RefactorCircus\Standards\Pest\ArchPreset;
 
 uses(TestCase::class)->in('Feature');
+uses(RenamedTablesTestCase::class)->in('Modes/RenamedTables');
+// Also run by the `standalone` CI job, with Roster, Atrium and Keen
+// uninstalled: nothing it loads may name them.
+uses(StandaloneTestCase::class)->in('Modes/Standalone');
 
 ArchPreset::register();
 

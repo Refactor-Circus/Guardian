@@ -4,5 +4,7 @@ parameters:
         - src
         - config
         - database
-        - routes
+    # The package's own config, where env() belongs (GUARDIAN_FORCE_ROLLBACK).
+    configDirectories:
+        - %currentWorkingDirectory%/config
     tmpDir: build/phpstan

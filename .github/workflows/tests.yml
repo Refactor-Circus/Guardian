@@ -87,3 +87,45 @@ jobs:
       - name: Test Suite (Windows)
         if: runner.os == 'Windows'
         run: vendor/bin/pest --exclude-testsuite=Browser
+
+  # Guardian requires only Keystone: without Roster it must boot, say so in
+  # `php artisan about`, and register nothing else (criterion 7). Roster,
+  # Atrium and Keen are dev dependencies, so they are removed here first.
+  standalone:
+    runs-on: ubuntu-latest
+
+    name: Standalone (no Roster, Atrium or Keen)
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: 8.5
+          extensions: dom, curl, libxml, mbstring, zip, fileinfo, sqlite, pdo_sqlite, bcmath, intl, sockets
+          ini-values: error_reporting=E_ALL
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies without Roster, Atrium and Keen
+        run: |
+          composer remove --dev --no-update refactor-circus/roster refactor-circus/atrium refactor-circus/keen
+          composer update --prefer-dist --no-interaction --no-progress --no-scripts
+          composer run prepare
+
+      - name: Roster, Atrium and Keen are absent
+        run: |
+          php -r '
+            require "vendor/autoload.php";
+            foreach (["RefactorCircus\\Roster\\Roster", "RefactorCircus\\Atrium\\Atrium", "RefactorCircus\\Keen\\Keen"] as $class) {
+                if (class_exists($class)) {
+                    fwrite(STDERR, "{$class} is still installed.\n");
+                    exit(1);
+                }
+            }
+          '
+
+      - name: Standalone suite
+        run: vendor/bin/pest tests/Modes/Standalone

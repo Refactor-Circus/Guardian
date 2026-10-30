@@ -66,3 +66,34 @@ No index lock, merge or rebase. Nothing of group 2 was committed. The earlier ag
 - 2.8: the full Pest run, by the gate.
 - The Atrium plugin call: `GuardianPlugin` is group 5's. It goes in `bootWithRoster()` behind `Integration::atriumInstalled()`; note Keystone's `registerAtriumPlugin()` also requires `guardian.ui.enabled`, which `config/guardian.php` does not have (criterion 6's key list).
 - No views are loaded yet (`resources/views` is empty until group 5). Checked again in the job worktree: `composer lint:check` and `composer analyse` pass, `ringside check` passes, and `tests/Feature/PackageWiringTest.php` with `tests/ArchTest.php` pass (42 tests). `ring-master.yml` already has Keen's `commands` block, and `CLAUDE.md` is a symlink to `AGENTS.md`, as in Keen. `composer.local.json` still points Roster and Atrium at the two PR worktrees, aliased `dev-main`, and `composer local:install` was not run.
+
+## Group 2
+
+Retry of group 2 (criteria 5, 6, 7, 21). The salvaged commit `08c7bac` already held every task's work; this retry reviewed it against the spec and Roster's sources and changed no code.
+
+### Files
+
+- No source, config, migration or test file changed. The files are the ones listed under "Group 2 (salvaged)" above.
+- `tasks.md`: 2.8 ticked (the gate runs the full suite).
+
+### Checks made
+
+- Migrations against Roster's `2026_01_01_000006` / `000007` (columns, unique keys, FKs through Roster `Tables` / `UserKey`), `000010` (`_lookup_index` on `sso_connections.organization_id`, `scim_tokens.organization_id` / `sso_connection_id`, `scim_groups.organization_id`) and `2026_10_12_000001` (`_organization_created_index` on `scim_users` / `scim_groups`): equal.
+- `guardian` limiter against Roster's `roster` limiter: same keying (`user:` / `ip:`) and null-`per_minute` rule.
+- `config/guardian.php` `mcp` / `cortex` against Keen's `config/keen.php`: same literals with Guardian's names.
+
+### Tests
+
+Run file by file (not the whole suite, which the gate runs), all green:
+
+- `tests/Feature/PackageShapeTest.php`: 20 passed.
+- `tests/Feature/ConfigTest.php`: 14 passed.
+- `tests/Feature/MigrationsTest.php`: 25 passed.
+- `tests/Modes` (Standalone and RenamedTables): 19 passed.
+- `tests/ArchTest.php`: 17 passed (1 incomplete from the shared preset).
+
+### Deviations and open points
+
+- `Support\Integration` has a third public method, `rosterPresent()`, and a second injected check (`method_exists`), beyond the spec's "two public methods" and "a class-exists check". The `about` line needs to tell "no Roster" from "a Roster without the seams", and a test can only stand in a Roster without `requireSignIn()` / `provisionedStatus()` through an injected method check, because the real Roster is installed. Returned as a decision.
+- The Atrium plugin call is not in `bootWithRoster()` yet: `GuardianPlugin` is under `src/Atrium/**`, which group 5 owns. Keystone's `registerAtriumPlugin()` also requires `guardian.ui.enabled === true`, a key criterion 6 does not list. Returned as a decision for group 5.
+- Outside the group's file list (carried from the salvaged commit): `src/Exceptions/RollbackRefusedException.php`, `composer.json` (factories autoload), `phpstan.neon.dist`, and the deleted scaffold placeholders.

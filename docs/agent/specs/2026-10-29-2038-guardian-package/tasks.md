@@ -27,7 +27,7 @@ criteria: 5, 6, 7, 21
 - [x] 2.5 Move the five models with their lifecycle events, policies and factories into Domains/Sso and Domains/Scim, with getTable() from Support\Tables and guardian.policies registered through registerPolicies().
 - [x] 2.6 Write the two create migrations with Roster's columns, unique keys and indexes, Roster Tables/UserKey references, a hasTable() guard per create, and a down() that throws GuardianException naming tables with rows unless guardian.migrations.force_rollback, and record the models/migrations departure in docs/agent/standards-feedback.md.
 - [x] 2.7 Add tests/Modes/Standalone with StandaloneTestCase, tests/Modes/RenamedTables with RenamedTablesTestCase, the Roster-reference arch rule, and the `standalone` CI job in .github/workflows/tests.yml that removes Roster, Atrium and Keen and runs tests/Modes/Standalone.
-- [ ] 2.8 Run vendor/bin/pest; all green.
+- [x] 2.8 Run vendor/bin/pest; all green.
 
 ## Group 3: SSO domain with HTTP API and MCP
 package: Guardian

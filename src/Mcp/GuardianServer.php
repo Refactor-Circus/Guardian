@@ -9,6 +9,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Version;
 use Laravel\Mcp\Server\ServerContext;
 use Laravel\Mcp\Server\Tool;
+use Laravel\Mcp\Server\Tools\ToolSearch;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\CreateSsoConnectionTool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\DeleteSsoConnectionTool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\ListSsoConnectionsTool;
@@ -46,9 +47,13 @@ final class GuardianServer extends Server
     ];
 
     /**
-     * @var array<int, class-string<Tool>|Tool>
+     * Behind ToolSearch, as Keystone's servers and Roster's offered them.
+     *
+     * @var array<class-string<ToolSearch>, array<int, class-string<Tool>|Tool>>|array<int, class-string<Tool>|Tool>
      */
-    protected array $tools = self::TOOLS;
+    protected array $tools = [
+        ToolSearch::class => self::TOOLS,
+    ];
 
     /**
      * Every tool works on Roster's organizations and users, so without a

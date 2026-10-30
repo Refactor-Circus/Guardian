@@ -18,6 +18,13 @@ use Workbench\App\Models\User;
 abstract class TestCase extends Orchestra
 {
     /**
+     * Whether the next application boots with Guardian's JSON API mounted.
+     * Surface tests need it; a test that proves the default (off) sets this
+     * to false and refreshes the application.
+     */
+    public static bool $apiRoutes = true;
+
+    /**
      * @return array<int, class-string>
      */
     protected function getPackageProviders($app): array
@@ -38,6 +45,14 @@ abstract class TestCase extends Orchestra
         $app['config']->set('cache.default', 'array');
         $app['config']->set('hashing.bcrypt.rounds', 4);
         $app['config']->set('roster.users.model', User::class);
+        $app['config']->set('guardian.routes.enabled', self::$apiRoutes);
+        // Surface tests cover behaviour; tests/Feature/Authorization turns it
+        // back on, as Roster's suite does.
+        $app['config']->set('roster.authorization', false);
+        // Roster at the seams branch still ships SSO and SCIM: keep its live
+        // routes off Guardian's identical URIs (criterion 28).
+        $app['config']->set('roster.sso.prefix', 'roster-legacy/sso');
+        $app['config']->set('roster.scim.enabled', false);
     }
 
     /**

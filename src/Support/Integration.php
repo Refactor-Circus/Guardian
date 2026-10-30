@@ -89,7 +89,11 @@ final class Integration
     }
 
     /**
-     * Whether any Roster is installed, new enough for Guardian or not.
+     * Whether any Roster is installed, new enough for Guardian or not. Only
+     * the `about` line asks, to tell "no Roster" from "a Roster without the
+     * seams" (D-037).
+     *
+     * @internal
      */
     public function rosterPresent(): bool
     {

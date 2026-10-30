@@ -1,0 +1,81 @@
+{
+    "source": "refactor-circus/roster",
+    "sha": "6b1833dae7ed21ba352612a13693d662bc7354cc",
+    "files": {
+        "tests/Feature/Sso/AzureFlowTest.php": {
+            "from": "tests/Feature/Sso/AzureFlowTest.php",
+            "tests": [
+                "signs in through Microsoft Entra ID using the tenant-specific authority",
+                "trusts the userPrincipalName, never the mail attribute",
+                "refuses multi-tenant authorities"
+            ]
+        },
+        "tests/Feature/Sso/OidcFlowTest.php": {
+            "from": "tests/Feature/Sso/OidcFlowTest.php",
+            "tests": [
+                "signs a user in end to end",
+                "discovers the connection from an email domain",
+                "refuses tokens that fail verification"
+            ]
+        },
+        "tests/Feature/Sso/SsoLoginActionTest.php": {
+            "from": "tests/Feature/Sso/SsoLoginActionTest.php",
+            "tests": [
+                "creates an account just in time for the organization's domains",
+                "matches returning users by subject, even after an email change",
+                "links an existing account on a trusted domain",
+                "refuses emails outside the organization's domains",
+                "records refused sign-ins",
+                "refuses new accounts when just-in-time is off",
+                "refuses inactive users and disabled connections",
+                "creates no duplicate users across logins",
+                "keeps a just-in-time account the organization wants approved, and refuses its sign-in until then"
+            ]
+        },
+        "tests/Feature/Sso/SsoWiringTest.php": {
+            "from": "tests/Feature/Sso/SsoWiringTest.php",
+            "tests": [
+                "maps SAML connections to the provider config and serves SP metadata",
+                "accepts the SAML assertion post without a CSRF token",
+                "links an identity to the signed-in account",
+                "enforces SSO for the organization's domains, except for super-admins",
+                "points the enforced sign-in at the connection's start page, in the same message",
+                "ignores connections that are not enforced or not enabled, and values that are not emails",
+                "registers SSO enforcement as a sign-in requirement",
+                "fails the password login closed when a sign-in requirement throws",
+                "keeps secrets encrypted, hidden and redacted",
+                "validates the settings each protocol needs"
+            ]
+        },
+        "tests/Feature/Http/SsoHttpTest.php": {
+            "from": "tests/Feature/Http/SsoHttpTest.php",
+            "tests": [
+                "manages connections over HTTP and MCP without exposing secrets",
+                "lists and unlinks identities"
+            ]
+        },
+        "tests/Modes/SsoUnavailable/SsoUnavailableTest.php": {
+            "from": "tests/Modes/SsoUnavailable/SsoUnavailableTest.php",
+            "tests": [
+                "registers no sign-in routes but still manages connections",
+                "explains which packages to install"
+            ]
+        },
+        "tests/Feature/Authorization/HttpAuthorizationTest.php": {
+            "from": "tests/Authorization/HttpAuthorizationTest.php",
+            "tests": [
+                "covers every guardian API route",
+                "rejects guests with 401",
+                "rejects users without the permission with 403",
+                "lets a super-admin through"
+            ]
+        },
+        "tests/Feature/Authorization/McpAuthorizationTest.php": {
+            "from": "tests/Authorization/McpAuthorizationTest.php",
+            "tests": [
+                "refuses every tool to guests and to users without the permission",
+                "lets a super-admin past authorization on every tool"
+            ]
+        }
+    }
+}

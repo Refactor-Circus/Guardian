@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use RefactorCircus\Guardian\Domains\Sso\Concerns\JoinsOrganizations;
 use RefactorCircus\Guardian\Domains\Sso\Data\IdentityClaims;
 use RefactorCircus\Guardian\Domains\Sso\Events\SsoLoginFailedActionEvent;
 use RefactorCircus\Guardian\Domains\Sso\Events\SsoLoginStartingActionEvent;
@@ -16,7 +17,6 @@ use RefactorCircus\Guardian\Domains\Sso\Exceptions\SsoLoginRefused;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Keystone\Actions\Action;
-use RefactorCircus\Roster\Domains\Organization\Concerns\ManagesMemberships;
 use RefactorCircus\Roster\Domains\Organization\Enums\MembershipSource;
 use RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel;
 use RefactorCircus\Roster\Domains\User\Actions\CreateUserAction;
@@ -27,7 +27,7 @@ use RefactorCircus\Roster\Support\Users;
 
 final class SsoLoginAction extends Action
 {
-    use ManagesMemberships;
+    use JoinsOrganizations;
 
     public const string BY_IDENTITY = 'identity';
 

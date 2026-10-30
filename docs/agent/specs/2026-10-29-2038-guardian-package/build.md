@@ -291,3 +291,22 @@ A salvaged commit (`e110b23`) held the moved source and tests. I diffed every fi
 
 - `composer test`: analyse OK, lint OK, type coverage 100%, Pest 496 passed (1931 assertions), with no skips or failures.
 - The `mysql` CI job was not run locally (no MySQL 8 here).
+
+## Review round 1 fixes
+
+### What I changed
+
+- **architecture/dependencies (major), criterion 9.** Guardian no longer names any Roster class outside the allowed public API:
+  - `ManagesMemberships` (Roster `Domains\Organization\Concerns`): `SsoLoginAction` and `ScimUsers` now use Guardian's own `Domains\Sso\Concerns\JoinsOrganizations`. It is the same rule as Roster's `join()`: an unregistered source throws, an existing membership is left as it is, a new non-owner member gets `roster.roles.default_member`, and the user's permissions are flushed. It works on Roster's models, the `MembershipSources` seam and `Permissions`. No Roster action can do this instead: `AddMemberAction` always uses the `direct` source and refuses an existing member.
+  - `Support\CaseInsensitive`: the index-friendly case-insensitive `eq` moved into `ScimQuery` as a private `equals()`, unchanged.
+  - `Domains\User\Resources\UserSummaryResource` (Roster's HTTP layer): `SsoIdentityResource` nests Guardian's own `Domains\Sso\Resources\UserSummaryResource`, with the same schema and payload, read through `Support\Users`.
+  - `tests/Feature/RosterBoundaryTest.php` now also denies a Roster domain's `Concerns` and `Resources` and every `Roster\Support` class except `Users`, `Statuses`, `UserKey` and `Tables`. A dataset pins which references are denied and which are allowed.
+  - New tests: `tests/Feature/Sso/JoinsOrganizationsTest.php` (default member role through SSO and SCIM, the role turned off, an existing member left alone, the owner given no member role, an unregistered source refused). `tests/Feature/Sso/UserSummaryResourceTest.php` holds the schema and payload equal to Roster's.
+- **architecture/service-providers (minor).** `GuardianServiceProvider` publishes `resources/views` to `resources/views/vendor/guardian` under `['guardian', 'guardian-views']`, behind `runningInConsole()`. It does this next to `loadViewsFrom()`, so only while Roster, Atrium and `guardian.ui.enabled` are all on. `PackageShapeTest` asserts both tags.
+- **architecture/service-providers (minor).** `docs/agent/standards-feedback.md` records that `DomainServiceProvider` is registered from a `booting()` callback, behind `Integration::rosterInstalled()`.
+- `docs/agent/standards-feedback.md` also records the two new departures the boundary fix brings: `JoinsOrganizations` writes Roster's membership and role-assignment models directly (architecture/dependencies), and Guardian has a second user summary serializer (http/resources).
+- Files outside the findings' list: `src/Domains/Sso/Concerns/JoinsOrganizations.php`, `src/Domains/Sso/Resources/UserSummaryResource.php`, `tests/Feature/Sso/JoinsOrganizationsTest.php`, `tests/Feature/Sso/UserSummaryResourceTest.php` and `tests/Feature/PackageShapeTest.php`.
+
+### Results
+
+- `composer test:unit`: 528 passed (1977 assertions). `composer analyse`, `composer lint:check` and `composer test:types` (100%) pass.

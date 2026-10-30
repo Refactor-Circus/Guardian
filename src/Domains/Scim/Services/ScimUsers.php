@@ -12,10 +12,10 @@ use Illuminate\Validation\ValidationException;
 use RefactorCircus\Guardian\Domains\Scim\Exceptions\ScimException;
 use RefactorCircus\Guardian\Domains\Scim\Models\ScimGroupModel;
 use RefactorCircus\Guardian\Domains\Scim\Models\ScimUserModel;
+use RefactorCircus\Guardian\Domains\Sso\Concerns\JoinsOrganizations;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Keystone\Data\Missing;
 use RefactorCircus\Roster\Domains\Organization\Actions\RemoveMemberAction;
-use RefactorCircus\Roster\Domains\Organization\Concerns\ManagesMemberships;
 use RefactorCircus\Roster\Domains\Organization\Models\MembershipModel;
 use RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel;
 use RefactorCircus\Roster\Domains\User\Actions\CreateUserAction;
@@ -41,7 +41,7 @@ use RefactorCircus\Roster\Support\Users;
  */
 final class ScimUsers
 {
-    use ManagesMemberships;
+    use JoinsOrganizations;
 
     public function __construct(
         private readonly Users $users,

@@ -126,6 +126,12 @@ class GuardianServiceProvider extends PackageServiceProvider
 
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'guardian');
 
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__.'/../resources/views' => resource_path('views/vendor/guardian'),
+            ], ['guardian', 'guardian-views']);
+        }
+
         $this->registerAtriumPlugin(GuardianPlugin::class);
         GuardianPlugin::registerScreens();
     }

@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\JsonSchema\Types\Type;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Keystone\Http\Resources\JsonResource;
-use RefactorCircus\Roster\Domains\User\Resources\UserSummaryResource;
 
 /**
  * @mixin SsoIdentityModel

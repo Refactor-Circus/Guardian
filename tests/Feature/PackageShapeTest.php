@@ -121,6 +121,18 @@ it('publishes its config and translations', function (): void {
         ->and(ServiceProvider::pathsToPublish(GuardianServiceProvider::class, 'guardian-lang'))->toHaveCount(1);
 });
 
+it('publishes its views under the umbrella tag and guardian-views', function (): void {
+    $views = realpath(dirname(__DIR__, 2).'/resources/views');
+    $target = resource_path('views/vendor/guardian');
+
+    $published = fn (string $tag): array => collect(ServiceProvider::pathsToPublish(GuardianServiceProvider::class, $tag))
+        ->mapWithKeys(fn (string $to, string $from): array => [(string) realpath($from) => $to])
+        ->all();
+
+    expect($published('guardian-views'))->toBe([$views => $target])
+        ->and($published('guardian'))->toMatchArray([$views => $target]);
+});
+
 it('loads its translations', function (): void {
     expect(__('guardian::guardian.sso'))->toBe('Single sign-on')
         ->and(__('guardian::guardian.scim'))->toBe('SCIM provisioning');

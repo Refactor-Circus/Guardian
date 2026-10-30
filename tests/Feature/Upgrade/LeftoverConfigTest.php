@@ -11,6 +11,10 @@ require_once __DIR__.'/helpers.php';
  * nothing at runtime.
  */
 
+beforeEach(function (): void {
+    seedRosterPermissions();
+});
+
 it('lists differing roster.sso and roster.scim values with the guardian key to move them to', function (): void {
     config()->set('roster.scim.enabled', false);
     config()->set('roster.sso.prefix', 'login/sso');

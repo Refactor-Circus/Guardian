@@ -18,10 +18,12 @@ use Workbench\App\Models\User;
  * Guardian as an application installs it: with Roster and Atrium, on an
  * in-memory database migrated per test with foreign keys enforced.
  *
- * Roster here is the seams branch, which still ships its own SSO and SCIM.
- * The suite runs Guardian as it will run once Roster has handed them over
- * (`Handover` bound complete), with Roster's live routes moved out of the
- * way (criterion 28). tests/Modes/HandoverPending runs the real Handover.
+ * Roster here may be the seams branch, which still ships its own SSO and
+ * SCIM, or a Roster that has handed them over. The suite runs Guardian as it
+ * will run once Roster has handed them over (`Handover` bound complete), with
+ * a seams Roster's live routes moved out of the way (criterion 28), and
+ * Roster's SSO and SCIM tables as Roster created them at the pinned SHA.
+ * tests/Modes/HandoverPending runs Guardian before the handover.
  *
  * The `mysql` CI job runs the `upgrade-mysql` group on MySQL 8: set
  * DB_CONNECTION to use another of Testbench's connections.
@@ -118,9 +120,9 @@ abstract class TestCase extends Orchestra
      * test can roll back just them.
      *
      * The upgrade migration is left out here: with the handover complete it
-     * would rename the empty SSO and SCIM tables the seams-branch Roster
-     * still creates. tests/Feature/Upgrade runs it on the states it handles,
-     * and tests/Modes/HandoverPending runs every migration.
+     * would rename the empty legacy SSO and SCIM tables (tests/Fixtures).
+     * tests/Feature/Upgrade runs it on the states it handles, and
+     * tests/Modes/HandoverPending runs every migration.
      */
     protected function defineDatabaseMigrations(): void
     {
@@ -131,6 +133,10 @@ abstract class TestCase extends Orchestra
 
         $this->loadLaravelMigrations();
         $this->loadMigrationsFrom(dirname(__DIR__).'/vendor/refactor-circus/roster/database/migrations');
+        // Roster's SSO and SCIM tables as Roster created them at the pinned
+        // SHA, so the upgrade has something to move whichever Roster is
+        // installed: one that still ships SSO and SCIM has made them already.
+        $this->loadMigrationsFrom(__DIR__.'/Fixtures/roster-sso-scim');
         $this->loadMigrationsFrom(dirname(__DIR__).'/vendor/refactor-circus/atrium/database/migrations');
         $this->loadMigrationsFrom(['--path' => $this->guardianMigrations()]);
     }

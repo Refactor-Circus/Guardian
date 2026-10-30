@@ -19,6 +19,10 @@ use RefactorCircus\Guardian\Upgrade\UpgradeReport;
  * run on MySQL 8 in the `mysql` CI job (D-034).
  */
 
+beforeEach(function (): void {
+    seedRosterPermissions();
+});
+
 it('does nothing on a fresh install', function (): void {
     dropUpgradeTables('roster');
 

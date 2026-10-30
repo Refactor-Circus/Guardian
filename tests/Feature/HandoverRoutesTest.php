@@ -32,7 +32,8 @@ it('asks Roster\'s SSO connection model, by name, whether the handover is comple
         ->and((new Handover(fn (string $class): bool => false))->complete())->toBeTrue();
 });
 
-it('finds the real class with the default check', function (): void {
-    // The seams-branch Roster installed here still ships the model.
-    expect((new Handover)->complete())->toBeFalse();
+it('asks PHP for the class by default', function (): void {
+    // Pending beside a seams Roster, which still ships the model; complete
+    // beside one that has handed SSO and SCIM over.
+    expect((new Handover)->complete())->toBe(! class_exists('RefactorCircus\\Roster\\Domains\\Sso\\Models\\SsoConnectionModel'));
 });

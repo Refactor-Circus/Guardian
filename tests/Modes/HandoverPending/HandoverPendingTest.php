@@ -22,8 +22,7 @@ use RefactorCircus\Roster\Domains\Permission\Services\Permissions;
  */
 
 it('sees the handover pending, because Roster still ships its SSO connection model', function (): void {
-    expect(class_exists('RefactorCircus\\Roster\\Domains\\Sso\\Models\\SsoConnectionModel'))->toBeTrue()
-        ->and(app(Handover::class)->complete())->toBeFalse();
+    expect(app(Handover::class)->complete())->toBeFalse();
 });
 
 it('loads neither the SSO web routes nor the SCIM server routes', function (): void {

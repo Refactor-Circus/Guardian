@@ -16,6 +16,10 @@ use RefactorCircus\Roster\Domains\Role\Models\RoleModel;
  * the old state and the next run completes.
  */
 
+beforeEach(function (): void {
+    seedRosterPermissions();
+});
+
 /**
  * The permission names a role holds, among the ones the upgrade moves.
  *

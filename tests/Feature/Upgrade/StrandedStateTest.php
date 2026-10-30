@@ -19,6 +19,10 @@ use RefactorCircus\Guardian\Upgrade\RosterUpgrade;
  * one reported exception per boot, and does not fail closed.
  */
 
+beforeEach(function (): void {
+    seedRosterPermissions();
+});
+
 const STRANDED = ['roster_sso_connections', 'roster_sso_identities', 'roster_scim_tokens', 'roster_scim_users', 'roster_scim_groups'];
 
 it('finds Roster\'s tables that hold rows Guardian\'s lack', function (): void {

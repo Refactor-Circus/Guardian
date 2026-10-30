@@ -7,19 +7,56 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use RefactorCircus\Guardian\Upgrade\RosterUpgrade;
 use RefactorCircus\Guardian\Upgrade\UpgradeReport;
+use RefactorCircus\Roster\Domains\Permission\Services\Permissions;
 use RefactorCircus\Roster\Domains\Team\Models\TeamModel;
 
 /*
- * Shared by tests/Feature/Upgrade. The suite migrates Roster (the seams
- * branch, which still creates its SSO and SCIM tables) and Guardian's create
- * migrations, so a test starts with both sets of tables, all empty: the state
- * an app reaches when Guardian was installed before Roster let go.
+ * Shared by tests/Feature/Upgrade. The suite migrates Roster, Roster's SSO
+ * and SCIM tables as Roster created them at the pinned SHA (tests/Fixtures)
+ * and Guardian's create migrations, so a test starts with both sets of
+ * tables, all empty: the state an app reaches when Guardian was installed
+ * before Roster let go.
  */
 
 /**
  * Guardian's table keys, parents first.
  */
 const UPGRADE_KEYS = ['sso_connections', 'sso_identities', 'scim_tokens', 'scim_users', 'scim_groups'];
+
+/**
+ * Roster's SSO and SCIM permissions at the pinned SHA, with their
+ * descriptions.
+ */
+const ROSTER_PERMISSIONS = [
+    'roster.sso.view' => "View an organization's single sign-on connections.",
+    'roster.sso.manage' => 'Configure single sign-on connections.',
+    'roster.scim.manage' => 'Issue and revoke SCIM provisioning tokens.',
+];
+
+/**
+ * Roster's SSO and SCIM permissions, as Roster registered them at the pinned
+ * SHA and granted them to its built-in `admin` role. A Roster that has handed
+ * them over no longer creates them, so they are put back here.
+ */
+function seedRosterPermissions(): void
+{
+    $now = now();
+    $admin = DB::table('roster_roles')->whereNull('organization_id')->where('slug', 'admin')->value('id');
+
+    foreach (ROSTER_PERMISSIONS as $name => $description) {
+        if (! DB::table('roster_permissions')->where('name', $name)->exists()) {
+            DB::table('roster_permissions')->insert(['id' => (string) Str::ulid(), 'name' => $name, 'description' => $description, 'system' => true, 'created_at' => $now, 'updated_at' => $now]);
+        }
+
+        $permission = DB::table('roster_permissions')->where('name', $name)->value('id');
+
+        if ($admin !== null && ! DB::table('roster_permission_role')->where(['role_id' => $admin, 'permission_id' => $permission])->exists()) {
+            DB::table('roster_permission_role')->insert(['role_id' => $admin, 'permission_id' => $permission]);
+        }
+    }
+
+    app(Permissions::class)->forgetCache();
+}
 
 function runUpgrade(): UpgradeReport
 {

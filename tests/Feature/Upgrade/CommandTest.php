@@ -12,13 +12,15 @@ use RefactorCircus\Guardian\Domains\Scim\Models\ScimTokenModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Upgrade\Handover;
 use RefactorCircus\Guardian\Upgrade\UpgradeReport;
-use RefactorCircus\Roster\Domains\Scim\Models\ScimTokenModel as RosterScimTokenModel;
-use RefactorCircus\Roster\Domains\Sso\Models\SsoConnectionModel as RosterSsoConnectionModel;
 
 /*
  * Criterion 22: `php artisan guardian:upgrade-from-roster` and the
  * `2026_11_01_000000` migration run the upgrade and report it.
  */
+
+beforeEach(function (): void {
+    seedRosterPermissions();
+});
 
 function guardianMigrationsPath(): string
 {
@@ -47,18 +49,14 @@ it('says the handover is pending, and changes nothing', function (): void {
 });
 
 it('upgrades an install Roster migrated and seeded, through Guardian\'s migrations and then the command', function (): void {
-    // Guardian is not installed yet: only Roster's tables exist.
+    // Guardian is not installed yet: only Roster's tables exist, made by
+    // Roster's own create migrations at the pinned SHA (tests/Fixtures).
     Artisan::call('migrate:rollback', ['--path' => guardianMigrationsPath(), '--realpath' => true]);
     expect(upgradeRowCounts('guardian'))->toBe(array_fill_keys(UPGRADE_KEYS, null));
 
-    $acme = organization(attributes: ['name' => 'Acme']);
-    $connection = RosterSsoConnectionModel::factory()->create(['organization_id' => $acme->id, 'slug' => 'acme-sso']);
-    RosterScimTokenModel::query()->create([
-        'organization_id' => $acme->id,
-        'name' => 'Okta',
-        'token_hash' => str_repeat('b', 64),
-        'sso_connection_id' => $connection->id,
-    ]);
+    // Seeded as Roster's models wrote them: the installed Roster may no
+    // longer ship those models, so the rows go in as stored.
+    $ids = seedUpgradeRows('roster');
 
     Log::spy();
 
@@ -67,9 +65,10 @@ it('upgrades an install Roster migrated and seeded, through Guardian\'s migratio
     Log::shouldHaveReceived('info')->withArgs(fn (string $line): bool => str_contains($line, 'Renamed [roster_sso_connections] to [guardian_sso_connections].'));
 
     expect(upgradeRowCounts('roster'))->toBe(array_fill_keys(UPGRADE_KEYS, null))
-        ->and(SsoConnectionModel::query()->sole()->id)->toBe($connection->id)
-        ->and(SsoConnectionModel::query()->sole()->config)->toBe($connection->config)
-        ->and(ScimTokenModel::query()->sole()->sso_connection_id)->toBe($connection->id)
+        ->and(upgradeRowCounts('guardian'))->toBe(array_fill_keys(UPGRADE_KEYS, 1))
+        ->and(SsoConnectionModel::query()->sole()->id)->toBe($ids['sso_connections'])
+        ->and(SsoConnectionModel::query()->sole()->config)->toBe(['issuer' => 'https://idp.test'])
+        ->and(ScimTokenModel::query()->sole()->sso_connection_id)->toBe($ids['sso_connections'])
         ->and(DB::table('migrations')->where('migration', '2026_11_01_000000_upgrade_guardian_from_roster')->exists())->toBeTrue();
 
     $this->artisan('guardian:upgrade-from-roster')->assertSuccessful();

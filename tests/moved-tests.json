@@ -82,6 +82,87 @@
                 "refuses every tool to guests and to users without the permission",
                 "lets a super-admin past authorization on every tool"
             ]
+        },
+        "tests/Feature/Scim/ScimAuthTest.php": {
+            "from": "tests/Feature/Scim/ScimAuthTest.php",
+            "tests": [
+                "accepts a valid token and stamps its use",
+                "refuses missing, wrong, revoked, expired and other-organization tokens"
+            ]
+        },
+        "tests/Feature/Scim/ScimGroupsTest.php": {
+            "from": "tests/Feature/Scim/ScimGroupsTest.php",
+            "tests": [
+                "creates a group as a team with members",
+                "adds, removes and replaces members with PATCH",
+                "refuses members from outside the organization",
+                "deletes a group and its team"
+            ]
+        },
+        "tests/Feature/Scim/ScimProtocolTest.php": {
+            "from": "tests/Feature/Scim/ScimProtocolTest.php",
+            "tests": [
+                "rejects unsupported filters",
+                "pages with startIndex and count",
+                "honours ETags",
+                "runs bulk requests with bulkId references",
+                "stops bulk work after failOnErrors",
+                "limits bulk size",
+                "describes itself",
+                "matches eq filters exactly, even with LIKE wildcards in the value"
+            ]
+        },
+        "tests/Feature/Scim/ScimUsersTest.php": {
+            "from": "tests/Feature/Scim/ScimUsersTest.php",
+            "tests": [
+                "provisions a new member from Okta",
+                "gets, lists and filters users the way identity providers probe",
+                "never matches a different account through LIKE wildcards",
+                "links an existing account on the organization's domain",
+                "refuses emails outside the organization's domains",
+                "refuses duplicates",
+                "deprovisions with Okta's PATCH and restores",
+                "deprovisions with Entra's capitalised ops and string booleans",
+                "keeps accounts that belong to other organizations active",
+                "protects the organization's owner",
+                "replaces a user with PUT",
+                "patches names and emails by path",
+                "links the SSO identity from externalId when the token names a connection",
+                "writes nothing for a PATCH that only echoes the current view"
+            ]
+        },
+        "tests/Feature/Scim/ScimAuditContextTest.php": {
+            "from": "tests/Feature/Scim/ScimAuditContextTest.php",
+            "tests": [
+                "records the SCIM token a change came through, with the same shape",
+                "adds the SCIM token to Roster entries only, not to other packages' events",
+                "writes the entry without the SCIM token, and reports why, when the SCIM context throws",
+                "registers the SCIM audit context only while an audit log is available"
+            ]
+        },
+        "tests/Feature/Http/ScimTokensHttpTest.php": {
+            "from": "tests/Feature/Http/ScimTokensHttpTest.php",
+            "tests": [
+                "issues a token once, lists without it, and revokes"
+            ]
+        },
+        "tests/Feature/Scim/UserApprovalTest.php": {
+            "from": "tests/Feature/UserApprovalTest.php",
+            "tests": [
+                "lets organizations choose whether their SCIM accounts need approval"
+            ]
+        },
+        "tests/Feature/Scim/ProvisionedStatusTest.php": {
+            "from": "tests/Feature/ProvisionedStatusTest.php",
+            "tests": [
+                "provisions SCIM accounts through it, so a bad stored value never fails provisioning"
+            ]
+        },
+        "tests/Feature/Scim/ScimAuditTest.php": {
+            "from": "tests/Modes/Keen/KeenAuditTest.php",
+            "tests": [
+                "records SCIM changes with the token that made them, through the scim surface"
+            ]
         }
     }
 }

@@ -95,6 +95,9 @@ const PARITY_EXCEPTIONS = [
     'DeleteSsoConnectionAction' => ['ui'],
     'ListSsoIdentitiesAction' => ['ui'],
     'UnlinkSsoIdentityAction' => ['ui'],
+    'ListScimTokensAction' => ['ui'],
+    'CreateScimTokenAction' => ['ui'],
+    'RevokeScimTokenAction' => ['ui'],
 ];
 
 /**

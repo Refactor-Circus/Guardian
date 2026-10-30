@@ -6,7 +6,7 @@ require_once __DIR__.'/fixtures.php';
 
 use Illuminate\Support\Facades\Route;
 
-// The SSO cases of Roster's tests/Authorization/HttpAuthorizationTest.php at
+// The SSO and SCIM cases of Roster's tests/Authorization/HttpAuthorizationTest.php at
 // the pinned SHA, with Guardian's route names.
 
 beforeEach(fn () => authorizationOn());

@@ -27,5 +27,7 @@ return [
     // SCIM provisioning
     'scim' => 'SCIM provisioning',
     'scim_tokens' => 'SCIM tokens',
+    'scim_deprovisioned' => 'Deprovisioned from :organization by its identity provider.',
+    'unknown_sso_connection' => 'No SSO connection in this organization has this slug.',
 
 ];

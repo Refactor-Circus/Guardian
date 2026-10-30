@@ -10,6 +10,9 @@ use Laravel\Mcp\Server\Attributes\Version;
 use Laravel\Mcp\Server\ServerContext;
 use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\ToolSearch;
+use RefactorCircus\Guardian\Domains\Scim\Mcp\Tools\CreateScimTokenTool;
+use RefactorCircus\Guardian\Domains\Scim\Mcp\Tools\ListScimTokensTool;
+use RefactorCircus\Guardian\Domains\Scim\Mcp\Tools\RevokeScimTokenTool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\CreateSsoConnectionTool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\DeleteSsoConnectionTool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\ListSsoConnectionsTool;
@@ -44,6 +47,10 @@ final class GuardianServer extends Server
         DeleteSsoConnectionTool::class,
         ListSsoIdentitiesTool::class,
         UnlinkSsoIdentityTool::class,
+        // SCIM provisioning
+        ListScimTokensTool::class,
+        CreateScimTokenTool::class,
+        RevokeScimTokenTool::class,
     ];
 
     /**

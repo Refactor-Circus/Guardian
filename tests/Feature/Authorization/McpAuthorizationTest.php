@@ -6,7 +6,7 @@ require_once __DIR__.'/fixtures.php';
 
 use RefactorCircus\Guardian\Mcp\GuardianServer;
 
-// The SSO cases of Roster's tests/Authorization/McpAuthorizationTest.php at
+// The SSO and SCIM cases of Roster's tests/Authorization/McpAuthorizationTest.php at
 // the pinned SHA, against GuardianServer.
 
 beforeEach(fn () => authorizationOn());
@@ -23,10 +23,11 @@ function toolArguments(): array
 
     return collect(GuardianServer::TOOLS)
         ->mapWithKeys(fn (string $tool): array => [$tool => match (class_basename($tool)) {
-            'ListSsoConnectionsTool', 'CreateSsoConnectionTool' => $org,
+            'ListSsoConnectionsTool', 'CreateSsoConnectionTool', 'ListScimTokensTool', 'CreateScimTokenTool' => $org,
             'ShowSsoConnectionTool', 'UpdateSsoConnectionTool', 'DeleteSsoConnectionTool' => fn (): array => ['connection' => 'acme-okta'],
             'ListSsoIdentitiesTool' => $user,
             'UnlinkSsoIdentityTool' => fn (array $w): array => ['identity' => $w['identity']->id],
+            'RevokeScimTokenTool' => fn (array $w): array => ['token' => $w['scimToken']->id],
             default => fn (): array => [],
         }])
         ->all();

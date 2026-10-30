@@ -2,16 +2,17 @@
 
 declare(strict_types=1);
 
+use RefactorCircus\Guardian\Domains\Scim\Models\ScimTokenModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Roster\Domains\Organization\Actions\AddMemberAction;
 use RefactorCircus\Roster\Domains\Organization\Data\AddMemberData;
 
 /**
- * The SSO cases of Roster's tests/Authorization/fixtures.php at the pinned
- * SHA (tests/moved-tests.json), with Guardian's route names: an organization
- * `acme` with a member `target`, a connection `acme-okta` and the target's
- * identity on it.
+ * The SSO and SCIM cases of Roster's tests/Authorization/fixtures.php at the
+ * pinned SHA (tests/moved-tests.json), with Guardian's route names: an
+ * organization `acme` with a member `target`, a connection `acme-okta`, the
+ * target's identity on it and a SCIM token.
  *
  * @return array<string, mixed>
  */
@@ -24,7 +25,9 @@ function authorizationWorld(): array
     $connection = SsoConnectionModel::factory()->create(['organization_id' => $acme->id, 'slug' => 'acme-okta']);
     $identity = SsoIdentityModel::query()->create(['connection_id' => $connection->id, 'user_id' => $target->getKey(), 'subject' => 'sub-1']);
 
-    return compact('acme', 'target', 'connection', 'identity');
+    $scimToken = ScimTokenModel::query()->create(['organization_id' => $acme->id, 'name' => 'Okta', 'token_hash' => hash('sha256', 'x')]);
+
+    return compact('acme', 'target', 'connection', 'identity', 'scimToken');
 }
 
 /**
@@ -54,5 +57,8 @@ function apiRoutes(): array
         'sso-connections.destroy' => ['DELETE', 'guardian.sso-connections.destroy', fn (): array => ['acme-okta'], []],
         'users.sso-identities.index' => ['GET', 'guardian.users.sso-identities.index', $user, []],
         'sso-identities.destroy' => ['DELETE', 'guardian.sso-identities.destroy', fn (array $w): array => [$w['identity']->id], []],
+        'scim-tokens.index' => ['GET', 'guardian.organizations.scim-tokens.index', $org, []],
+        'scim-tokens.store' => ['POST', 'guardian.organizations.scim-tokens.store', $org, ['name' => 'Okta']],
+        'scim-tokens.destroy' => ['DELETE', 'guardian.scim-tokens.destroy', fn (array $w): array => [$w['scimToken']->id], []],
     ];
 }

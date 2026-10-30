@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Http\Request;
 use Illuminate\JsonSchema\Types\Type;
 use Illuminate\Support\Facades\Route;
-use RefactorCircus\Keystone\Http\Resources\JsonResource;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
+use RefactorCircus\Keystone\Http\Resources\JsonResource;
 
 /**
  * The client secret is never serialized; `client_secret` only says whether

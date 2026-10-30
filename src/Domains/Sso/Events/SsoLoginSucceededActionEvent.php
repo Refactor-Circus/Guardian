@@ -7,8 +7,8 @@ namespace RefactorCircus\Guardian\Domains\Sso\Events;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Keystone\Contracts\ActionFinishedEvent;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
+use RefactorCircus\Keystone\Contracts\ActionFinishedEvent;
 
 /**
  * Someone signed in through SSO.

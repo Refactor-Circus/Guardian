@@ -8,11 +8,11 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Keystone\Mcp\Tool;
 use RefactorCircus\Guardian\Domains\Sso\Data\ListSsoConnectionsData;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Requests\ListSsoConnectionsMcpRequest;
 use RefactorCircus\Guardian\Domains\Sso\Resources\SsoConnectionResource;
 use RefactorCircus\Guardian\Mcp\Concerns\DescribesOrganization;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('List an organization\'s single sign-on connections. Secrets are never returned.')]
 final class ListSsoConnectionsTool extends Tool

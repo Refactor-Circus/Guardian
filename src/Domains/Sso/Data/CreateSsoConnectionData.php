@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace RefactorCircus\Guardian\Domains\Sso\Data;
 
 use Illuminate\Validation\Rule;
-use RefactorCircus\Keystone\Data\Data;
 use RefactorCircus\Guardian\Domains\Sso\Concerns\SsoConnectionRules;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
+use RefactorCircus\Keystone\Data\Data;
 
 /**
  * Input for CreateSsoConnectionAction: the connection and its protocol's

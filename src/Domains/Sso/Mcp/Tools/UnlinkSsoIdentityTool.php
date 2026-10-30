@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Keystone\Mcp\Tool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Requests\UnlinkSsoIdentityMcpRequest;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Unlink an identity-provider account from its user. Users may unlink their own.')]
 final class UnlinkSsoIdentityTool extends Tool

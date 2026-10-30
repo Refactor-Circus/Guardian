@@ -6,10 +6,10 @@ namespace RefactorCircus\Guardian\Domains\Sso\Concerns;
 
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
-use RefactorCircus\Keystone\Data\Missing;
 use RefactorCircus\Guardian\Domains\Sso\Data\CreateSsoConnectionData;
 use RefactorCircus\Guardian\Domains\Sso\Data\UpdateSsoConnectionData;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
+use RefactorCircus\Keystone\Data\Missing;
 
 /**
  * Validation and storage of a connection's protocol settings.

@@ -35,15 +35,15 @@ depends on: 2
 files: src/Domains/Sso/**, src/Domains/DomainServiceProvider.php, src/Mcp/GuardianServer.php, src/Mcp/Concerns/DescribesSsoConnection.php, src/GuardianServiceProvider.php, config/guardian.php, lang/en/guardian.php, tests/TestCase.php, tests/ArchTest.php, tests/moved-tests.json, tests/Feature/Sso/**, tests/Feature/Http/SsoHttpTest.php, tests/Feature/Authorization/**, tests/Feature/Mcp/**, tests/Feature/MovedTestsManifestTest.php, tests/Feature/RosterBoundaryTest.php, tests/Modes/SsoUnavailable/**
 criteria: 8, 9, 10, 12, 13, 15, 24, 25, 26
 
-- [ ] 3.1 Copy Roster's SSO tests (tests/Feature/Sso, Http/SsoHttpTest, Modes/SsoUnavailable, the SSO cases of Authorization/*, the SSO MCP tests) from a pinned Roster SHA with only the criterion 8 renames, record the SHA and the moved files and test names in tests/moved-tests.json, and write the manifest-count, Roster-boundary arch and @internal grep, permission-registration and SSO audit tests (criteria 8, 9, 10, 15).
-- [ ] 3.2 Move Roster's Domains/Sso (actions, data, events, exceptions, HTTP controllers, requests, middleware, MCP requests and tools, resources, services, Concerns, Support\NotSsoEnforced, routes) and Mcp\Concerns\DescribesSsoConnection into Guardian with guardian namespaces, guardian.sso config reads and Guardian's request and policy bases.
-- [ ] 3.3 Register the guardian.sso resource and the guardian.sso.view and guardian.sso.manage permissions from SsoServiceProvider, and rename every roster.sso permission string to guardian.sso.
-- [ ] 3.4 Implement SsoSignInRequirement registered with Roster::requireSignIn(), switch NotSsoEnforced to Roster::externalSignInFor() and SsoLoginAction to Roster::provisionedStatus() (criteria 12, 13).
-- [ ] 3.5 Load the SSO API routes through loadApiRoutesFrom() under guardian.routes with the guardian.* names of criterion 25, and the SSO web routes named guardian.sso.discover|start|callback|metadata|link under guardian.sso.prefix.
-- [ ] 3.6 Register the seven SSO tools on GuardianServer with Roster's names, descriptions and output schemas, and wire guardian.mcp.* web and local servers and Cortex as in Keen.
-- [ ] 3.7 Add the SSO parity exceptions (SsoLoginAction and LinkSsoIdentityAction for http and mcp with Roster's reasons) and temporary "Atrium UI group" UI exceptions for the SSO actions whose UI lands in group 5.
-- [ ] 3.7a Mark Support\Integration::rosterPresent() @internal (D-037) and amend the criterion 7 test if it counts public methods.
-- [ ] 3.8 Run vendor/bin/pest; all green.
+- [x] 3.1 Copy Roster's SSO tests (tests/Feature/Sso, Http/SsoHttpTest, Modes/SsoUnavailable, the SSO cases of Authorization/*, the SSO MCP tests) from a pinned Roster SHA with only the criterion 8 renames, record the SHA and the moved files and test names in tests/moved-tests.json, and write the manifest-count, Roster-boundary arch and @internal grep, permission-registration and SSO audit tests (criteria 8, 9, 10, 15).
+- [x] 3.2 Move Roster's Domains/Sso (actions, data, events, exceptions, HTTP controllers, requests, middleware, MCP requests and tools, resources, services, Concerns, Support\NotSsoEnforced, routes) and Mcp\Concerns\DescribesSsoConnection into Guardian with guardian namespaces, guardian.sso config reads and Guardian's request and policy bases.
+- [x] 3.3 Register the guardian.sso resource and the guardian.sso.view and guardian.sso.manage permissions from SsoServiceProvider, and rename every roster.sso permission string to guardian.sso.
+- [x] 3.4 Implement SsoSignInRequirement registered with Roster::requireSignIn(), switch NotSsoEnforced to Roster::externalSignInFor() and SsoLoginAction to Roster::provisionedStatus() (criteria 12, 13).
+- [x] 3.5 Load the SSO API routes through loadApiRoutesFrom() under guardian.routes with the guardian.* names of criterion 25, and the SSO web routes named guardian.sso.discover|start|callback|metadata|link under guardian.sso.prefix.
+- [x] 3.6 Register the seven SSO tools on GuardianServer with Roster's names, descriptions and output schemas, and wire guardian.mcp.* web and local servers and Cortex as in Keen.
+- [x] 3.7 Add the SSO parity exceptions (SsoLoginAction and LinkSsoIdentityAction for http and mcp with Roster's reasons) and temporary "Atrium UI group" UI exceptions for the SSO actions whose UI lands in group 5.
+- [x] 3.7a Mark Support\Integration::rosterPresent() @internal (D-037) and amend the criterion 7 test if it counts public methods.
+- [x] 3.8 Run vendor/bin/pest; all green.
 
 ## Group 4: SCIM domain with HTTP API and MCP
 package: Guardian

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace RefactorCircus\Guardian\Domains\Sso\Data;
 
 use Illuminate\Validation\Rule;
-use RefactorCircus\Keystone\Data\Data;
-use RefactorCircus\Keystone\Data\Missing;
 use RefactorCircus\Guardian\Domains\Sso\Concerns\SsoConnectionRules;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
+use RefactorCircus\Keystone\Data\Data;
+use RefactorCircus\Keystone\Data\Missing;
 
 /**
  * Input for UpdateSsoConnectionAction: the fields and protocol settings to

@@ -25,6 +25,12 @@ abstract class TestCase extends Orchestra
     public static bool $apiRoutes = true;
 
     /**
+     * Whether the next application boots with Guardian's MCP web and local
+     * servers switched on (`guardian.mcp.*`); both are off as shipped.
+     */
+    public static bool $mcpServers = false;
+
+    /**
      * @return array<int, class-string>
      */
     protected function getPackageProviders($app): array
@@ -46,6 +52,11 @@ abstract class TestCase extends Orchestra
         $app['config']->set('hashing.bcrypt.rounds', 4);
         $app['config']->set('roster.users.model', User::class);
         $app['config']->set('guardian.routes.enabled', self::$apiRoutes);
+
+        if (self::$mcpServers) {
+            $app['config']->set('guardian.mcp.web.enabled', true);
+            $app['config']->set('guardian.mcp.local.enabled', true);
+        }
         // Surface tests cover behaviour; tests/Feature/Authorization turns it
         // back on, as Roster's suite does.
         $app['config']->set('roster.authorization', false);

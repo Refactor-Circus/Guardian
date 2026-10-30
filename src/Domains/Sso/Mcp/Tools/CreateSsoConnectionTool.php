@@ -8,11 +8,11 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Keystone\Mcp\Tool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Requests\CreateSsoConnectionMcpRequest;
 use RefactorCircus\Guardian\Domains\Sso\Resources\SsoConnectionResource;
 use RefactorCircus\Guardian\Mcp\Concerns\DescribesOrganization;
 use RefactorCircus\Guardian\Mcp\Concerns\DescribesSsoConnection;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Connect an organization to its identity provider. protocol is oidc (issuer, client_id, client_secret), azure for Microsoft Entra ID (tenant, client_id, client_secret) or saml (metadata_url, or entity_id + sso_url + certificate). Returns the callback URL to register at the provider.')]
 final class CreateSsoConnectionTool extends Tool

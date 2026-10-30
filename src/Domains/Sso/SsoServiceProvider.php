@@ -9,6 +9,8 @@ use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Domains\Sso\Services\Sso;
 use RefactorCircus\Guardian\Domains\Sso\Services\SsoSignInRequirement;
+use RefactorCircus\Guardian\Domains\Sso\Support\SsoAudit;
+use RefactorCircus\Keystone\Audit\AuditHooks;
 use RefactorCircus\Keystone\Support\ServiceProvider;
 use RefactorCircus\Roster\Domains\Permission\Services\PermissionCatalogue;
 use RefactorCircus\Roster\Domains\Permission\Services\Resources;
@@ -21,13 +23,16 @@ use RefactorCircus\Roster\Roster;
  * reaches Roster through its public seams: the `guardian.sso` resource and
  * the `guardian.sso.*` permissions, granted to admins and answered by the
  * connection policy from `guardian.policies`, and the sign-in requirement
- * that holds an enforced connection's domains to single sign-on.
+ * that holds an enforced connection's domains to single sign-on. Its audit
+ * entries get the subject and organization Roster gave them.
  */
 class SsoServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
         $this->registerAuthorization();
+
+        $this->app->make(SsoAudit::class)->register($this->app->make(AuditHooks::class));
 
         // Enforced connections hold their domains to single sign-on, whether
         // or not the sign-in routes are available here.

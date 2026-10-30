@@ -6,9 +6,9 @@ namespace RefactorCircus\Guardian\Domains\Sso\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use RefactorCircus\Guardian\Domains\Sso\Data\CreateSsoConnectionData;
 use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 use RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel;
-use RefactorCircus\Guardian\Domains\Sso\Data\CreateSsoConnectionData;
 
 /**
  * An SSO connection is about to be created.

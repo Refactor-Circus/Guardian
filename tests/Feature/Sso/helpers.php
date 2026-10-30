@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Firebase\JWT\JWT;
 use Illuminate\Support\Facades\Http;
-use RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
+use RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel;
 
 /**
  * A fake OpenID provider: discovery, JWKS and a token endpoint that hands

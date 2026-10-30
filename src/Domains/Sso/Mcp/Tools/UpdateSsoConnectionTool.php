@@ -8,10 +8,10 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Keystone\Mcp\Tool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Requests\UpdateSsoConnectionMcpRequest;
 use RefactorCircus\Guardian\Domains\Sso\Resources\SsoConnectionResource;
 use RefactorCircus\Guardian\Mcp\Concerns\DescribesSsoConnection;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Change an SSO connection. The protocol cannot change; omit client_secret to keep it.')]
 final class UpdateSsoConnectionTool extends Tool

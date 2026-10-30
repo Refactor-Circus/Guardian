@@ -6,9 +6,9 @@ namespace RefactorCircus\Guardian\Domains\Sso\Services;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Route;
+use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Roster\Contracts\SignInRequirement;
 use RefactorCircus\Roster\Data\ExternalSignIn;
-use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 
 /**
  * SSO enforcement: an email whose domain belongs to an organization with an

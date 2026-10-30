@@ -6,8 +6,8 @@ namespace RefactorCircus\Guardian\Domains\Sso\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
+use RefactorCircus\Keystone\Contracts\ActionStartingEvent;
 
 /**
  * Someone is about to sign in through SSO.

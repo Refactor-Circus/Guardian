@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace RefactorCircus\Guardian\Domains\Sso\Mcp\Requests;
 
 use Laravel\Mcp\ResponseFactory;
-use RefactorCircus\Guardian\Domains\Sso\Mcp\Requests\SsoOrganizationMcpRequest;
 use RefactorCircus\Guardian\Domains\Sso\Actions\ListSsoConnectionsAction;
 use RefactorCircus\Guardian\Domains\Sso\Data\ListSsoConnectionsData;
 use RefactorCircus\Guardian\Domains\Sso\Resources\SsoConnectionResource;

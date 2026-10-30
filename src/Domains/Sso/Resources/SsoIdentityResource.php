@@ -8,8 +8,8 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\JsonSchema\Types\Type;
-use RefactorCircus\Keystone\Http\Resources\JsonResource;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
+use RefactorCircus\Keystone\Http\Resources\JsonResource;
 use RefactorCircus\Roster\Domains\User\Resources\UserSummaryResource;
 
 /**

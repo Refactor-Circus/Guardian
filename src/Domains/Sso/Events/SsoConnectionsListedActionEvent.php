@@ -6,8 +6,8 @@ namespace RefactorCircus\Guardian\Domains\Sso\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Keystone\Contracts\ActionFinishedEvent;
 use RefactorCircus\Guardian\Domains\Sso\Data\ListSsoConnectionsData;
+use RefactorCircus\Keystone\Contracts\ActionFinishedEvent;
 
 /**
  * SSO connections have been listed.

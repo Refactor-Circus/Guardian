@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace RefactorCircus\Guardian\Domains\Sso\Http\Requests;
 
 use Illuminate\Http\JsonResponse;
-use RefactorCircus\Guardian\Domains\Sso\Http\Requests\SsoOrganizationRequest;
 use RefactorCircus\Guardian\Domains\Sso\Actions\ListSsoConnectionsAction;
 use RefactorCircus\Guardian\Domains\Sso\Data\ListSsoConnectionsData;
 use RefactorCircus\Guardian\Domains\Sso\Resources\SsoConnectionResource;

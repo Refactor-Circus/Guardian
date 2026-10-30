@@ -6,10 +6,10 @@ namespace RefactorCircus\Guardian\Domains\Sso\Mcp\Requests;
 
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Mcp\Response;
-use RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel;
 use RefactorCircus\Guardian\Domains\Sso\Actions\UnlinkSsoIdentityAction;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Guardian\Mcp\Requests\Request;
+use RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel;
 
 final class UnlinkSsoIdentityMcpRequest extends Request
 {

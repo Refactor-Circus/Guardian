@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Contracts\Provider;
 use Laravel\Socialite\Two\User as SocialiteUser;
-use RefactorCircus\Roster\Contracts\SignInRequirement;
-use RefactorCircus\Roster\Data\ExternalSignIn;
 use RefactorCircus\Guardian\Domains\Sso\Actions\CreateSsoConnectionAction;
 use RefactorCircus\Guardian\Domains\Sso\Actions\UpdateSsoConnectionAction;
 use RefactorCircus\Guardian\Domains\Sso\Data\CreateSsoConnectionData;
@@ -21,6 +19,8 @@ use RefactorCircus\Guardian\Domains\Sso\Resources\SsoConnectionResource;
 use RefactorCircus\Guardian\Domains\Sso\Services\Sso;
 use RefactorCircus\Guardian\Domains\Sso\Services\SsoSignInRequirement;
 use RefactorCircus\Guardian\Domains\Sso\Support\NotSsoEnforced;
+use RefactorCircus\Roster\Contracts\SignInRequirement;
+use RefactorCircus\Roster\Data\ExternalSignIn;
 use RefactorCircus\Roster\Roster;
 
 /**

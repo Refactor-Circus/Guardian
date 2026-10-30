@@ -70,6 +70,12 @@
                 "lets a super-admin through"
             ]
         },
+        "tests/Feature/Sso/SsoAuditTest.php": {
+            "from": "tests/Modes/Keen/KeenAuditTest.php",
+            "tests": [
+                "redacts connection secrets"
+            ]
+        },
         "tests/Feature/Authorization/McpAuthorizationTest.php": {
             "from": "tests/Authorization/McpAuthorizationTest.php",
             "tests": [

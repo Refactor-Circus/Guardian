@@ -8,9 +8,9 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
-use RefactorCircus\Keystone\Mcp\Tool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Requests\ShowSsoConnectionMcpRequest;
 use RefactorCircus\Guardian\Domains\Sso\Resources\SsoConnectionResource;
+use RefactorCircus\Keystone\Mcp\Tool;
 
 #[Description('Show an SSO connection with its callback and metadata URLs. Secrets are never returned.')]
 final class ShowSsoConnectionTool extends Tool

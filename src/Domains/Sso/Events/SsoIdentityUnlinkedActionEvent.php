@@ -6,8 +6,8 @@ namespace RefactorCircus\Guardian\Domains\Sso\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use RefactorCircus\Keystone\Contracts\ActionFinishedEvent;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
+use RefactorCircus\Keystone\Contracts\ActionFinishedEvent;
 
 /**
  * An identity has been unlinked.

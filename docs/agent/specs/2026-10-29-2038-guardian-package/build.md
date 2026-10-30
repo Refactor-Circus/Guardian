@@ -97,3 +97,57 @@ Run file by file (not the whole suite, which the gate runs), all green:
 - `Support\Integration` has a third public method, `rosterPresent()`, and a second injected check (`method_exists`), beyond the spec's "two public methods" and "a class-exists check". The `about` line needs to tell "no Roster" from "a Roster without the seams", and a test can only stand in a Roster without `requireSignIn()` / `provisionedStatus()` through an injected method check, because the real Roster is installed. Returned as a decision.
 - The Atrium plugin call is not in `bootWithRoster()` yet: `GuardianPlugin` is under `src/Atrium/**`, which group 5 owns. Keystone's `registerAtriumPlugin()` also requires `guardian.ui.enabled === true`, a key criterion 6 does not list. Returned as a decision for group 5.
 - Outside the group's file list (carried from the salvaged commit): `src/Exceptions/RollbackRefusedException.php`, `composer.json` (factories autoload), `phpstan.neon.dist`, and the deleted scaffold placeholders.
+
+## Group 3
+
+SSO domain with HTTP API and MCP (criteria 8, 9, 10, 12, 13, 15, 24, 25, 26).
+
+### What I found
+
+Two salvaged commits (`ad29b12` with the moved source, `838f588` with the tests and wiring) held most of the group. I diffed both against Roster at `6b1833dae7ed21ba352612a13693d662bc7354cc` (the pinned SHA in `tests/moved-tests.json`), ran the group's tests, and fixed what failed: the created-connection audit entry had no organization scope, and Pint had not been run.
+
+### Files
+
+- `src/Domains/Sso/**`: Roster's `Domains/Sso` at the pinned SHA, moved with the renames only, except:
+  - Actions extend Keystone's `Action` (`protected handle()`; callers still call `execute()`), as actions/actions-events asks. `CreateSsoConnectionAction` makes its own unique slug, because Roster's `Support\Slugs` is not part of the API Guardian may use (criterion 9).
+  - `SsoLoginAction::fail()` takes only the reason (the connection and claims it ignored are gone), and finds users through Roster's `Support\Users`.
+  - Requests and MCP requests extend Guardian's bases. `SsoOrganizationRequest`, `SsoUserRequest`, `SsoOrganizationMcpRequest` and `SsoUserMcpRequest` replace Roster's `Organization` / `User` request bases, which Guardian may not use. `Concerns\ResolvesOrganizations` replaces Roster's `Support\Concerns\ResolvesScopes`. Each is a copy of what Roster's had.
+  - Exceptions extend `GuardianException`.
+  - Container, session and cache keys `roster.sso.http` / `.intent` / `.nonce` / `.discovery.*` / `.jwks.*` become `guardian.sso.*`. The criterion 10 grep test allows no `roster.sso` string under `src/`.
+  - `SsoServiceProvider` registers the `guardian.sso` resource and the `guardian.sso.view` / `guardian.sso.manage` permissions through `Resources::resource()` / `PermissionCatalogue::permission()`, not the `@internal` `roster*` methods. It registers `SsoSignInRequirement` with `Roster::requireSignIn()`, the API routes through `loadApiRoutesFrom()`, and the web routes `guardian.sso.*` under `guardian.sso.prefix` when `Sso::available()`. Policies come from `guardian.policies`. Roster's gate calls are gone.
+  - New `Support\SsoAudit`: Guardian's version of what Roster's `Support\Audit` did for the SSO events. On Keystone's `AuditHooks`, only for `Domains\Sso\Events\*`, it makes the event's `user` the subject. For the scope it uses the event's organization, else the user's current organization (`Roster::organization()`), else the subject's `organization_id`.
+- `src/Mcp/Concerns/{DescribesSsoConnection,DescribesOrganization,DescribesUser}.php`: Roster's, without the organization-settings and status schemas no SSO tool uses.
+- `src/Mcp/GuardianServer.php`: the seven SSO tools behind `ToolSearch` in `TOOLS`; no tools without Roster. The `guardian.mcp.*` web and local servers and Cortex are wired by group 2's `bootWithRoster()` (Keystone's `registerMcpServer()` / `registerCortex()`).
+- `src/Support/Integration.php`: `rosterPresent()` marked `@internal` (D-037). No test counts `Integration`'s public methods, so no test changed.
+- `lang/en/guardian.php`: Roster's SSO messages and `unknown_organization`, word for word.
+- `tests/Pest.php`: `PARITY_EXCEPTIONS` keeps Roster's `SsoLoginAction` / `LinkSsoIdentityAction` (`http`, `mcp`) with Roster's reason, plus temporary `ui` exceptions marked "Atrium UI group" for the seven other SSO actions. `SsoUnavailableTestCase` is used for `Modes/SsoUnavailable`.
+- `tests/TestCase.php`: `$apiRoutes` (on by default for surface tests) and `$mcpServers` (off) switches, `roster.authorization = false` for surface tests, and Roster's own SSO and SCIM routes moved out of the way (`roster.sso.prefix`, `roster.scim.enabled`; criterion 28).
+- `workbench/app/Models/User.php`: uses Roster's `HasRoster` trait, which the moved tests need on the user model.
+
+### Tests
+
+- Moved from Roster at the pinned SHA (`tests/moved-tests.json` lists every file and test name):
+  - `tests/Feature/Sso/{AzureFlowTest,OidcFlowTest,SsoLoginActionTest,SsoWiringTest,helpers}.php`
+  - `tests/Feature/Http/SsoHttpTest.php`
+  - `tests/Modes/SsoUnavailable/SsoUnavailableTest.php`, with `SsoUnavailableTestCase` moved beside it
+  - the SSO cases of `Authorization/HttpAuthorizationTest`, `McpAuthorizationTest` and `fixtures.php`, as `tests/Feature/Authorization/*`
+  - the SSO half of `Modes/Keen/KeenAuditTest` "redacts passwords and connection secrets", as "redacts connection secrets" in `SsoAuditTest`
+
+  Diffed against the originals, the only changes are namespaces, route names (`roster.sso.*` and `roster.*` API names to `guardian.*`), the `roster::roster.*` to `guardian::guardian.*` translation keys, the `roster_sso_connections` to `guardian_sso_connections` table name, the `roster.sso.http` container key, and import order (Pint, after the namespace rename). In `HttpAuthorizationTest`, "covers every roster API route" became "covers every guardian API route", filtering `guardian.*` names. Roster has no SSO-only MCP test file; its SSO MCP cases are in `SsoHttpTest` and `McpAuthorizationTest`.
+- New:
+  - `MovedTestsManifestTest`: the SHA is pinned, and each moved file keeps at least the recorded cases (criterion 8).
+  - `RosterBoundaryTest`: the denied Roster namespaces, by arch rule and by grep, and no `rosterResource` / `rosterPermission` under `src/` (criterion 9).
+  - `Authorization/PermissionsTest`: resource, permissions, system rows held by a new admin, `guardian.sso.manage` through the policy per organization, and no `roster.sso` / `roster.scim` string outside `src/Upgrade` (criterion 10).
+  - `Sso/SsoAuditTest`: one entry, source `guardian`, with the connection as subject and its organization as scope; nothing with `guardian.audit.enabled = false`; secrets redacted (criterion 15).
+  - `Sso/SsoRoutesTest`: API names, URIs and middleware, the web routes under `roster/sso`, and no API route with `routes.enabled = false` (criterion 25).
+  - `Mcp/SsoToolsTest`: the seven tools, an output schema on every structured tool, name, description and schemas equal to Roster's, and MCP structured content equal to the HTTP payload (criterion 26).
+  - `Mcp/GuardianServerTest`: no web or local server as shipped, both with `guardian.mcp.*` on.
+- Run file by file, not the whole suite: group 3's files with `tests/Modes` and `tests/ArchTest.php` gave 162 passed. `composer lint:check`, `composer analyse` and `composer test:types` (100%) pass.
+
+### Deviations and notes for later groups
+
+- Pint reformatted the moved source (brace and import style) and two moved test files (import order only).
+- `SsoAudit` covers only the SSO events. Group 4 needs the same subject and scope hooks for the SCIM events. Roster scoped them through its own `Support\Audit`, which Guardian cannot use.
+- The ten-tool listing of criterion 26 is group 4's, once the SCIM tools exist. `SsoToolsTest` checks the seven SSO tools.
+- Criterion 10's re-check: Roster's migrations at the pinned SHA store role scope only as the `scope` enum column. No column holds a resource key, so the upgrade needs no resource-key step.
+- Cortex is not installed here, so `registerCortex()` runs as a no-op in tests. Keen tests it the same way.

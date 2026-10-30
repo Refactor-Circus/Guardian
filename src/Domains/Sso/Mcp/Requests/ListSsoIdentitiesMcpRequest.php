@@ -9,7 +9,6 @@ use Laravel\Mcp\ResponseFactory;
 use RefactorCircus\Guardian\Domains\Sso\Actions\ListSsoIdentitiesAction;
 use RefactorCircus\Guardian\Domains\Sso\Data\ListSsoIdentitiesData;
 use RefactorCircus\Guardian\Domains\Sso\Resources\SsoIdentityResource;
-use RefactorCircus\Guardian\Domains\Sso\Mcp\Requests\SsoUserMcpRequest;
 
 final class ListSsoIdentitiesMcpRequest extends SsoUserMcpRequest
 {

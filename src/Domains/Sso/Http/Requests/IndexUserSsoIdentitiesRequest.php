@@ -9,7 +9,6 @@ use Illuminate\Http\JsonResponse;
 use RefactorCircus\Guardian\Domains\Sso\Actions\ListSsoIdentitiesAction;
 use RefactorCircus\Guardian\Domains\Sso\Data\ListSsoIdentitiesData;
 use RefactorCircus\Guardian\Domains\Sso\Resources\SsoIdentityResource;
-use RefactorCircus\Guardian\Domains\Sso\Http\Requests\SsoUserRequest;
 
 final class IndexUserSsoIdentitiesRequest extends SsoUserRequest
 {

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Guardian\Domains\Sso\Mcp\Requests;
 
-use RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Mcp\Requests\Request;
+use RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel;
 
 abstract class SsoConnectionMcpRequest extends Request
 {

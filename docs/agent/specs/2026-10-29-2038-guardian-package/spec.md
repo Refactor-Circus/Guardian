@@ -348,3 +348,8 @@ Both are recorded in `docs/agent/standards-feedback.md` (workspace root) by the 
 - D-038: `config/guardian.php` gains `ui.enabled` (default `true`); `GuardianPlugin` registers through Keystone's `registerAtriumPlugin()` behind `atriumInstalled()` (amends criterion 6 and group 5).
 - D-039: OIDC sign-in refuses to link an existing account by email or create one just-in-time unless the id_token's `email_verified` claim is `true`; the refusal is a `SsoLoginRefused` with its own reason, documented in README and CHANGELOG as a change from Roster. SAML is unchanged.
 - D-040: each create migration's `down()` checks only the tables it drops (amends criterion 21).
+
+## Addendum 2026-10-30 (v0.1.0 release)
+
+- Criterion 1: with the suite's first tagged release, Guardian requires `refactor-circus/keystone: ^0.1`, and develops against Roster, Atrium and Keen `^0.1` (Ringside and Standards stay `dev-main`). `laravel/mcp` is `^1.1` in `require-dev`, because the tool snapshots carry the title annotation 1.1 added.
+- Criterion 28: Roster's seams branch merged, and Roster `remove-sso-and-scim` shipped with Roster v0.1.0, so Roster `^0.1` no longer carries its own SSO and SCIM. Coexistence was proven against the seams branch before merge; from v0.1.0 on, Guardian's suite runs with handover complete against Roster `^0.1`.

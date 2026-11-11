@@ -97,8 +97,11 @@ describe('composer.json', function (): void {
         // laravel/mcp ^1.1: the tool snapshots carry the title annotation 1.1 added.
         expect($requireDev['laravel/mcp'] ?? null)->toBe('^1.1');
 
+        // Pint 1.32.2 crashes `pint --parallel` on Windows; Keen's released tag predates the exclusion.
+        expect($requireDev['laravel/pint'] ?? null)->toBe('^1.32.1, !=1.32.2');
+
         foreach (keenComposer()['require-dev'] as $package => $constraint) {
-            if (! str_starts_with($package, 'refactor-circus/') && $package !== 'laravel/mcp') {
+            if (! str_starts_with($package, 'refactor-circus/') && ! in_array($package, ['laravel/mcp', 'laravel/pint'], true)) {
                 expect($requireDev[$package] ?? null)->toBe($constraint, $package);
             }
         }

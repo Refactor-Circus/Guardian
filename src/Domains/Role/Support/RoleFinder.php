@@ -52,13 +52,29 @@ final class RoleFinder
      */
     public function owner(RoleModel $role): ?Model
     {
-        if ($role->owner_type === null || $role->owner_id === null) {
-            return null;
+        return $this->scopes->find($role->owner_type, $role->owner_id);
+    }
+
+    /**
+     * The role with that slug that may be assigned in the scope (the
+     * scope's own first), as Keystone's `Roles::assign()` finds it; null
+     * when there is none.
+     */
+    public function assignable(string $slug, ?Model $scope): ?RoleModel
+    {
+        $query = RoleModel::query()->with('permissions')->where('slug', $slug);
+
+        if ($scope === null) {
+            return $query->whereIn('scope', [RoleModel::GLOBAL, RoleModel::ANY])->whereNull('owner_type')->first();
         }
 
-        $class = $this->scopes->modelClass($role->owner_type);
-
-        return $class === null ? null : (new $class)->newQuery()->whereKey($role->owner_id)->first();
+        return $query
+            ->whereIn('scope', [RoleModel::ANY, $scope->getMorphClass()])
+            ->where(fn (Builder $owner): Builder => $owner
+                ->whereNull('owner_type')
+                ->orWhere(fn (Builder $own): Builder => $own->where('owner_type', $scope->getMorphClass())->where('owner_id', Scopes::key($scope))))
+            ->orderByRaw('case when owner_type is null then 1 else 0 end')
+            ->first();
     }
 
     /**

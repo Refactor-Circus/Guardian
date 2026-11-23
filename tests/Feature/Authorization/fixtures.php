@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use RefactorCircus\Guardian\Domains\Role\Models\RoleAssignmentModel;
 use RefactorCircus\Guardian\Domains\Role\Models\RoleModel;
 use RefactorCircus\Guardian\Domains\Scim\Models\ScimTokenModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
@@ -13,7 +14,8 @@ use RefactorCircus\Roster\Domains\Organization\Data\AddMemberData;
  * The SSO and SCIM cases of Roster's tests/Authorization/fixtures.php at the
  * pinned SHA (tests/moved-tests.json), with Guardian's route names: an
  * organization `acme` with a member `target`, a connection `acme-okta`, the
- * target's identity on it and a SCIM token; plus a shared role `editor`.
+ * target's identity on it and a SCIM token; plus a shared role `editor`,
+ * held by the target.
  *
  * @return array<string, mixed>
  */
@@ -29,8 +31,9 @@ function authorizationWorld(): array
     $scimToken = ScimTokenModel::query()->create(['organization_id' => $acme->id, 'name' => 'Okta', 'token_hash' => hash('sha256', 'x')]);
 
     $role = RoleModel::query()->create(['name' => 'Editor', 'slug' => 'editor', 'scope' => RoleModel::ANY]);
+    $assignment = RoleAssignmentModel::query()->create(['role_id' => $role->id, 'user_id' => $target->getKey()]);
 
-    return compact('acme', 'target', 'connection', 'identity', 'scimToken', 'role');
+    return compact('acme', 'target', 'connection', 'identity', 'scimToken', 'role', 'assignment');
 }
 
 /**
@@ -67,6 +70,10 @@ function apiRoutes(): array
         'roles.show' => ['GET', 'guardian.roles.show', fn (): array => ['editor'], []],
         'roles.update' => ['PATCH', 'guardian.roles.update', fn (): array => ['editor'], ['name' => 'Y']],
         'roles.destroy' => ['DELETE', 'guardian.roles.destroy', fn (): array => ['editor'], []],
+        'role-assignments.index' => ['GET', 'guardian.role-assignments.index', fn (): array => [], []],
+        'role-assignments.store' => ['POST', 'guardian.role-assignments.store', fn (): array => [], ['user' => 'x', 'role' => 'member']],
+        'role-assignments.destroy' => ['DELETE', 'guardian.role-assignments.destroy', fn (array $w): array => [$w['assignment']->id], []],
+        'users.abilities.index' => ['GET', 'guardian.users.abilities.index', $user, []],
         'scim-tokens.destroy' => ['DELETE', 'guardian.scim-tokens.destroy', fn (array $w): array => [$w['scimToken']->id], []],
     ];
 }

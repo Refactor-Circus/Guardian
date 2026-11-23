@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Guardian\Domains\Role;
 
+use RefactorCircus\Guardian\Domains\Role\Console\Commands\GrantSuperAdminCommand;
 use RefactorCircus\Guardian\Domains\Role\Models\RoleModel;
 use RefactorCircus\Guardian\Domains\Role\Support\GuardianAbilities;
 use RefactorCircus\Guardian\Support\Authorization;
@@ -30,5 +31,9 @@ class RoleServiceProvider extends ServiceProvider
         $this->app->make(Authorization::class)->resource('guardian.roles', RoleModel::class);
 
         $this->loadApiRoutesFrom(__DIR__.'/routes.php');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([GrantSuperAdminCommand::class]);
+        }
     }
 }

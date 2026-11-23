@@ -29,6 +29,9 @@ function toolArguments(): array
             'UnlinkSsoIdentityTool' => fn (array $w): array => ['identity' => $w['identity']->id],
             'ShowRoleTool', 'UpdateRoleTool', 'DeleteRoleTool' => fn (): array => ['role' => 'editor'],
             'CreateRoleTool' => fn (): array => ['name' => 'X'],
+            'AssignRoleTool' => fn (array $w): array => ['user' => (string) $w['target']->getKey(), 'role' => 'member'],
+            'RevokeRoleTool' => fn (array $w): array => ['assignment' => $w['assignment']->id],
+            'ListUserAbilitiesTool' => fn (array $w): array => ['user' => (string) $w['target']->getKey()],
             'RevokeScimTokenTool' => fn (array $w): array => ['token' => $w['scimToken']->id],
             default => fn (): array => [],
         }])

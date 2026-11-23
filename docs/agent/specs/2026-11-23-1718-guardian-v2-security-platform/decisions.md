@@ -197,3 +197,9 @@
 - Rationale: Criteria 15 to 18 and task 5.3 (`slug`, not `id`) leave the addressing open. Morph types keep Guardian Roster-free (D-005); checking manage in the owner stops a scope admin from editing roles every scope shares.
 - Date: 2026-11-23
 - Raised by: implement (group 5); conservative default, no user available
+
+## D-034: Assignments and user abilities over the API
+- Choice: `POST role-assignments` takes `user` (the user's key), `role` (a slug) and the scope (`scope_type`/`scope_id`); the role is the one `Roles::assign()` would pick there (the scope's own first, then a shared one assignable there), and a role that cannot be held there, an unknown user or an assignment that already exists is a 422 on `role`/`user`. `DELETE role-assignments/{assignment}` takes the assignment's ULID (the resource's `id`, which assignments keep because they have no slug) and is checked, and escalation-guarded, in the assignment's scope (global when that scope record is gone). `GET role-assignments` is checked in the scope named by `scope_type` and `scope_id` together; `scope_type` alone filters every scope of that type and is checked globally. `GET users/{user}/abilities` answers the bound `Permissions::abilities()` (null when a store cannot list them) and `isSuperAdmin()`, and everyone may list their own (`self()`), as a front end needs to know what to show. `guardian:grant-super-admin` syncs the built-ins first and assigns `super-admin` through `GuardianRoles`.
+- Rationale: Criteria 16, 17 and 19 leave the shapes open; these mirror Roster v0.1's rules on Guardian's scope morphs (D-033).
+- Date: 2026-11-23
+- Raised by: implement (group 6); conservative default, no user available

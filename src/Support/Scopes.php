@@ -83,6 +83,17 @@ final class Scopes
     }
 
     /**
+     * The stored scope a type and key name, quietly: null for none, an
+     * unknown type or a record that is gone.
+     */
+    public function find(?string $type, ?string $id): ?Model
+    {
+        $class = $type === null || $id === null ? null : $this->modelClass($type);
+
+        return $class === null ? null : (new $class)->newQuery()->whereKey($id)->first();
+    }
+
+    /**
      * A scope's key as assignments store it.
      */
     public static function key(?Model $scope): ?string

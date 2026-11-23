@@ -62,11 +62,11 @@ depends on: 5
 files: src/Domains/Role/Actions/{AssignRoleAction,RevokeRoleAction,ListRoleAssignmentsAction,ListUserAbilitiesAction}.php, src/Domains/Role/Data/{AssignRoleData,ListRoleAssignmentsData,ListUserAbilitiesData}.php, src/Domains/Role/Policies/RoleAssignmentPolicy.php, src/Domains/Role/Resources/RoleAssignmentResource.php, src/Domains/Role/Http/Requests/*Assignment*Request.php, src/Domains/Role/Http/Requests/IndexUserAbilitiesRequest.php, src/Domains/Role/Http/Controllers/{RoleAssignmentController,UserAbilityController}.php, src/Domains/Role/routes.php, src/Domains/Role/Mcp/**, src/Domains/Role/Console/Commands/GrantSuperAdminCommand.php, src/Mcp/GuardianServer.php, tests/Feature/Role/AssignmentActionsTest.php, tests/Feature/Http/RoleAssignmentsHttpTest.php, tests/Feature/Mcp/RoleAssignmentToolsTest.php, tests/Feature/Role/GrantSuperAdminCommandTest.php
 criteria: 15, 16, 17, 18, 19
 
-- [ ] 6.1 Write tests: assign and revoke in global and scoped contexts, with escalation (missing permissions named, super roles for super-admins only); assignment listing with every filter; user abilities in a scope; HTTP and MCP wiring with `guardian.roles.assign`/`view`; `guardian:grant-super-admin` for a known and an unknown email
-- [ ] 6.2 Implement the four actions, their Data and events, the policy and the resource
-- [ ] 6.3 Add the requests, controllers, routes and MCP tools
-- [ ] 6.4 Add `GrantSuperAdminCommand`
-- [ ] 6.5 Run vendor/bin/pest; all green
+- [x] 6.1 Write tests: assign and revoke in global and scoped contexts, with escalation (missing permissions named, super roles for super-admins only); assignment listing with every filter; user abilities in a scope; HTTP and MCP wiring with `guardian.roles.assign`/`view`; `guardian:grant-super-admin` for a known and an unknown email
+- [x] 6.2 Implement the four actions, their Data and events, the policy and the resource
+- [x] 6.3 Add the requests, controllers, routes and MCP tools
+- [x] 6.4 Add `GrantSuperAdminCommand`
+- [x] 6.5 Run vendor/bin/pest; all green
 
 ## Group 7: Permissions API and MCP
 depends on: 6

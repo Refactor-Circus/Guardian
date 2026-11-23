@@ -1,0 +1,11 @@
+id: 2026-11-23-1718-guardian-v2-security-platform
+title: 'Guardian v2: security platform'
+status: approved
+created: '2026-11-23 17:18'
+release: v2.0.0
+waits_for: [Keystone/2026-11-23-0943-drop-the-atrium-plugin-hook, Roster/2026-11-23-0943-roster-v2-api-and-mcp-only]
+blocks: [Atrium/2026-11-22-1823-atrium-v2-headless]
+standards:
+  refactor-circus/standards:
+    version: dev-main
+    reference: f6b96cbce802

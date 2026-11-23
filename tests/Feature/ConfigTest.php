@@ -269,6 +269,10 @@ it('has the password defaults', function (): void {
     ]);
 });
 
+it('has the token defaults: no driver', function (): void {
+    expect(shippedGuardianConfig()['tokens'])->toBe(['driver' => null, 'abilities' => ['*'], 'max_lifetime_days' => 365]);
+});
+
 it('has the security log defaults', function (): void {
     expect(shippedGuardianConfig()['security_log'])->toBe([
         'enabled' => true,
@@ -281,7 +285,7 @@ it('has exactly the documented sections, each under a banner', function (): void
     $source = (string) file_get_contents(dirname(__DIR__, 2).'/config/guardian.php');
 
     expect(array_keys(shippedGuardianConfig()))->toBe([
-        'sso', 'scim', 'routes', 'authorization', 'super_admins', 'permission_cache', 'rate_limit', 'audit', 'users', 'roles', 'adopt', 'security_log', 'two_factor', 'sessions', 'devices', 'passwords', 'policies', 'tables', 'mcp', 'cortex', 'migrations',
+        'sso', 'scim', 'routes', 'authorization', 'super_admins', 'permission_cache', 'rate_limit', 'audit', 'users', 'roles', 'adopt', 'security_log', 'two_factor', 'sessions', 'devices', 'passwords', 'tokens', 'policies', 'tables', 'mcp', 'cortex', 'migrations',
     ])->and(substr_count($source, '|--------------------------------------------------------------------------'))
         ->toBe(2 * count(shippedGuardianConfig()));
 });

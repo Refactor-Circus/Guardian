@@ -11,6 +11,8 @@ use RefactorCircus\Guardian\Domains\Session\Mcp\Tools\ListDevicesTool;
 use RefactorCircus\Guardian\Domains\Session\Mcp\Tools\ListSessionsTool;
 use RefactorCircus\Guardian\Domains\Session\Mcp\Tools\RevokeOtherSessionsTool;
 use RefactorCircus\Guardian\Domains\Session\Mcp\Tools\RevokeSessionTool;
+use RefactorCircus\Guardian\Domains\Token\Mcp\Tools\ListTokensTool;
+use RefactorCircus\Guardian\Domains\Token\Mcp\Tools\RevokeTokenTool;
 use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\ListPasskeysTool;
 use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\RemovePasskeyTool;
 use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\RemoveTwoFactorMethodTool;
@@ -20,7 +22,7 @@ use RefactorCircus\Guardian\Mcp\GuardianServer;
 /**
  * Tools every signed-in user may use on themselves.
  */
-const SELF_SERVICE_TOOLS = [ListMySecurityEventsTool::class, ShowTwoFactorTool::class, RemoveTwoFactorMethodTool::class, ListPasskeysTool::class, RemovePasskeyTool::class, ListSessionsTool::class, RevokeSessionTool::class, RevokeOtherSessionsTool::class, ListDevicesTool::class, ForgetDeviceTool::class, ShowPasswordPolicyTool::class];
+const SELF_SERVICE_TOOLS = [ListMySecurityEventsTool::class, ShowTwoFactorTool::class, RemoveTwoFactorMethodTool::class, ListPasskeysTool::class, RemovePasskeyTool::class, ListSessionsTool::class, RevokeSessionTool::class, RevokeOtherSessionsTool::class, ListDevicesTool::class, ForgetDeviceTool::class, ShowPasswordPolicyTool::class, ListTokensTool::class, RevokeTokenTool::class];
 
 // The SSO and SCIM cases of Roster's tests/Authorization/McpAuthorizationTest.php at
 // the pinned SHA, against GuardianServer.
@@ -58,6 +60,8 @@ function toolArguments(): array
             'RevokeSessionTool' => fn (array $w): array => ['session' => $w['session']->id],
             'ListUserSessionsTool', 'RevokeUserSessionsTool' => fn (array $w): array => ['user' => (string) $w['target']->getKey()],
             'ForgetDeviceTool' => fn (array $w): array => ['device' => $w['device']->id],
+            'RevokeTokenTool' => fn (): array => ['token' => 'x'],
+            'ListUserTokensTool', 'RevokeUserTokensTool' => fn (array $w): array => ['user' => (string) $w['target']->getKey()],
             'RevokeScimTokenTool' => fn (array $w): array => ['token' => $w['scimToken']->id],
             default => fn (): array => [],
         }])

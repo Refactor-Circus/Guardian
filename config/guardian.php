@@ -477,6 +477,36 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | API Tokens
+    |--------------------------------------------------------------------------
+    |
+    | Users list, issue and revoke their API tokens through the
+    | `guardian.tokens.*` routes (MCP may list and revoke, never issue).
+    | Guardian stores no token itself: a driver does.
+    |
+    | driver:            null (no driver: the token routes answer 501),
+    |                    'sanctum' (laravel/sanctum, users with its
+    |                    HasApiTokens), 'passport' (laravel/passport, users
+    |                    that are OAuthenticatable; abilities are scopes),
+    |                    or the class name of your own TokenDriver.
+    | abilities:         The abilities a token may be given; a token asked
+    |                    for without any gets all of these.
+    | max_lifetime_days: The longest a token may live, and the expiry of a
+    |                    token asked for without one. Null: no limit.
+    |
+    | SECURITY: a token's value is answered once, when it is issued, and
+    | never stored, logged or recorded by Guardian.
+    |
+    */
+
+    'tokens' => [
+        'driver' => null,
+        'abilities' => ['*'],
+        'max_lifetime_days' => 365,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Policies
     |--------------------------------------------------------------------------
     |

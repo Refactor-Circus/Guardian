@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__).'/Session/helpers.php';
+require_once dirname(__DIR__).'/Token/helpers.php';
 
 use Illuminate\Support\Facades\Notification;
 use RefactorCircus\Guardian\Domains\Session\Mcp\Tools\ForgetDeviceTool;
@@ -14,9 +15,7 @@ use RefactorCircus\Guardian\Domains\Session\Mcp\Tools\RevokeSessionTool;
 use RefactorCircus\Guardian\Domains\Session\Mcp\Tools\RevokeUserSessionsTool;
 use RefactorCircus\Guardian\Domains\Session\Models\DeviceModel;
 use RefactorCircus\Guardian\Domains\Session\Models\SessionModel;
-use RefactorCircus\Guardian\Domains\Token\Contracts\TokenDriver;
 use RefactorCircus\Guardian\Mcp\GuardianServer;
-use RefactorCircus\Guardian\Tests\Fixtures\FakeTokenDriver;
 
 // Criterion 38: sessions and devices over MCP.
 
@@ -73,8 +72,7 @@ it('revokes your tokens through the driver with tokens: true, and errors without
 
     mcpTool(RevokeOtherSessionsTool::class, ['tokens' => true])->assertHasErrors(['No API token driver is configured.']);
 
-    $driver = new FakeTokenDriver;
-    app()->instance(TokenDriver::class, $driver);
+    $driver = fakeTokenDriver();
     $driver->issue($ada, 'CLI', ['*'], null);
 
     mcpTool(RevokeOtherSessionsTool::class, ['tokens' => true])->assertOk()->assertStructuredContent(['revoked' => 0, 'tokens_revoked' => 1]);

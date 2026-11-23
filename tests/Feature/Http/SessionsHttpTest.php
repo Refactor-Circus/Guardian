@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__).'/Session/helpers.php';
 require_once dirname(__DIR__).'/Permission/helpers.php';
+require_once dirname(__DIR__).'/Token/helpers.php';
 
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
@@ -24,8 +25,6 @@ use RefactorCircus\Guardian\Domains\Session\Events\UserSessionsRevokedActionEven
 use RefactorCircus\Guardian\Domains\Session\Events\UserSessionsRevokingActionEvent;
 use RefactorCircus\Guardian\Domains\Session\Models\DeviceModel;
 use RefactorCircus\Guardian\Domains\Session\Models\SessionModel;
-use RefactorCircus\Guardian\Domains\Token\Contracts\TokenDriver;
-use RefactorCircus\Guardian\Tests\Fixtures\FakeTokenDriver;
 
 // Criterion 38: sessions and devices over HTTP.
 
@@ -95,8 +94,7 @@ it('signs out everywhere else, keeping the current session', function (): void {
 
 it('revokes your API tokens too with tokens: true, through the token driver', function (): void {
     $ada = user();
-    $driver = new FakeTokenDriver;
-    app()->instance(TokenDriver::class, $driver);
+    $driver = fakeTokenDriver();
     $driver->issue($ada, 'CLI', ['*'], null);
     $driver->issue($ada, 'CI', ['*'], null);
     sessionRecord($ada);

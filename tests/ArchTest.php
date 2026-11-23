@@ -130,6 +130,18 @@ arch('only Domains\\TwoFactor\\Passkeys uses WebAuthn')
     ->not->toUse('Webauthn')
     ->ignoring('RefactorCircus\Guardian\Domains\TwoFactor\Passkeys');
 
+// Token drivers are optional (criterion 45, D-017): only each adapter names
+// its package, so Guardian boots without Sanctum or Passport.
+arch('only the Sanctum adapter uses Laravel\\Sanctum')
+    ->expect('RefactorCircus\Guardian')
+    ->not->toUse('Laravel\Sanctum')
+    ->ignoring(['RefactorCircus\Guardian\Domains\Token\Drivers\SanctumTokenDriver', 'RefactorCircus\Guardian\Tests']);
+
+arch('only the Passport adapter uses Laravel\\Passport')
+    ->expect('RefactorCircus\Guardian')
+    ->not->toUse('Laravel\Passport')
+    ->ignoring(['RefactorCircus\Guardian\Domains\Token\Drivers\PassportTokenDriver', 'RefactorCircus\Guardian\Tests']);
+
 // v2 has no UI (criterion 2): nothing in Guardian names Atrium.
 arch('nothing uses Atrium')
     ->expect('RefactorCircus\Guardian')

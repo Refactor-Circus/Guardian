@@ -13,14 +13,16 @@ use RefactorCircus\Guardian\Domains\Session\Events\OtherSessionsRevokedActionEve
 use RefactorCircus\Guardian\Domains\Session\Events\OtherSessionsRevokingActionEvent;
 use RefactorCircus\Guardian\Domains\Session\Models\SessionModel;
 use RefactorCircus\Guardian\Domains\Session\Services\Revocations;
-use RefactorCircus\Guardian\Domains\Token\Contracts\TokenDriver;
-use RefactorCircus\Guardian\Domains\Token\Exceptions\TokenDriverException;
+use RefactorCircus\Guardian\Domains\Token\TokenManager;
 use RefactorCircus\Guardian\Domains\TwoFactor\Support\UserKeys;
 use RefactorCircus\Keystone\Actions\Action;
 
 final class RevokeOtherSessionsAction extends Action
 {
-    public function __construct(private readonly Revocations $revocations) {}
+    public function __construct(
+        private readonly Revocations $revocations,
+        private readonly TokenManager $tokens,
+    ) {}
 
     /**
      * Sign out everywhere else (criterion 38): every active session of the
@@ -33,7 +35,7 @@ final class RevokeOtherSessionsAction extends Action
     {
         OtherSessionsRevokingActionEvent::dispatch($user, $data);
 
-        $driver = $data->tokens ? $this->driver() : null;
+        $driver = $data->tokens ? $this->tokens->driver() : null;
 
         $sessions = DB::transaction(fn (): int => $this->revocations->revoke(
             SessionModel::query()->activeFor(UserKeys::of($user))
@@ -47,10 +49,5 @@ final class RevokeOtherSessionsAction extends Action
         OtherSessionsRevokedActionEvent::dispatch($user, $result);
 
         return $result;
-    }
-
-    private function driver(): TokenDriver
-    {
-        return app()->bound(TokenDriver::class) ? app(TokenDriver::class) : throw TokenDriverException::none();
     }
 }

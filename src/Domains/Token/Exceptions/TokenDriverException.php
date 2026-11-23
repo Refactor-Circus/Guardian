@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Guardian\Domains\Token\Exceptions;
 
+use Illuminate\Http\JsonResponse;
 use RefactorCircus\Guardian\Exceptions\GuardianException;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * No API token driver is configured (501), or `guardian.tokens.driver`
@@ -37,8 +39,24 @@ final class TokenDriverException extends GuardianException
         return $exception;
     }
 
+    /**
+     * The user model cannot hold the driver's tokens.
+     */
+    public static function unsupportedUser(string $driver, string $requirement): self
+    {
+        $exception = new self("The [{$driver}] API token driver needs a user model with {$requirement}.");
+        $exception->status = 500;
+
+        return $exception;
+    }
+
     public function status(): int
     {
         return $this->status;
+    }
+
+    public function render(): Response
+    {
+        return new JsonResponse(['message' => $this->getMessage()], $this->status);
     }
 }

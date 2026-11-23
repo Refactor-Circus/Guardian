@@ -175,11 +175,11 @@ depends on: 16
 files: composer.json (laravel/sanctum, laravel/passport dev + suggest), src/Domains/Token/** (new: Contracts/TokenDriver.php, Data/{TokenSummary,IssuedToken}.php, TokenManager.php, Drivers/{SanctumTokenDriver,PassportTokenDriver}.php, Exceptions/TokenDriverException.php, Actions/{ListTokensAction,IssueTokenAction,RevokeTokenAction,ListUserTokensAction,RevokeUserTokensAction}.php, Data/*, Events/*, Policies/*, Resources/TokenResource.php, Http/**, Mcp/**, routes.php, TokenServiceProvider.php), src/Domains/Session/Actions/RevokeOtherSessionsAction.php, src/Domains/DomainServiceProvider.php, src/Mcp/GuardianServer.php, config/guardian.php, workbench/app/Models/User.php, tests/Fixtures/FakeTokenDriver.php, tests/Feature/Token/*, tests/ArchTest.php
 criteria: 44, 45, 46, 47, 48
 
-- [ ] 17.1 Write tests: `TokenManager`: null gives 501 over HTTP and an MCP error; `sanctum`, `passport` and a custom class; an unknown value or missing package throws `TokenDriverException`; Sanctum and Passport adapters: issue with abilities and expiry, list, revoke and revoke all. Each adapter's tests skip with a reason when its package cannot be installed; HTTP: ability allow-list and maximum lifetime (422); plain token returned once; admin routes with `guardian.tokens.manage`; MCP lists and revokes, and issuing is exempt; events carry no token values; Arch: only the adapters use `Laravel\Sanctum` and `Laravel\Passport`; sign out others with `tokens: true` calls `revokeAll`
-- [ ] 17.2 `composer require --dev laravel/sanctum laravel/passport` (newest releases supporting Laravel 13; record a D-entry for any that cannot install) and add both to `suggest`
-- [ ] 17.3 Add the contract, value objects, `TokenManager`, exception and both adapters (class_exists guards)
-- [ ] 17.4 Add the actions, policy, resource, routes and MCP tools, plus the `tokens` config; wire `RevokeOtherSessionsAction` to the manager
-- [ ] 17.5 Run vendor/bin/pest; all green
+- [x] 17.1 Write tests: `TokenManager`: null gives 501 over HTTP and an MCP error; `sanctum`, `passport` and a custom class; an unknown value or missing package throws `TokenDriverException`; Sanctum and Passport adapters: issue with abilities and expiry, list, revoke and revoke all. Each adapter's tests skip with a reason when its package cannot be installed; HTTP: ability allow-list and maximum lifetime (422); plain token returned once; admin routes with `guardian.tokens.manage`; MCP lists and revokes, and issuing is exempt; events carry no token values; Arch: only the adapters use `Laravel\Sanctum` and `Laravel\Passport`; sign out others with `tokens: true` calls `revokeAll`
+- [x] 17.2 `composer require --dev laravel/sanctum laravel/passport` (newest releases supporting Laravel 13; record a D-entry for any that cannot install) and add both to `suggest`
+- [x] 17.3 Add the contract, value objects, `TokenManager`, exception and both adapters (class_exists guards)
+- [x] 17.4 Add the actions, policy, resource, routes and MCP tools, plus the `tokens` config; wire `RevokeOtherSessionsAction` to the manager
+- [x] 17.5 Run vendor/bin/pest; all green
 
 ## Group 18: Login protection and IP rules
 depends on: 17

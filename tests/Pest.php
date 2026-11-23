@@ -124,6 +124,9 @@ const PARITY_EXCEPTIONS = [
     // Checking a password sends it: an agent must never be handed one, nor
     // send one (D-021).
     'CheckPasswordAction' => ['mcp'],
+    // Issuing answers a usable API token: an agent must never receive one
+    // (D-017, D-021).
+    'IssueTokenAction' => ['mcp'],
 ];
 
 /**

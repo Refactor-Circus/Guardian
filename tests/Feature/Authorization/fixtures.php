@@ -130,6 +130,11 @@ function apiRoutes(): array
         'users.sessions.destroy' => ['DELETE', 'guardian.users.sessions.destroy', $user, []],
         'password-policy.show' => ['GET', 'guardian.password-policy.show', fn (): array => [], []],
         'passwords.check' => ['POST', 'guardian.passwords.check', fn (): array => [], ['password' => 'a fine long passphrase']],
+        'tokens.index' => ['GET', 'guardian.tokens.index', fn (): array => [], []],
+        'tokens.store' => ['POST', 'guardian.tokens.store', fn (): array => [], ['name' => 'CLI']],
+        'tokens.destroy' => ['DELETE', 'guardian.tokens.destroy', fn (): array => ['x'], []],
+        'users.tokens.index' => ['GET', 'guardian.users.tokens.index', $user, []],
+        'users.tokens.destroy' => ['DELETE', 'guardian.users.tokens.destroy', $user, []],
         'users.two-factor.destroy' => ['DELETE', 'guardian.users.two-factor.destroy', $user, []],
         'scim-tokens.destroy' => ['DELETE', 'guardian.scim-tokens.destroy', fn (array $w): array => [$w['scimToken']->id], []],
     ];
@@ -160,6 +165,9 @@ const SELF_SERVICE_ROUTES = [
     'sessions.destroy',
     'devices.index',
     'devices.destroy',
+    'tokens.index',
+    'tokens.store',
+    'tokens.destroy',
 ];
 
 /**

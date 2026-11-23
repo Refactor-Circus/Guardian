@@ -6,6 +6,7 @@ namespace RefactorCircus\Guardian\Domains\TwoFactor\Services;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use RefactorCircus\Guardian\Domains\TwoFactor\Contracts\OneTimeCodeChannel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Exceptions\TwoFactorException;
@@ -70,14 +71,16 @@ final class OneTimeCodes
 
         $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        OneTimeCodeModel::query()->where('method_id', $method->id)->whereNull('consumed_at')->get()->each->delete();
+        DB::transaction(function () use ($method, $code): void {
+            OneTimeCodeModel::query()->where('method_id', $method->id)->whereNull('consumed_at')->get()->each->delete();
 
-        OneTimeCodeModel::query()->create([
-            'user_id' => $method->user_id,
-            'method_id' => $method->id,
-            'code_hash' => CodeHash::of($code, 'otp:'.$method->id),
-            'expires_at' => now()->addMinutes($this->ttlMinutes()),
-        ]);
+            OneTimeCodeModel::query()->create([
+                'user_id' => $method->user_id,
+                'method_id' => $method->id,
+                'code_hash' => CodeHash::of($code, 'otp:'.$method->id),
+                'expires_at' => now()->addMinutes($this->ttlMinutes()),
+            ]);
+        });
 
         $this->channel->send($user, $method->type->value, $destination, $code);
     }

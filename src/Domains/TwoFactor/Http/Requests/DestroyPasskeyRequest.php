@@ -26,6 +26,8 @@ final class DestroyPasskeyRequest extends OwnTwoFactorRequest
 
     public function persist(): JsonResponse
     {
+        $this->ensureNoChallengeOwed();
+
         app(RemovePasskeyAction::class)->execute($this->signedIn(), $this->ownPasskey(), RemoveTwoFactorMethodData::fromValidated($this->validated()));
 
         return new JsonResponse(null, 204);

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use RefactorCircus\Guardian\Domains\TwoFactor\Http\Controllers\ChallengeController;
 use RefactorCircus\Guardian\Domains\TwoFactor\Http\Controllers\PasskeyController;
 use RefactorCircus\Guardian\Domains\TwoFactor\Http\Controllers\TwoFactorController;
 
@@ -18,6 +19,11 @@ Route::post('two-factor/passkeys', [PasskeyController::class, 'store'])->name('t
 Route::delete('two-factor/passkeys/{passkey}', [PasskeyController::class, 'destroy'])->name('two-factor.passkeys.destroy');
 Route::post('two-factor/recovery-codes', [TwoFactorController::class, 'storeRecoveryCodes'])->name('two-factor.recovery-codes.store');
 Route::delete('two-factor/methods/{method}', [TwoFactorController::class, 'destroyMethod'])->name('two-factor.methods.destroy');
+
+// The challenge after signing in.
+Route::post('two-factor/challenge', [ChallengeController::class, 'pass'])->name('two-factor.challenge');
+Route::post('two-factor/challenge/send', [ChallengeController::class, 'send'])->name('two-factor.challenge.send');
+Route::post('two-factor/challenge/passkey-options', [ChallengeController::class, 'passkeyOptions'])->name('two-factor.challenge.passkey-options');
 
 // An admin's reset of another user's two-factor.
 Route::delete('users/{user}/two-factor', [TwoFactorController::class, 'reset'])->name('users.two-factor.destroy');

@@ -18,6 +18,8 @@ final class StoreTotpRequest extends OwnTwoFactorRequest
 
     public function persist(): JsonResponse
     {
+        $this->ensureNoChallengeOwed();
+
         $enrolment = app(StartTotpEnrolmentAction::class)->execute($this->signedIn(), StartTotpEnrolmentData::fromValidated($this->validated()));
 
         return (new TotpEnrolmentResource($enrolment))->response()->setStatusCode(201);

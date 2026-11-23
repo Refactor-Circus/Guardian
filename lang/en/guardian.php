@@ -47,6 +47,10 @@ return [
     'two_factor_nothing_pending' => 'Nothing is waiting to be confirmed. Start the enrolment again.',
     'two_factor_invalid_code' => 'This code is not valid.',
     'two_factor_other_factor_needed' => 'Enter a current code from another of your factors, or a recovery code.',
+    'two_factor_challenge_required' => 'Confirm it is you with your second factor first.',
+    'two_factor_enrollment_required' => 'Set up two-factor authentication to continue.',
+    'two_factor_session_required' => 'The two-factor challenge needs a session: sign in through the web.',
+    'two_factor_no_such_method' => 'You have no confirmed method of this kind.',
     'two_factor_not_enabled' => 'Two-factor authentication is not on for this account.',
 
     'passkeys_unavailable' => 'Passkeys are not available: install web-auth/webauthn-lib to use them.',

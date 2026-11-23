@@ -18,6 +18,8 @@ final class StoreOneTimeCodeRequest extends OwnTwoFactorRequest
 
     public function persist(): JsonResponse
     {
+        $this->ensureNoChallengeOwed();
+
         $method = app(StartOneTimeCodeEnrolmentAction::class)->execute($this->signedIn(), StartOneTimeCodeEnrolmentData::fromValidated($this->validated()));
 
         return (new TwoFactorMethodResource($method))->response()->setStatusCode(201);

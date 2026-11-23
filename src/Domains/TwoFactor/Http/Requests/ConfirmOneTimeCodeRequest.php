@@ -18,6 +18,11 @@ final class ConfirmOneTimeCodeRequest extends OwnTwoFactorRequest
 
     public function persist(): JsonResponse
     {
-        return (new ConfirmedFactorResource(app(ConfirmOneTimeCodeAction::class)->execute($this->signedIn(), ConfirmOneTimeCodeData::fromValidated($this->validated()))))->response();
+        $this->ensureNoChallengeOwed();
+
+        $confirmed = app(ConfirmOneTimeCodeAction::class)->execute($this->signedIn(), ConfirmOneTimeCodeData::fromValidated($this->validated()));
+        $this->enrolled();
+
+        return (new ConfirmedFactorResource($confirmed))->response();
     }
 }

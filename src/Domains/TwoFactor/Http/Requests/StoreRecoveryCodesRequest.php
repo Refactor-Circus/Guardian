@@ -17,6 +17,8 @@ final class StoreRecoveryCodesRequest extends OwnTwoFactorRequest
 
     public function persist(): JsonResponse
     {
+        $this->ensureNoChallengeOwed();
+
         return (new RecoveryCodesResource(app(RegenerateRecoveryCodesAction::class)->execute($this->signedIn())))->response()->setStatusCode(201);
     }
 }

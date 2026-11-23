@@ -160,6 +160,46 @@ final class Factors
     }
 
     /**
+     * Whether an answer proves the named kind of factor (a challenge):
+     * `totp`, `email` or `sms` with a code, `recovery` with a recovery code
+     * (used up), or `passkey` with an assertion.
+     *
+     * @param  array<string, mixed>|null  $assertion
+     */
+    public function verifyAs(Authenticatable $user, string $method, #[SensitiveParameter] ?string $code, ?array $assertion = null): bool
+    {
+        if ($method === 'passkey') {
+            return $this->verifyAssertion($user, $assertion) !== null;
+        }
+
+        $code = trim((string) $code);
+
+        if ($code === '') {
+            return false;
+        }
+
+        if ($method === 'recovery') {
+            return $this->recoveryCodes->consume(UserKeys::of($user), $code);
+        }
+
+        $type = TwoFactorMethodType::tryFrom($method);
+
+        if ($type === null) {
+            return false;
+        }
+
+        $methods = TwoFactorMethodModel::query()->ownedBy(UserKeys::of($user))->confirmed()->where('type', $type->value)->get();
+
+        foreach ($methods as $candidate) {
+            if ($type === TwoFactorMethodType::Totp ? $this->useTotp($candidate, $code) : $this->oneTimeCodes->verify($candidate, $code)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Accept a TOTP code for a method: valid now, and for a later time step
      * than any accepted before (replay protection), recorded atomically.
      */

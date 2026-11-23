@@ -18,6 +18,11 @@ final class ConfirmTotpRequest extends OwnTwoFactorRequest
 
     public function persist(): JsonResponse
     {
-        return (new ConfirmedFactorResource(app(ConfirmTotpAction::class)->execute($this->signedIn(), ConfirmTotpData::fromValidated($this->validated()))))->response();
+        $this->ensureNoChallengeOwed();
+
+        $confirmed = app(ConfirmTotpAction::class)->execute($this->signedIn(), ConfirmTotpData::fromValidated($this->validated()));
+        $this->enrolled();
+
+        return (new ConfirmedFactorResource($confirmed))->response();
     }
 }

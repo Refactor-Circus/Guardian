@@ -17,6 +17,8 @@ final class DestroyTwoFactorMethodRequest extends OwnTwoFactorRequest
 
     public function persist(): JsonResponse
     {
+        $this->ensureNoChallengeOwed();
+
         app(RemoveTwoFactorMethodAction::class)->execute($this->signedIn(), $this->ownMethod(), RemoveTwoFactorMethodData::fromValidated($this->validated()));
 
         return new JsonResponse(null, 204);

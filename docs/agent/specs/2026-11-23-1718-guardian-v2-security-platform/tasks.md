@@ -134,11 +134,11 @@ depends on: 12
 files: src/Domains/TwoFactor/Services/TwoFactorSession.php, src/Domains/TwoFactor/Actions/{PassChallengeAction,SendChallengeCodeAction,StartPasskeyChallengeAction}.php, src/Domains/TwoFactor/Listeners/MarkSessionPending.php, src/Domains/TwoFactor/Http/Middleware/EnsureTwoFactor.php, src/Domains/TwoFactor/Http/**, src/Domains/TwoFactor/routes.php, src/Domains/TwoFactor/TwoFactorServiceProvider.php, src/GuardianServiceProvider.php, tests/Feature/TwoFactor/ChallengeTest.php, tests/Feature/TwoFactor/EnsureTwoFactorTest.php
 criteria: 32, 33
 
-- [ ] 13.1 Write tests: Sign-in with a confirmed factor marks the session pending; the challenge passes with TOTP, a recovery code, email, SMS (fake) and a passkey (fixture), and regenerates the session id; failures limited (429) and recorded; Middleware: unenrolled required user before the deadline (header) and after it (403 enrolment); pending session (403 challenge with methods); confirmed session passes; stateless enrolled request passes; Guardian's own 2FA routes never blocked; the alias is registered
-- [ ] 13.2 Implement `TwoFactorSession` and the `Login` listener
-- [ ] 13.3 Implement the challenge actions and routes (parity-exempt)
-- [ ] 13.4 Implement `EnsureTwoFactor` against `TwoFactorRequirement` (global config only until group 14), and register the `guardian.two-factor` alias
-- [ ] 13.5 Run vendor/bin/pest; all green
+- [x] 13.1 Write tests: Sign-in with a confirmed factor marks the session pending; the challenge passes with TOTP, a recovery code, email, SMS (fake) and a passkey (fixture), and regenerates the session id; failures limited (429) and recorded; Middleware: unenrolled required user before the deadline (header) and after it (403 enrolment); pending session (403 challenge with methods); confirmed session passes; stateless enrolled request passes; Guardian's own 2FA routes never blocked; the alias is registered
+- [x] 13.2 Implement `TwoFactorSession` and the `Login` listener
+- [x] 13.3 Implement the challenge actions and routes (parity-exempt)
+- [x] 13.4 Implement `EnsureTwoFactor` against `TwoFactorRequirement` (global config only until group 14), and register the `guardian.two-factor` alias
+- [x] 13.5 Run vendor/bin/pest; all green
 
 ## Group 14: Two-factor enforcement policies
 depends on: 13

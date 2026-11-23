@@ -11,6 +11,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use RefactorCircus\Guardian\Console\Commands\AdoptRosterRolesCommand;
@@ -18,6 +19,7 @@ use RefactorCircus\Guardian\Console\Commands\UpgradeFromRosterCommand;
 use RefactorCircus\Guardian\Domains\DomainServiceProvider;
 use RefactorCircus\Guardian\Domains\Permission\Services\GuardianPermissions;
 use RefactorCircus\Guardian\Domains\Role\Services\GuardianRoles;
+use RefactorCircus\Guardian\Domains\TwoFactor\Http\Middleware\EnsureTwoFactor;
 use RefactorCircus\Guardian\Exceptions\StrandedTablesException;
 use RefactorCircus\Guardian\Mcp\GuardianServer;
 use RefactorCircus\Guardian\Support\Authorization;
@@ -74,6 +76,7 @@ class GuardianServiceProvider extends PackageServiceProvider
     public function boot(): void
     {
         $this->registerGate();
+        $this->registerMiddleware();
 
         $this->registerRateLimiter();
         $this->registerAbout();
@@ -161,6 +164,17 @@ class GuardianServiceProvider extends PackageServiceProvider
 
             return $permissions->allows($user, $ability, $scope) ? true : null;
         });
+    }
+
+    /**
+     * The middleware hosts put on their routes (always registered, whether
+     * or not Guardian's API routes are on).
+     */
+    private function registerMiddleware(): void
+    {
+        $router = $this->app->make(Router::class);
+
+        $router->aliasMiddleware('guardian.two-factor', EnsureTwoFactor::class);
     }
 
     private function binds(): bool

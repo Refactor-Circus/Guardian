@@ -16,6 +16,8 @@ final class PasskeyOptionsRequest extends OwnTwoFactorRequest
 
     public function persist(): JsonResponse
     {
+        $this->ensureNoChallengeOwed();
+
         return new JsonResponse(['data' => app(StartPasskeyRegistrationAction::class)->execute($this->signedIn())]);
     }
 }

@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Guardian\Domains\TwoFactor;
 
+use Illuminate\Auth\Events\Login;
+use Illuminate\Support\Facades\Event;
 use RefactorCircus\Guardian\Domains\TwoFactor\Channels\MailOneTimeCodeChannel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Contracts\OneTimeCodeChannel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Contracts\TwoFactorRequirement;
+use RefactorCircus\Guardian\Domains\TwoFactor\Listeners\MarkSessionPending;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Passkeys\PasskeysAvailable;
 use RefactorCircus\Guardian\Domains\TwoFactor\Services\PolicyTwoFactorRequirement;
@@ -41,6 +44,9 @@ class TwoFactorServiceProvider extends ServiceProvider
         // The method policy (from `guardian.policies`) answers the
         // `guardian.two-factor.*` checks the API and MCP tools make.
         $this->app->make(Authorization::class)->resource('guardian.two-factor', TwoFactorMethodModel::class);
+
+        // A sign-in by a user with a factor leaves the session pending.
+        Event::listen(Login::class, MarkSessionPending::class);
 
         $this->loadApiRoutesFrom(__DIR__.'/routes.php');
     }

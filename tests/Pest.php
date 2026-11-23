@@ -114,6 +114,10 @@ const PARITY_EXCEPTIONS = [
     // authenticator; there is nothing an agent could send (D-021).
     'StartPasskeyRegistrationAction' => ['mcp'],
     'RegisterPasskeyAction' => ['mcp'],
+    // The challenge confirms a browser session: an agent has none (D-021).
+    'PassChallengeAction' => ['mcp'],
+    'SendChallengeCodeAction' => ['mcp'],
+    'StartPasskeyChallengeAction' => ['mcp'],
 ];
 
 /**

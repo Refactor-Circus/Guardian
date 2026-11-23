@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use RefactorCircus\Guardian\Domains\TwoFactor\Actions\ConfirmOneTimeCodeAction;
 use RefactorCircus\Guardian\Domains\TwoFactor\Actions\ConfirmTotpAction;
 use RefactorCircus\Guardian\Domains\TwoFactor\Actions\RegisterPasskeyAction;
@@ -105,4 +108,34 @@ function passkeyAssertion(User $user, SoftAuthenticator $authenticator, ?int $si
     $options = $ceremony->assertionOptions($user, PasskeyModel::query()->where('user_id', $user->getKey())->get());
 
     return $authenticator->assert($options, $ceremony->userHandle($user), $signCount);
+}
+
+/**
+ * Give Guardian's API routes a session, as a host's `web` group does, and
+ * add a sign-in route and a protected route behind `guardian.two-factor`.
+ */
+function withSessions(): void
+{
+    foreach (Route::getRoutes() as $route) {
+        if (str_starts_with((string) $route->getName(), 'guardian.')) {
+            $route->middleware(StartSession::class);
+        }
+    }
+
+    Route::middleware('web')->post('test-login', function (): string {
+        $user = User::query()->findOrFail(request()->integer('user'));
+        Auth::guard('web')->login($user);
+
+        return 'signed in';
+    });
+
+    Route::middleware(['web', 'auth', 'guardian.two-factor'])->get('test-protected', fn (): string => 'protected');
+}
+
+/**
+ * Sign in through the host's (test) login route, as a browser does.
+ */
+function signIn(User $user): void
+{
+    test()->post('test-login', ['user' => $user->getKey()])->assertOk();
 }

@@ -27,7 +27,10 @@ final class StorePasskeyRequest extends OwnTwoFactorRequest
 
     public function persist(): JsonResponse
     {
+        $this->ensureNoChallengeOwed();
+
         $registered = app(RegisterPasskeyAction::class)->execute($this->signedIn(), RegisterPasskeyData::fromValidated($this->validated()));
+        $this->enrolled();
 
         return (new ConfirmedFactorResource($registered))->response()->setStatusCode(201);
     }

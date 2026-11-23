@@ -59,7 +59,7 @@ Without them the sign-in routes are not registered; connections can still be man
 
 ## Permissions
 
-Guardian registers three permissions on Roster's catalogue, granted to the built-in `admin` role:
+Guardian defines its SSO and SCIM abilities in Keystone's `Abilities`, granted to the built-in `admin` role:
 
 | Permission | Allows |
 |---|---|
@@ -67,7 +67,7 @@ Guardian registers three permissions on Roster's catalogue, granted to the built
 | `guardian.sso.manage` | Configuring single sign-on connections |
 | `guardian.scim.manage` | Issuing and revoking SCIM provisioning tokens |
 
-New installs get them with the built-in roles. On an existing install, built-in roles do not gain them automatically: run `php artisan roster:sync-permissions` to create them, then grant them to the roles that need them by hand. The upgrade from Roster moves the grants of Roster's old `roster.sso.*` / `roster.scim.*` permissions for you.
+New installs get them with the built-in roles. On an existing install, built-in roles do not gain them automatically: run `php artisan guardian:sync-permissions` to create them, then grant them to the roles that need them by hand. The upgrade from Roster moves the grants of Roster's old `roster.sso.*` / `roster.scim.*` permissions for you.
 
 ## HTTP API
 

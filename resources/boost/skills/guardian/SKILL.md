@@ -27,8 +27,8 @@ Use this skill when a Laravel application uses `refactor-circus/guardian`, the a
 
 ## Permissions
 
-- `guardian.sso.view`, `guardian.sso.manage`, `guardian.scim.manage`, registered on Roster's catalogue and granted to the built-in `admin` role.
-- Existing built-in roles do not gain them automatically: run `php artisan roster:sync-permissions`, then grant them by hand. The upgrade from Roster moves the old `roster.*` grants.
+- `guardian.sso.view`, `guardian.sso.manage`, `guardian.scim.manage`, defined in Keystone's `Abilities` and granted to the built-in `admin` role.
+- Existing built-in roles do not gain them automatically: run `php artisan guardian:sync-permissions`, then grant them by hand. The upgrade from Roster moves the old `roster.*` grants.
 - Check them with Keystone's contract: `app(Permissions::class)->allows($user, 'guardian.sso.manage', $organization)`.
 
 ## HTTP API, SCIM endpoint and MCP

@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+use RefactorCircus\Guardian\Domains\Permission\Models\PermissionModel;
+use RefactorCircus\Guardian\Domains\Permission\Policies\PermissionPolicy;
+use RefactorCircus\Guardian\Domains\Role\Models\RoleAssignmentModel;
+use RefactorCircus\Guardian\Domains\Role\Models\RoleModel;
+use RefactorCircus\Guardian\Domains\Role\Policies\RoleAssignmentPolicy;
+use RefactorCircus\Guardian\Domains\Role\Policies\RolePolicy;
 use RefactorCircus\Guardian\Domains\Scim\Models\ScimGroupModel;
 use RefactorCircus\Guardian\Domains\Scim\Models\ScimTokenModel;
 use RefactorCircus\Guardian\Domains\Scim\Models\ScimUserModel;
@@ -170,14 +176,60 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Users
+    |--------------------------------------------------------------------------
+    |
+    | The user model every domain but SSO and SCIM works with (those use
+    | Roster's `roster.users.*`).
+    |
+    | model:    The Eloquent user model. Null uses the `users` auth
+    |           provider's model (`auth.providers.users.model`).
+    | key_type: The type of your users' primary key, for the columns that
+    |           point at users: `int`, `ulid` or `uuid`. Set it before
+    |           running the migrations.
+    |
+    */
+
+    'users' => [
+        'model' => null,
+        'key_type' => 'int',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Roles
+    |--------------------------------------------------------------------------
+    |
+    | built_in: The roles `php artisan guardian:sync-permissions` (also run
+    |           by the role tables migration) creates when they are missing,
+    |           by slug. `scope` is where the role may be assigned: `global`
+    |           (only with no scope), `any`, or a scope model's morph type.
+    |           A `super` role may do anything. Each role is granted the
+    |           abilities whose packages name it (`grantTo`) only when it is
+    |           created, so your edits survive every sync.
+    |
+    | SECURITY: holders of a super role may do anything, everywhere.
+    |
+    */
+
+    'roles' => [
+        'built_in' => [
+            'super-admin' => ['name' => 'Super admin', 'scope' => 'global', 'super' => true],
+            'admin' => ['name' => 'Admin', 'scope' => 'any', 'super' => false],
+            'member' => ['name' => 'Member', 'scope' => 'any', 'super' => false],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Policies
     |--------------------------------------------------------------------------
     |
     | The policy the Gate uses for each Guardian model. Point a model at a
     | class of your own (extending the bundled one, or not) to change who may
     | do what. The bundled policies answer with Keystone's permissions
-    | contract: `guardian.sso.view`, `guardian.sso.manage` and
-    | `guardian.scim.manage`, in the record's organization.
+    | contract: `guardian.sso.*` and `guardian.scim.manage` in the record's
+    | organization, `guardian.roles.*` in the scope a call is about.
     |
     */
 
@@ -187,6 +239,9 @@ return [
         ScimTokenModel::class => ScimTokenPolicy::class,
         ScimUserModel::class => ScimUserPolicy::class,
         ScimGroupModel::class => ScimGroupPolicy::class,
+        RoleModel::class => RolePolicy::class,
+        RoleAssignmentModel::class => RoleAssignmentPolicy::class,
+        PermissionModel::class => PermissionPolicy::class,
     ],
 
     /*
@@ -206,6 +261,10 @@ return [
         'scim_tokens' => 'guardian_scim_tokens',
         'scim_users' => 'guardian_scim_users',
         'scim_groups' => 'guardian_scim_groups',
+        'permissions' => 'guardian_permissions',
+        'roles' => 'guardian_roles',
+        'permission_role' => 'guardian_permission_role',
+        'role_assignments' => 'guardian_role_assignments',
     ],
 
     /*

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace RefactorCircus\Guardian\Domains;
 
 use Illuminate\Support\ServiceProvider;
+use RefactorCircus\Guardian\Domains\Permission\PermissionServiceProvider;
+use RefactorCircus\Guardian\Domains\Role\RoleServiceProvider;
 use RefactorCircus\Guardian\Domains\Scim\ScimServiceProvider;
 use RefactorCircus\Guardian\Domains\Sso\SsoServiceProvider;
 use RefactorCircus\Guardian\Support\Integration;
@@ -22,7 +24,10 @@ final class DomainServiceProvider extends ServiceProvider
      *
      * @var list<class-string<ServiceProvider>>
      */
-    private array $providers = [];
+    private array $providers = [
+        RoleServiceProvider::class,
+        PermissionServiceProvider::class,
+    ];
 
     public function register(): void
     {

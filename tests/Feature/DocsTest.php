@@ -11,7 +11,7 @@ declare(strict_types=1);
 it('covers what an installer needs', function (string $file): void {
     $contents = (string) file_get_contents(dirname(__DIR__, 2).'/'.$file);
 
-    foreach (['guardian:upgrade-from-roster', 'guardian.sso.manage', 'roster:sync-permissions', 'GUARDIAN_FORCE_ROLLBACK'] as $needle) {
+    foreach (['guardian:upgrade-from-roster', 'guardian.sso.manage', 'guardian:sync-permissions', 'GUARDIAN_FORCE_ROLLBACK'] as $needle) {
         expect($contents)->toContain($needle);
     }
 

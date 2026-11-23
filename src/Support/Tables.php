@@ -27,5 +27,9 @@ final class Tables extends KeystoneTables
         'scim_tokens' => 'guardian_scim_tokens',
         'scim_users' => 'guardian_scim_users',
         'scim_groups' => 'guardian_scim_groups',
+        'permissions' => 'guardian_permissions',
+        'roles' => 'guardian_roles',
+        'permission_role' => 'guardian_permission_role',
+        'role_assignments' => 'guardian_role_assignments',
     ];
 }

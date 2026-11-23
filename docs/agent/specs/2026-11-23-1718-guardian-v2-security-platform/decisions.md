@@ -179,3 +179,9 @@
 - Rationale: Task 2.1. Keeping the fixture out of the base migrations means the adoption (group 5) never sees source tables unless a test asks for them.
 - Date: 2026-11-23
 - Raised by: implement (group 2)
+
+## D-031: Rolling back the role tables, and what group 3 adds early
+- Choice: The role tables migration's `down()` refuses (with `RollbackRefusedException`) while anyone holds a role or any non-`system` role or permission exists, unless `guardian.migrations.force_rollback` is on; the seeded system rows alone do not hold it back. Group 3 also adds minimal `RolePolicy`, `RoleAssignmentPolicy` and `PermissionPolicy` (view/manage/assign through `permits()`) to `guardian.policies`, since the arch rule needs a policy for every model; groups 5 to 7 extend them. Guardian's eleven abilities are defined by `RoleServiceProvider` (always, with or without Roster), so the SSO and SCIM providers no longer define theirs.
+- Rationale: "Drops only empty tables" (spec Design, D-040 of the first spec) would make every fresh install unable to roll back, because the migration seeds built-ins. Treating seeded rows as not-data keeps the protection for what an admin made.
+- Date: 2026-11-23
+- Raised by: implement (group 3); conservative default, no user available

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
@@ -83,10 +84,15 @@ it('skips only the SSO and SCIM providers, routes, tools, migrations and upgrade
     assertOnlySsoAndScimSkipped();
 });
 
-it('migrates without Roster, creating no SSO or SCIM table', function (): void {
+it('migrates without Roster: the role tables and built-in roles, but no SSO or SCIM table', function (): void {
     expect(Artisan::call('migrate', ['--force' => true]))->toBe(0)
+        ->and(Schema::hasTable('guardian_roles'))->toBeTrue()
+        ->and(Schema::hasTable('guardian_role_assignments'))->toBeTrue()
+        ->and(DB::table('guardian_roles')->orderBy('slug')->pluck('slug')->all())->toBe(['admin', 'member', 'super-admin'])
+        ->and(DB::table('guardian_permissions')->where('name', 'guardian.roles.view')->exists())->toBeTrue()
         ->and(Schema::hasTable('guardian_sso_connections'))->toBeFalse()
-        ->and(Schema::hasTable('guardian_scim_tokens'))->toBeFalse();
+        ->and(Schema::hasTable('guardian_scim_tokens'))->toBeFalse()
+        ->and(array_keys(Artisan::all()))->toContain('guardian:sync-permissions');
 });
 
 it('boots its config, translations, package entry and rate limiter', function (): void {

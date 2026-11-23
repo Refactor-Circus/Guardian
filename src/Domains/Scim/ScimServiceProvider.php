@@ -14,7 +14,6 @@ use RefactorCircus\Guardian\Support\Authorization;
 use RefactorCircus\Guardian\Upgrade\Handover;
 use RefactorCircus\Keystone\Audit\AuditHooks;
 use RefactorCircus\Keystone\Audit\Contracts\AuditTrail;
-use RefactorCircus\Keystone\Authorization\Abilities;
 use RefactorCircus\Keystone\Packages\PackageRegistry;
 use RefactorCircus\Keystone\Support\ServiceProvider;
 use RefactorCircus\Keystone\Support\Surface;
@@ -25,8 +24,7 @@ use Throwable;
  * SCIM 2.0 provisioning and the tokens that authenticate it.
  *
  * Registered only while a Roster with the seams is installed. The
- * `guardian.scim.manage` ability is defined in Keystone's `Abilities`
- * (granted to `admin` by a role store that creates it) and answered by the
+ * `guardian.scim.manage` ability (Guardian's, in Keystone's `Abilities`) is answered by the
  * token policy from `guardian.policies`, in the token's Roster organization.
  * Roster is reached through its public seams: the `scim` membership source
  * the members SCIM provisions join with. Its audit entries get the
@@ -85,19 +83,13 @@ class ScimServiceProvider extends ServiceProvider
     }
 
     /**
-     * The `guardian.scim.manage` ability, defined once per application, and
-     * the token policy as the answer to it. Policies come from
+     * The token policy as the answer to `guardian.scim.manage` (defined with
+     * Guardian's other abilities, criterion 8). Policies come from
      * `guardian.policies`.
      */
     private function registerAuthorization(): void
     {
         $this->app->make(Authorization::class)->resource('guardian.scim', ScimTokenModel::class);
-
-        $abilities = $this->app->make(Abilities::class);
-
-        if (! $abilities->has('guardian.scim.manage')) {
-            $abilities->define('guardian.scim.manage', 'Issue and revoke SCIM provisioning tokens.', ['admin']);
-        }
     }
 
     /**

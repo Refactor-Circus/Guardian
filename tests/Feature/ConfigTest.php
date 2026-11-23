@@ -3,6 +3,12 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use RefactorCircus\Guardian\Domains\Permission\Models\PermissionModel;
+use RefactorCircus\Guardian\Domains\Permission\Policies\PermissionPolicy;
+use RefactorCircus\Guardian\Domains\Role\Models\RoleAssignmentModel;
+use RefactorCircus\Guardian\Domains\Role\Models\RoleModel;
+use RefactorCircus\Guardian\Domains\Role\Policies\RoleAssignmentPolicy;
+use RefactorCircus\Guardian\Domains\Role\Policies\RolePolicy;
 use RefactorCircus\Guardian\Domains\Scim\Models\ScimGroupModel;
 use RefactorCircus\Guardian\Domains\Scim\Models\ScimTokenModel;
 use RefactorCircus\Guardian\Domains\Scim\Models\ScimUserModel;
@@ -156,20 +162,38 @@ it('maps every model to its policy and every table to its default name', functio
         ScimTokenModel::class => ScimTokenPolicy::class,
         ScimUserModel::class => ScimUserPolicy::class,
         ScimGroupModel::class => ScimGroupPolicy::class,
+        RoleModel::class => RolePolicy::class,
+        RoleAssignmentModel::class => RoleAssignmentPolicy::class,
+        PermissionModel::class => PermissionPolicy::class,
     ])->and($config['tables'])->toBe([
         'sso_connections' => 'guardian_sso_connections',
         'sso_identities' => 'guardian_sso_identities',
         'scim_tokens' => 'guardian_scim_tokens',
         'scim_users' => 'guardian_scim_users',
         'scim_groups' => 'guardian_scim_groups',
+        'permissions' => 'guardian_permissions',
+        'roles' => 'guardian_roles',
+        'permission_role' => 'guardian_permission_role',
+        'role_assignments' => 'guardian_role_assignments',
     ]);
+});
+
+it('has the users and roles defaults', function (): void {
+    $config = shippedGuardianConfig();
+
+    expect($config['users'])->toBe(['model' => null, 'key_type' => 'int'])
+        ->and($config['roles'])->toBe(['built_in' => [
+            'super-admin' => ['name' => 'Super admin', 'scope' => 'global', 'super' => true],
+            'admin' => ['name' => 'Admin', 'scope' => 'any', 'super' => false],
+            'member' => ['name' => 'Member', 'scope' => 'any', 'super' => false],
+        ]]);
 });
 
 it('has exactly the documented sections, each under a banner', function (): void {
     $source = (string) file_get_contents(dirname(__DIR__, 2).'/config/guardian.php');
 
     expect(array_keys(shippedGuardianConfig()))->toBe([
-        'sso', 'scim', 'routes', 'authorization', 'rate_limit', 'audit', 'policies', 'tables', 'mcp', 'cortex', 'migrations',
+        'sso', 'scim', 'routes', 'authorization', 'rate_limit', 'audit', 'users', 'roles', 'policies', 'tables', 'mcp', 'cortex', 'migrations',
     ])->and(substr_count($source, '|--------------------------------------------------------------------------'))
         ->toBe(2 * count(shippedGuardianConfig()));
 });

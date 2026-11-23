@@ -29,11 +29,11 @@ depends on: 2
 files: database/migrations/2026_11_24_000001_create_guardian_role_tables.php, src/Support/UserKey.php, src/Support/Users.php, src/Support/Tables.php, src/Domains/Role/Models/RoleModel.php, src/Domains/Role/Models/RoleAssignmentModel.php, src/Domains/Permission/Models/PermissionModel.php, src/Domains/Role/Support/BuiltInRoles.php, src/Domains/Role/Support/GuardianAbilities.php, src/Domains/Role/RoleServiceProvider.php, src/Domains/Permission/PermissionServiceProvider.php, src/Domains/Permission/Console/Commands/SyncPermissionsCommand.php, src/Domains/Role/Events/*, src/Domains/Permission/Events/*, src/Domains/DomainServiceProvider.php, config/guardian.php, tests/Feature/Role/RoleTablesTest.php, tests/Feature/Role/SyncPermissionsTest.php
 criteria: 6, 7, 8
 
-- [ ] 3.1 Write tests: the four tables with their columns, indexes and configured names, and `user_id` typed by `guardian.users.key_type`; seeded built-ins after migrate; the sync creates a system permission per Keystone `Abilities` entry (including Guardian's own), grants `grantTo` only to roles it creates, keeps edits, ignores unknown slugs and is idempotent; Guardian's abilities are defined with criterion 8's grants; `Users` resolves the model from `guardian.users.model` or the auth provider
-- [ ] 3.2 Add `Support\UserKey`, `Support\Users` and the table keys, and the migration (skip-if-exists, guarded `down()`)
-- [ ] 3.3 Add the models (ULIDs, morph scope and owner relations, lifecycle events), `BuiltInRoles`, `GuardianAbilities` and `guardian:sync-permissions`, and register the two domain providers
-- [ ] 3.4 Add the `roles`, `users` and `tables` config entries with banners
-- [ ] 3.5 Run vendor/bin/pest; all green
+- [x] 3.1 Write tests: the four tables with their columns, indexes and configured names, and `user_id` typed by `guardian.users.key_type`; seeded built-ins after migrate; the sync creates a system permission per Keystone `Abilities` entry (including Guardian's own), grants `grantTo` only to roles it creates, keeps edits, ignores unknown slugs and is idempotent; Guardian's abilities are defined with criterion 8's grants; `Users` resolves the model from `guardian.users.model` or the auth provider
+- [x] 3.2 Add `Support\UserKey`, `Support\Users` and the table keys, and the migration (skip-if-exists, guarded `down()`)
+- [x] 3.3 Add the models (ULIDs, morph scope and owner relations, lifecycle events), `BuiltInRoles`, `GuardianAbilities` and `guardian:sync-permissions`, and register the two domain providers
+- [x] 3.4 Add the `roles`, `users` and `tables` config entries with banners
+- [x] 3.5 Run vendor/bin/pest; all green
 
 ## Group 4: Guardian as Keystone's role store
 depends on: 3

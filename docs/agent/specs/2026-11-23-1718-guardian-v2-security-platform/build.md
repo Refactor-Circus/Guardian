@@ -19,3 +19,12 @@
 - Roster-optional boot (D-027): `DomainServiceProvider` always registers and gates only SSO/SCIM; SSO/SCIM/upgrade migrations moved to `database/migrations/roster`; new `guardian.authorization.enabled` config (banner).
 - Upgrade grant tests now run on Roster v0.1's role tables from `tests/Fixtures/roster-roles` (D-030).
 - Gates: pest 486 passed; `composer analyse` 0 errors; `composer lint:check` passed; type coverage 100%.
+
+## Group 3: RBAC tables, models and built-in roles
+
+- Tests first: `tests/Feature/Role/RoleTablesTest.php` (columns, indexes, configured names, `user_id` by `guardian.users.key_type`, skip-if-exists, seeded built-ins, relations, owner morph, `Support\Users`), `SyncPermissionsTest.php` (Guardian's eleven abilities and criterion 8's admin grants, a system permission per Keystone ability, grants only on creation, edits kept, unknown slugs ignored, idempotent, `guardian.roles.built_in`, the command), Standalone migrate seeds the role tables without Roster.
+- `database/migrations/2026_11_24_000001_create_guardian_role_tables.php` (Roster-free, so in `database/migrations`): four tables named through `Tables`, short explicit index names (MySQL's 64-character limit), sync at the end, guarded `down()` (D-031).
+- `Support\UserKey`, `Support\Users` (model from `guardian.users.model` or the auth provider; `find`, `findByEmail` case-insensitive, `emailVerified`), the table keys.
+- `Domains\Role` (`RoleModel` with `GLOBAL`/`ANY` and an owner morph, `RoleAssignmentModel` with a scope morph, `BuiltInRoles`, `GuardianAbilities`, `RoleServiceProvider`) and `Domains\Permission` (`PermissionModel`, `guardian:sync-permissions`, `PermissionServiceProvider`), each model with its ten lifecycle events and a minimal policy.
+- Config: `users` and `roles` sections with banners, the four table keys, the three policies; README/SKILL now name `guardian:sync-permissions`.
+- Gates: pest 514 passed; `composer analyse` 0 errors; `composer lint:check` passed; type coverage 100%.

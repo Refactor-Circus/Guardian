@@ -98,6 +98,9 @@ const PARITY_EXCEPTIONS = [
     // identity provider; there is nothing for an API caller to send.
     'SsoLoginAction' => ['http', 'mcp'],
     'LinkSsoIdentityAction' => ['http', 'mcp'],
+    // Only Guardian writes the security log, from the events it observes;
+    // nobody may add to it over the API or MCP.
+    'RecordSecurityEventAction' => ['http', 'mcp'],
 ];
 
 /**

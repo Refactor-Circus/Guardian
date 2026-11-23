@@ -26,6 +26,9 @@ use RefactorCircus\Guardian\Domains\Role\Mcp\Tools\UpdateRoleTool;
 use RefactorCircus\Guardian\Domains\Scim\Mcp\Tools\CreateScimTokenTool;
 use RefactorCircus\Guardian\Domains\Scim\Mcp\Tools\ListScimTokensTool;
 use RefactorCircus\Guardian\Domains\Scim\Mcp\Tools\RevokeScimTokenTool;
+use RefactorCircus\Guardian\Domains\SecurityEvent\Mcp\Tools\ListMySecurityEventsTool;
+use RefactorCircus\Guardian\Domains\SecurityEvent\Mcp\Tools\ListSecurityEventsTool;
+use RefactorCircus\Guardian\Domains\SecurityEvent\Mcp\Tools\ShowSecurityEventTool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\CreateSsoConnectionTool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\DeleteSsoConnectionTool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\ListSsoConnectionsTool;
@@ -39,10 +42,11 @@ use RefactorCircus\Keystone\Mcp\Server;
 #[Name('Guardian')]
 #[Version('1.0.0')]
 #[Instructions(
-    'Manage roles, permissions and who holds them, and the single sign-on connections, linked sign-in identities '.
+    'Manage roles, permissions and who holds them, read the security log, and manage the single sign-on connections, linked sign-in identities '.
     'and SCIM provisioning tokens of Roster organizations. Every call acts as the signed-in user and needs the '.
     'matching guardian.* permission (guardian.roles.view, guardian.roles.manage, guardian.roles.assign, '.
-    'guardian.sso.view, guardian.sso.manage, guardian.scim.manage) in the scope it is about.',
+    'guardian.security.view, guardian.sso.view, guardian.sso.manage, guardian.scim.manage) in the scope it is '.
+    'about; everyone may read their own security events.',
 )]
 final class GuardianServer extends Server
 {
@@ -68,6 +72,10 @@ final class GuardianServer extends Server
         CreatePermissionTool::class,
         UpdatePermissionTool::class,
         DeletePermissionTool::class,
+        // Security log
+        ListSecurityEventsTool::class,
+        ShowSecurityEventTool::class,
+        ListMySecurityEventsTool::class,
         // Single sign-on
         ListSsoConnectionsTool::class,
         ShowSsoConnectionTool::class,

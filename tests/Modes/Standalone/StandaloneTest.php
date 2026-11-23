@@ -141,10 +141,10 @@ describe('a Roster without the seams Guardian uses', function (): void {
     ]);
 });
 
-it('serves the role and permission API without Roster (criterion 3)', function (): void {
+it('serves the role, permission and security log API without Roster (criterion 3)', function (): void {
     $names = array_values(array_filter(
         array_keys(Route::getRoutes()->getRoutesByName()),
-        fn (string $name): bool => str_starts_with($name, 'guardian.roles.'),
+        fn (string $name): bool => str_starts_with($name, 'guardian.roles.') || str_starts_with($name, 'guardian.permissions.') || str_contains($name, 'security-events'),
     ));
 
     $search = (new GuardianServer(new FakeTransporter))->createContext()->tools()
@@ -157,6 +157,8 @@ it('serves the role and permission API without Roster (criterion 3)', function (
     $tools = array_column($catalog['tools'], 'name');
 
     expect($names)->toContain('guardian.roles.index', 'guardian.roles.store', 'guardian.roles.show', 'guardian.roles.update', 'guardian.roles.destroy')
+        ->and($names)->toContain('guardian.permissions.index', 'guardian.security-events.index', 'guardian.security-events.show', 'guardian.me.security-events.index')
         ->and($tools)->toContain('list-roles-tool', 'show-role-tool', 'create-role-tool', 'update-role-tool', 'delete-role-tool')
+        ->and($tools)->toContain('list-permissions-tool', 'list-role-assignments-tool', 'list-security-events-tool', 'list-my-security-events-tool')
         ->and(array_filter($tools, fn (string $tool): bool => str_contains($tool, 'sso') || str_contains($tool, 'scim')))->toBe([]);
 });

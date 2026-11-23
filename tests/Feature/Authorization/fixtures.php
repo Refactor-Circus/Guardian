@@ -5,6 +5,9 @@ declare(strict_types=1);
 use RefactorCircus\Guardian\Domains\Role\Models\RoleAssignmentModel;
 use RefactorCircus\Guardian\Domains\Role\Models\RoleModel;
 use RefactorCircus\Guardian\Domains\Scim\Models\ScimTokenModel;
+use RefactorCircus\Guardian\Domains\SecurityEvent\Actions\RecordSecurityEventAction;
+use RefactorCircus\Guardian\Domains\SecurityEvent\Data\RecordSecurityEventData;
+use RefactorCircus\Guardian\Domains\SecurityEvent\Enums\SecurityEventType;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Roster\Domains\Organization\Actions\AddMemberAction;
@@ -15,7 +18,7 @@ use RefactorCircus\Roster\Domains\Organization\Data\AddMemberData;
  * pinned SHA (tests/moved-tests.json), with Guardian's route names: an
  * organization `acme` with a member `target`, a connection `acme-okta`, the
  * target's identity on it and a SCIM token; plus a shared role `editor`,
- * held by the target.
+ * held by the target, and a security event of the target's.
  *
  * @return array<string, mixed>
  */
@@ -33,7 +36,9 @@ function authorizationWorld(): array
     $role = RoleModel::query()->create(['name' => 'Editor', 'slug' => 'editor', 'scope' => RoleModel::ANY]);
     $assignment = RoleAssignmentModel::query()->create(['role_id' => $role->id, 'user_id' => $target->getKey()]);
 
-    return compact('acme', 'target', 'connection', 'identity', 'scimToken', 'role', 'assignment');
+    $securityEvent = app(RecordSecurityEventAction::class)->execute(new RecordSecurityEventData(type: SecurityEventType::LoginSucceeded, user: (string) $target->getKey()));
+
+    return compact('acme', 'target', 'connection', 'identity', 'scimToken', 'role', 'assignment', 'securityEvent');
 }
 
 /**
@@ -78,6 +83,25 @@ function apiRoutes(): array
         'permissions.store' => ['POST', 'guardian.permissions.store', fn (): array => [], ['name' => 'a.b']],
         'permissions.update' => ['PATCH', 'guardian.permissions.update', fn (): array => ['guardian.sso.view'], ['description' => 'x']],
         'permissions.destroy' => ['DELETE', 'guardian.permissions.destroy', fn (): array => ['guardian.sso.view'], []],
+        'security-events.index' => ['GET', 'guardian.security-events.index', fn (): array => [], []],
+        'security-events.show' => ['GET', 'guardian.security-events.show', fn (array $w): array => [$w['securityEvent']->id], []],
+        'me.security-events.index' => ['GET', 'guardian.me.security-events.index', fn (): array => [], []],
         'scim-tokens.destroy' => ['DELETE', 'guardian.scim-tokens.destroy', fn (array $w): array => [$w['scimToken']->id], []],
     ];
+}
+
+/**
+ * The routes every signed-in user may use on themselves, so a user without
+ * any permission is not refused.
+ */
+const SELF_SERVICE_ROUTES = ['me.security-events.index'];
+
+/**
+ * Every Guardian JSON API route that needs a permission.
+ *
+ * @return array<string, array{0: string, 1: string, 2: Closure(array<string, mixed>): array<int, mixed>, 3: array<string, mixed>}>
+ */
+function permissionRoutes(): array
+{
+    return array_diff_key(apiRoutes(), array_flip(SELF_SERVICE_ROUTES));
 }

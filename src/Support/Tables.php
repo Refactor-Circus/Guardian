@@ -31,5 +31,6 @@ final class Tables extends KeystoneTables
         'roles' => 'guardian_roles',
         'permission_role' => 'guardian_permission_role',
         'role_assignments' => 'guardian_role_assignments',
+        'security_events' => 'guardian_security_events',
     ];
 }

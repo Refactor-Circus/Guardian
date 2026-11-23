@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 require_once __DIR__.'/fixtures.php';
 
+use RefactorCircus\Guardian\Domains\SecurityEvent\Mcp\Tools\ListMySecurityEventsTool;
 use RefactorCircus\Guardian\Mcp\GuardianServer;
+
+/**
+ * Tools every signed-in user may use on themselves.
+ */
+const SELF_SERVICE_TOOLS = [ListMySecurityEventsTool::class];
 
 // The SSO and SCIM cases of Roster's tests/Authorization/McpAuthorizationTest.php at
 // the pinned SHA, against GuardianServer.
@@ -34,6 +40,7 @@ function toolArguments(): array
             'ListUserAbilitiesTool' => fn (array $w): array => ['user' => (string) $w['target']->getKey()],
             'CreatePermissionTool' => fn (): array => ['name' => 'a.b'],
             'UpdatePermissionTool', 'DeletePermissionTool' => fn (): array => ['permission' => 'guardian.sso.view'],
+            'ShowSecurityEventTool' => fn (array $w): array => ['event' => $w['securityEvent']->id],
             'RevokeScimTokenTool' => fn (array $w): array => ['token' => $w['scimToken']->id],
             default => fn (): array => [],
         }])
@@ -48,7 +55,9 @@ it('refuses every tool to guests and to users without the permission', function 
 
     $this->actingAs(user());
 
-    mcpTool($tool, $arguments)->assertHasErrors(['Unauthorized.']);
+    in_array($tool, SELF_SERVICE_TOOLS, true)
+        ? mcpTool($tool, $arguments)->assertOk()
+        : mcpTool($tool, $arguments)->assertHasErrors(['Unauthorized.']);
 })->with(fn (): array => array_keys(toolArguments()));
 
 it('lets a super-admin past authorization on every tool', function (string $tool): void {

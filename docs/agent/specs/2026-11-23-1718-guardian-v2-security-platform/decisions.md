@@ -215,3 +215,9 @@
 - Rationale: Criteria 20 and 21 leave these open; each keeps the adoption non-destructive and idempotent (D-007).
 - Date: 2026-11-23
 - Raised by: implement (group 8); conservative default, no user available
+
+## D-037: Details of the security event log
+- Choice: (1) `RecordSecurityEventAction` takes the raw identifier and hashes it itself (HMAC-SHA256 of it trimmed and lowercased, keyed by `app.key` as configured); its starting event carries only the type and the user key, and its finished event the stored row, so neither the identifier typed nor a pre-scrub context reaches an audit log. (2) `SecretlessContext` drops, at any depth, every context key containing `password`, `code`, `secret`, `token`, `recovery`, `otp`, `assertion`, `credential` or `remember`, and turns non-scalar values into their type name. (3) The action is listed in `PARITY_EXCEPTIONS` (HTTP and MCP): nobody may write the log through the API. (4) `guardian.security_log` has `enabled` (Laravel's auth events; Guardian's own are always recorded), `retention_days` (90; null keeps everything) and `identifier_keys` (`email`, `username`: where a failed sign-in's or lockout's identifier is read from). (5) Lists are cursor-paginated (default 50, max 200), newest first; `GET me/security-events` and the `list-my-security-events-tool` force the user filter to the caller and need only a signed-in user (`self()`); `show` lets a user read their own events. `guardian.security.*` checks go through `SecurityEventPolicy` (the `guardian.security` resource). (6) The authorization fixtures mark self-service routes and tools, which a signed-in user without permissions may use.
+- Rationale: Criteria 22 to 25 and D-019 leave these open; each keeps credentials out of every store and payload.
+- Date: 2026-11-23
+- Raised by: implement (group 9); conservative default, no user available

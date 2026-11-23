@@ -8,6 +8,7 @@ use Illuminate\Support\ServiceProvider;
 use RefactorCircus\Guardian\Domains\Permission\PermissionServiceProvider;
 use RefactorCircus\Guardian\Domains\Role\RoleServiceProvider;
 use RefactorCircus\Guardian\Domains\Scim\ScimServiceProvider;
+use RefactorCircus\Guardian\Domains\SecurityEvent\SecurityEventServiceProvider;
 use RefactorCircus\Guardian\Domains\Sso\SsoServiceProvider;
 use RefactorCircus\Guardian\Support\Integration;
 
@@ -27,6 +28,7 @@ final class DomainServiceProvider extends ServiceProvider
     private array $providers = [
         RoleServiceProvider::class,
         PermissionServiceProvider::class,
+        SecurityEventServiceProvider::class,
     ];
 
     public function register(): void

@@ -15,6 +15,8 @@ use RefactorCircus\Guardian\Domains\Scim\Models\ScimUserModel;
 use RefactorCircus\Guardian\Domains\Scim\Policies\ScimGroupPolicy;
 use RefactorCircus\Guardian\Domains\Scim\Policies\ScimTokenPolicy;
 use RefactorCircus\Guardian\Domains\Scim\Policies\ScimUserPolicy;
+use RefactorCircus\Guardian\Domains\SecurityEvent\Models\SecurityEventModel;
+use RefactorCircus\Guardian\Domains\SecurityEvent\Policies\SecurityEventPolicy;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Guardian\Domains\Sso\Policies\SsoConnectionPolicy;
@@ -167,6 +169,7 @@ it('maps every model to its policy and every table to its default name', functio
         RoleModel::class => RolePolicy::class,
         RoleAssignmentModel::class => RoleAssignmentPolicy::class,
         PermissionModel::class => PermissionPolicy::class,
+        SecurityEventModel::class => SecurityEventPolicy::class,
     ])->and($config['tables'])->toBe([
         'sso_connections' => 'guardian_sso_connections',
         'sso_identities' => 'guardian_sso_identities',
@@ -177,6 +180,7 @@ it('maps every model to its policy and every table to its default name', functio
         'roles' => 'guardian_roles',
         'permission_role' => 'guardian_permission_role',
         'role_assignments' => 'guardian_role_assignments',
+        'security_events' => 'guardian_security_events',
     ]);
 });
 
@@ -206,11 +210,19 @@ it('has the adoption defaults: Roster v0.1\'s table names and model classes', fu
     ]);
 });
 
+it('has the security log defaults', function (): void {
+    expect(shippedGuardianConfig()['security_log'])->toBe([
+        'enabled' => true,
+        'retention_days' => 90,
+        'identifier_keys' => ['email', 'username'],
+    ]);
+});
+
 it('has exactly the documented sections, each under a banner', function (): void {
     $source = (string) file_get_contents(dirname(__DIR__, 2).'/config/guardian.php');
 
     expect(array_keys(shippedGuardianConfig()))->toBe([
-        'sso', 'scim', 'routes', 'authorization', 'super_admins', 'permission_cache', 'rate_limit', 'audit', 'users', 'roles', 'adopt', 'policies', 'tables', 'mcp', 'cortex', 'migrations',
+        'sso', 'scim', 'routes', 'authorization', 'super_admins', 'permission_cache', 'rate_limit', 'audit', 'users', 'roles', 'adopt', 'security_log', 'policies', 'tables', 'mcp', 'cortex', 'migrations',
     ])->and(substr_count($source, '|--------------------------------------------------------------------------'))
         ->toBe(2 * count(shippedGuardianConfig()));
 });

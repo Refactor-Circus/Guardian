@@ -14,6 +14,8 @@ use RefactorCircus\Guardian\Domains\Scim\Models\ScimUserModel;
 use RefactorCircus\Guardian\Domains\Scim\Policies\ScimGroupPolicy;
 use RefactorCircus\Guardian\Domains\Scim\Policies\ScimTokenPolicy;
 use RefactorCircus\Guardian\Domains\Scim\Policies\ScimUserPolicy;
+use RefactorCircus\Guardian\Domains\SecurityEvent\Models\SecurityEventModel;
+use RefactorCircus\Guardian\Domains\SecurityEvent\Policies\SecurityEventPolicy;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Guardian\Domains\Sso\Policies\SsoConnectionPolicy;
@@ -296,6 +298,37 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Security Log
+    |--------------------------------------------------------------------------
+    |
+    | Guardian records security events (sign-ins, failures, lockouts,
+    | sign-outs, password resets, and the two-factor, session, token and IP
+    | events of its other domains) in its own table, readable through the
+    | `guardian.security-events.*` routes and MCP tools with
+    | `guardian.security.view`; every signed-in user may read their own.
+    |
+    | enabled:        Record Laravel's Login, Failed, Lockout, Logout and
+    |                 PasswordReset events. Guardian's own events are always
+    |                 recorded.
+    | retention_days: Rows older than this are pruned by `php artisan
+    |                 model:prune` (schedule it). Null keeps them forever.
+    | identifier_keys: The credential keys a failed sign-in's identifier is
+    |                 read from, in order.
+    |
+    | SECURITY: a failed attempt's identifier is stored only as an HMAC
+    | keyed by the app key, never as typed; passwords, codes, secrets and
+    | tokens are never stored.
+    |
+    */
+
+    'security_log' => [
+        'enabled' => true,
+        'retention_days' => 90,
+        'identifier_keys' => ['email', 'username'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Policies
     |--------------------------------------------------------------------------
     |
@@ -316,6 +349,7 @@ return [
         RoleModel::class => RolePolicy::class,
         RoleAssignmentModel::class => RoleAssignmentPolicy::class,
         PermissionModel::class => PermissionPolicy::class,
+        SecurityEventModel::class => SecurityEventPolicy::class,
     ],
 
     /*
@@ -339,6 +373,7 @@ return [
         'roles' => 'guardian_roles',
         'permission_role' => 'guardian_permission_role',
         'role_assignments' => 'guardian_role_assignments',
+        'security_events' => 'guardian_security_events',
     ],
 
     /*

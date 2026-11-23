@@ -35,7 +35,13 @@ it('rejects users without the permission with 403', function (string $method, st
     $world = authorizationWorld();
 
     $this->actingAs(user())->json($method, route($name, $parameters($world)), $body)->assertForbidden();
-})->with(apiRoutes());
+})->with(permissionRoutes());
+
+it('lets any signed-in user use the self-service routes', function (string $method, string $name, Closure $parameters, array $body): void {
+    $world = authorizationWorld();
+
+    $this->actingAs(user())->json($method, route($name, $parameters($world)), $body)->assertOk();
+})->with(array_intersect_key(apiRoutes(), array_flip(SELF_SERVICE_ROUTES)));
 
 it('lets a super-admin through', function (string $method, string $name, Closure $parameters, array $body): void {
     $world = authorizationWorld();

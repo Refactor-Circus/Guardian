@@ -93,10 +93,10 @@ depends on: 8
 files: database/migrations/2026_11_24_000004_create_guardian_security_event_tables.php, src/Domains/SecurityEvent/** (new: Models/SecurityEventModel.php, Enums/SecurityEventType.php, Actions/{RecordSecurityEventAction,ListSecurityEventsAction,ShowSecurityEventAction}.php, Data/*, Events/*, Listeners/RecordAuthEvents.php, Policies/SecurityEventPolicy.php, Resources/SecurityEventResource.php, Http/**, Mcp/**, routes.php, SecurityEventServiceProvider.php), src/Domains/DomainServiceProvider.php, src/Mcp/GuardianServer.php, config/guardian.php, tests/Feature/SecurityEvent/*, tests/Feature/Http/SecurityEventsHttpTest.php, tests/Feature/Mcp/SecurityEventToolsTest.php
 criteria: 22, 23, 24, 25
 
-- [ ] 9.1 Write tests: table and pruning; every enum type recorded through the action, with events dispatched and Keen (require-dev) recording them; no secret in context or audit payload; the five Laravel auth events recorded (identifier HMAC, never raw); list filters and cursor; `show`; own events for any user; `guardian.security.view` 401/403; MCP tools
-- [ ] 9.2 Add the migration, model (`Prunable`), enum, action, events and listeners
-- [ ] 9.3 Add the list and show actions, the policy, the resource, HTTP and MCP, and the `security_log` config
-- [ ] 9.4 Run vendor/bin/pest; all green
+- [x] 9.1 Write tests: table and pruning; every enum type recorded through the action, with events dispatched and Keen (require-dev) recording them; no secret in context or audit payload; the five Laravel auth events recorded (identifier HMAC, never raw); list filters and cursor; `show`; own events for any user; `guardian.security.view` 401/403; MCP tools
+- [x] 9.2 Add the migration, model (`Prunable`), enum, action, events and listeners
+- [x] 9.3 Add the list and show actions, the policy, the resource, HTTP and MCP, and the `security_log` config
+- [x] 9.4 Run vendor/bin/pest; all green
 
 ## Group 10: TOTP, recovery codes and two-factor status
 depends on: 9

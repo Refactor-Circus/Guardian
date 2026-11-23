@@ -9,10 +9,11 @@ use Closure;
 /**
  * Which of the packages Guardian builds on are installed, and new enough.
  *
- * Guardian works on refactor-circus/roster's users and organizations through
- * Roster's seams. Roster is optional: without a Roster that has the seams,
- * Guardian registers nothing past its config, translations and package
- * entry. Classes are named as strings, so asking never loads them.
+ * SSO and SCIM work on refactor-circus/roster's users and organizations
+ * through Roster's seams. Roster is optional: without a Roster that has the
+ * seams, Guardian skips only the SSO and SCIM domains (criterion 3); every
+ * other domain needs nothing from Roster. Classes are named as strings, so
+ * asking never loads them.
  *
  * The checks are injected, so tests can stand in a package that is missing,
  * or one too old for Guardian.
@@ -29,13 +30,12 @@ final class Integration
     private const array ROSTER_METHODS = ['requireSignIn', 'provisionedStatus'];
 
     /**
-     * The Roster seams Guardian registers with.
+     * The Roster seams SSO and SCIM register with. Permissions and roles
+     * come from Keystone's authorization contract, not Roster.
      *
      * @var list<string>
      */
     private const array ROSTER_SEAMS = [
-        'RefactorCircus\\Roster\\Domains\\Permission\\Services\\Resources',
-        'RefactorCircus\\Roster\\Domains\\Permission\\Services\\PermissionCatalogue',
         'RefactorCircus\\Roster\\Domains\\Organization\\Services\\MembershipSources',
     ];
 
@@ -60,8 +60,9 @@ final class Integration
     }
 
     /**
-     * Whether a Roster Guardian can work with is installed: one with the
-     * sign-in and provisioning methods and the seams Guardian registers with.
+     * Whether a Roster SSO and SCIM can work with is installed: one with the
+     * sign-in and provisioning methods and the seams they register with.
+     * Only the SSO and SCIM domains wait on it.
      */
     public function rosterInstalled(): bool
     {

@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Guardian\Domains\Sso\Concerns;
 
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
+use RefactorCircus\Keystone\Authorization\Contracts\Permissions;
+use RefactorCircus\Keystone\Authorization\Contracts\Roles;
 use RefactorCircus\Roster\Domains\Organization\Enums\MembershipSource;
 use RefactorCircus\Roster\Domains\Organization\Models\MembershipModel;
 use RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel;
 use RefactorCircus\Roster\Domains\Organization\Services\MembershipSources;
-use RefactorCircus\Roster\Domains\Permission\Services\Permissions;
-use RefactorCircus\Roster\Domains\Role\Enums\RoleScope;
-use RefactorCircus\Roster\Domains\Role\Models\RoleAssignmentModel;
-use RefactorCircus\Roster\Domains\Role\Models\RoleModel;
 
 /**
  * Makes a user a member of an organization when SSO or SCIM brings them in.
@@ -23,8 +21,9 @@ use RefactorCircus\Roster\Domains\Role\Models\RoleModel;
  * the public API Guardian may use (criterion 9), and no Roster action joins
  * with a given source without refusing an existing member. So Guardian keeps
  * the same rule here, on Roster's models and its `MembershipSources` seam:
- * a new member gets the default member role from `roster.roles.default_member`;
- * an existing membership is left as it is; owners need no role.
+ * a new member gets the default member role from `roster.roles.default_member`,
+ * through Keystone's bound `Roles` (whichever role store is installed); an
+ * existing membership is left as it is; owners need no role.
  */
 trait JoinsOrganizations
 {
@@ -51,32 +50,26 @@ trait JoinsOrganizations
         return $membership;
     }
 
+    /**
+     * Skipped when the setting is empty or the role store does not know the
+     * role in the organization (none is installed, or it has no such role).
+     */
     private function assignDefaultRole(OrganizationModel $organization, Model $user): void
     {
         $slug = config('roster.roles.default_member');
 
-        if (! is_string($slug) || $slug === '') {
+        if (! is_string($slug) || $slug === '' || ! $user instanceof Authenticatable) {
             return;
         }
 
-        $role = RoleModel::query()
-            ->where('scope', RoleScope::Organization)
-            ->where('slug', $slug)
-            ->where(fn (Builder $query): Builder => $query->whereNull('organization_id')->orWhere('organization_id', $organization->getKey()))
-            ->orderByRaw('organization_id is null')
-            ->first();
+        $roles = app(Roles::class);
 
-        if ($role === null) {
+        if (! $roles->exists($slug, $organization)) {
             return;
         }
 
-        RoleAssignmentModel::query()->firstOrCreate([
-            'role_id' => $role->getKey(),
-            'user_id' => $user->getKey(),
-            'organization_id' => $organization->getKey(),
-            'team_id' => null,
-        ]);
+        $roles->assign($user, $slug, $organization);
 
-        app(Permissions::class)->flushUser($user);
+        app(Permissions::class)->forget($user);
     }
 }

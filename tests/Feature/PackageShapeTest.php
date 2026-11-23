@@ -105,14 +105,16 @@ it('reads Roster as installed', function (): void {
 it('shows Guardian as active in php artisan about', function (): void {
     Artisan::call('about', ['--only' => 'guardian', '--json' => true]);
 
-    expect(json_decode(Artisan::output(), true)['guardian'] ?? null)->toMatchArray(['status' => 'Active']);
+    expect(json_decode(Artisan::output(), true)['guardian'] ?? null)->toMatchArray(['status' => 'Active', 'sso_and_scim' => 'Active']);
 });
 
-it('loads and publishes its migrations', function (): void {
-    $path = realpath(dirname(__DIR__, 2).'/database/migrations');
+it('loads and publishes its migrations, with the Roster-backed ones while Roster is installed', function (): void {
+    foreach (['/database/migrations', '/database/migrations/roster'] as $directory) {
+        $path = realpath(dirname(__DIR__, 2).$directory);
 
-    expect(array_map(realpath(...), app('migrator')->paths()))->toContain($path)
-        ->and(array_map(realpath(...), array_keys(ServiceProvider::pathsToPublish(GuardianServiceProvider::class, 'guardian-migrations'))))->toContain($path);
+        expect(array_map(realpath(...), app('migrator')->paths()))->toContain($path)
+            ->and(array_map(realpath(...), array_keys(ServiceProvider::pathsToPublish(GuardianServiceProvider::class, 'guardian-migrations'))))->toContain($path);
+    }
 });
 
 it('publishes its config and translations', function (): void {

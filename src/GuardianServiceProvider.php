@@ -14,6 +14,7 @@ use RefactorCircus\Guardian\Console\Commands\UpgradeFromRosterCommand;
 use RefactorCircus\Guardian\Domains\DomainServiceProvider;
 use RefactorCircus\Guardian\Exceptions\StrandedTablesException;
 use RefactorCircus\Guardian\Mcp\GuardianServer;
+use RefactorCircus\Guardian\Support\Authorization;
 use RefactorCircus\Guardian\Support\Integration;
 use RefactorCircus\Guardian\Upgrade\Handover;
 use RefactorCircus\Guardian\Upgrade\RosterUpgrade;
@@ -24,13 +25,13 @@ use Throwable;
 /**
  * Guardian's package provider.
  *
- * Guardian works on refactor-circus/roster's users and organizations, so
- * everything past its config, translations, package entry, rate limiter and
- * `about` section waits on `Integration::rosterInstalled()`: without a Roster
- * that has the seams Guardian uses, it registers nothing else (D-023, D-032).
- * Whether Roster is there is asked once the application boots, not while
- * providers register, so a bound Integration (tests, or an app) is the one
- * asked.
+ * Guardian's domains need nothing from refactor-circus/roster except SSO and
+ * SCIM, which work on Roster's users and organizations: their providers,
+ * their (Roster-backed) migrations, the upgrade from Roster and the stranded
+ * tables warning wait on `Integration::rosterInstalled()` (criterion 3,
+ * D-027). Whether Roster is there is asked once the application boots, not
+ * while providers register, so a bound Integration (tests, or an app) is the
+ * one asked.
  */
 class GuardianServiceProvider extends PackageServiceProvider
 {
@@ -51,11 +52,12 @@ class GuardianServiceProvider extends PackageServiceProvider
         $this->app->singleton(Integration::class);
         $this->app->singleton(Handover::class);
 
-        // Before any provider boots, so the domain providers boot with the rest.
+        $this->app->singleton(Authorization::class);
+
+        // Before any provider boots, so the domain providers boot with the
+        // rest; DomainServiceProvider skips SSO and SCIM without Roster.
         $this->app->booting(function (): void {
-            if ($this->app->make(Integration::class)->rosterInstalled()) {
-                $this->app->register(DomainServiceProvider::class);
-            }
+            $this->app->register(DomainServiceProvider::class);
         });
     }
 
@@ -76,18 +78,6 @@ class GuardianServiceProvider extends PackageServiceProvider
             ], ['guardian', 'guardian-lang']);
         }
 
-        $this->bootWithRoster();
-    }
-
-    /**
-     * Everything that works on Roster's users and organizations.
-     */
-    private function bootWithRoster(): void
-    {
-        if (! $this->app->make(Integration::class)->rosterInstalled()) {
-            return;
-        }
-
         $this->registerPolicies();
         $this->registerNotFoundResponses();
         $this->registerMcpServer();
@@ -98,6 +88,27 @@ class GuardianServiceProvider extends PackageServiceProvider
         if ($this->app->runningInConsole()) {
             $this->publishesMigrations([
                 __DIR__.'/../database/migrations' => database_path('migrations'),
+            ], ['guardian', 'guardian-migrations']);
+        }
+
+        $this->bootWithRoster();
+    }
+
+    /**
+     * SSO and SCIM's migrations (their tables point at Roster's), the
+     * upgrade from Roster and its stranded tables warning.
+     */
+    private function bootWithRoster(): void
+    {
+        if (! $this->app->make(Integration::class)->rosterInstalled()) {
+            return;
+        }
+
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations/roster');
+
+        if ($this->app->runningInConsole()) {
+            $this->publishesMigrations([
+                __DIR__.'/../database/migrations/roster' => database_path('migrations'),
             ], ['guardian', 'guardian-migrations']);
 
             $this->commands([UpgradeFromRosterCommand::class]);
@@ -160,22 +171,22 @@ class GuardianServiceProvider extends PackageServiceProvider
     }
 
     /**
-     * Guardian's `php artisan about` section: whether it is active, and if
-     * not, what to install; and Roster tables the upgrade has yet to move.
-     * Asked when the command runs.
+     * Guardian's `php artisan about` section: Guardian is always active; SSO
+     * and SCIM say what they need when Roster is missing or too old; and
+     * Roster tables the upgrade has yet to move. Asked when the command runs.
      */
     private function registerAbout(): void
     {
         AboutCommand::add('Guardian', function (): array {
             $stranded = $this->stranded();
 
-            return ['Status' => $this->status()] + ($stranded === [] ? [] : [
+            return ['Status' => 'Active', 'SSO and SCIM' => $this->ssoAndScimStatus()] + ($stranded === [] ? [] : [
                 'Upgrade' => 'Data left in '.StrandedTablesException::named($stranded).': run php artisan guardian:upgrade-from-roster',
             ]);
         });
     }
 
-    private function status(): string
+    private function ssoAndScimStatus(): string
     {
         $integration = $this->app->make(Integration::class);
 

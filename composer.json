@@ -1,11 +1,14 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
     "name": "refactor-circus/guardian",
-    "description": "Auth and security for the Refactor Circus suite, starting with SSO and SCIM extracted from Roster",
+    "description": "The Refactor Circus suite's security package: roles and permissions, two-factor, sessions, passwords, API tokens, login protection, SSO and SCIM, served as a JSON API and MCP tools.",
     "keywords": [
         "laravel",
         "refactor-circus",
         "guardian",
+        "security",
+        "rbac",
+        "two-factor",
         "sso",
         "scim"
     ],
@@ -20,27 +23,32 @@
     ],
     "require": {
         "php": "^8.5",
-        "refactor-circus/keystone": "^0.1",
-        "laravel/framework": "^13.35"
+        "laravel/framework": "^13.35",
+        "pragmarx/google2fa": "^9.1",
+        "refactor-circus/keystone": "^2.0"
     },
     "require-dev": {
+        "dedoc/scramble": "^0.13.55",
         "firebase/php-jwt": "^7.2.1",
         "larastan/larastan": "^3.13",
         "laravel/mcp": "^1.1",
         "laravel/pao": "^1.1.5",
+        "laravel/passport": "^13.12",
         "laravel/pint": "^1.32.1, !=1.32.2",
+        "laravel/sanctum": "^4.5",
         "laravel/socialite": "^5.31",
         "orchestra/testbench": "^11.3",
         "pestphp/pest": "^5.3.4",
         "pestphp/pest-plugin-laravel": "^5.0.1",
         "pestphp/pest-plugin-type-coverage": "^5.0.3",
         "phpstan/extension-installer": "^1.4.3",
-        "refactor-circus/keen": "^0.1",
+        "refactor-circus/keen": "^2.0",
         "refactor-circus/ringside": "dev-main",
-        "refactor-circus/roster": "^0.1",
+        "refactor-circus/roster": "^2.0",
         "refactor-circus/standards": "dev-main",
         "socialiteproviders/microsoft-azure": "^5.2.1",
-        "socialiteproviders/saml2": "^4.10"
+        "socialiteproviders/saml2": "^4.10",
+        "web-auth/webauthn-lib": "^5.3.15"
     },
     "autoload": {
         "psr-4": {
@@ -115,6 +123,9 @@
             "aliases": {
                 "Guardian": "RefactorCircus\\Guardian\\Facades\\Guardian"
             }
+        },
+        "branch-alias": {
+            "dev-main": "2.0.x-dev"
         }
     },
     "config": {
@@ -128,12 +139,15 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "suggest": {
-        "refactor-circus/roster": "Required for SSO and SCIM: Guardian signs in and provisions Roster's users and organizations, and is inactive without it (dev-main).",
-        "laravel/mcp": "Manage SSO connections and SCIM tokens from MCP clients and Cortex agents (^1.1).",
+        "refactor-circus/roster": "Required for SSO and SCIM only: Guardian signs in and provisions Roster's users and organizations (^2.0). Every other domain works without it.",
+        "laravel/mcp": "Manage Guardian from MCP clients and Cortex agents (^1.1).",
         "laravel/socialite": "Required for SSO login (^5.31).",
         "socialiteproviders/saml2": "Required for SAML SSO connections (^4.10).",
         "firebase/php-jwt": "Required for OIDC SSO connections, to verify id_tokens (^7.2).",
-        "socialiteproviders/microsoft-azure": "Required for Microsoft Entra ID (Azure) SSO connections (^5.2)."
+        "socialiteproviders/microsoft-azure": "Required for Microsoft Entra ID (Azure) SSO connections (^5.2).",
+        "laravel/sanctum": "Manage Sanctum personal access tokens through Guardian's token API (guardian.tokens.driver = sanctum) (^4.5).",
+        "laravel/passport": "Manage Passport personal access tokens through Guardian's token API (guardian.tokens.driver = passport) (^13.12).",
+        "web-auth/webauthn-lib": "Required for passkeys (WebAuthn) as a second factor (^5.3)."
     },
     "repositories": [
         {

@@ -149,3 +149,33 @@
 - Rationale: Many groups share `config/guardian.php`, `GuardianServer::TOOLS`, `DomainServiceProvider` and `tests/Pest.php`, so parallel groups would collide. Each group ends green.
 - Date: 2026-11-23
 - Raised by: write-spec; default chosen because no user was available ("choose sensible conservative defaults")
+
+## D-026: Guardian's authorization switch and Keystone's `Authorizer`
+- Choice: Guardian's requests, MCP requests and policies check through `Support\Authorization`, which asks Keystone's bound `Permissions` (the same call `Keystone\Auth\Authorizer::allows()` makes when on), not through `Authorizer::for($package)`. The switch is `guardian.authorization.enabled` (default true; tests turn it off for surface tests, as they did `roster.authorization`). Guardian's Keystone `Package` keeps its default (no `authorization()`), as in v0.1.
+- Rationale: Keystone's `Authorizer::enabled()` reads `{package}.authorization` and is on only when it is exactly `true`, while criteria 9 and 56 make `guardian.authorization` a config section (`bind`). Going through `Authorizer::for()` would silently turn every Guardian check off the moment the section exists. Asking `Permissions` directly keeps the check fail-closed and the contract the same.
+- Date: 2026-11-23
+- Raised by: implement (group 2); conservative default, no user available
+
+## D-027: What runs without Roster, and what `about` says
+- Choice: Guardian is always active. Without Roster only SSO and SCIM are skipped: `DomainServiceProvider` registers their providers after `rosterInstalled()`, the MCP server leaves out their tools, and their Roster-backed migrations (SSO, SCIM, the upgrade) move to `database/migrations/roster`, loaded and published only with Roster, as is `guardian:upgrade-from-roster`. Policies, the MCP server, Cortex, the not-found responses and `database/migrations` always register. `php artisan about` shows `Status: Active` plus `SSO and SCIM: Active | Inactive: install refactor-circus/roster | Inactive: needs a newer refactor-circus/roster`.
+- Rationale: Criterion 3. A separate migration directory (rather than an early return inside the migrations) means an install that adds Roster later still gets the SSO and SCIM tables on its next `migrate`; the files keep their names, so installs that already ran them see no change.
+- Date: 2026-11-23
+- Raised by: implement (group 2); conservative default, no user available
+
+## D-028: Requests still reach the swappable policies
+- Choice: `Support\Authorization::check()` asks the Gate policy of the model registered for the ability's prefix (`guardian.sso` => `SsoConnectionModel`, `guardian.scim` => `ScimTokenModel`, registered by the SSO and SCIM providers) as the camel-cased verb, and the bundled policies answer with `permits()` (Keystone's `Permissions`). Abilities with no registered resource go straight to `permits()`. Lists across organizations use `Permissions::scopesWith()` plus the organizations whose own `Scope` rule (their owner) grants the ability.
+- Rationale: The http/authorization standard and v0.1 let a host swap a policy in `guardian.policies` and have the API and MCP follow it (an existing test proves it). Roster's `Resources` registry did the routing before; a Guardian-local map keeps that behaviour without a Roster seam. The final answer is still Keystone's contract, as criterion 5 asks.
+- Date: 2026-11-23
+- Raised by: implement (group 2); conservative default, no user available
+
+## D-029: New third-party packages are declared before they can be installed
+- Choice: `composer.json` gets criterion 1's full shape in group 2 (`pragmarx/google2fa` in `require`; `dedoc/scramble`, `laravel/sanctum`, `laravel/passport`, `web-auth/webauthn-lib` in `require-dev`), but they are not installed in the job worktree yet: its `vendor/` holds the suite's v2 packages as git-archive exports, and `composer update` cannot resolve `refactor-circus/* ^2.0` until the v2 tags exist. The groups that use them must install them (or the run waits for the tags).
+- Rationale: ComposerTest asserts criterion 1 now (task 2.1); no code uses those packages before groups 8 onward.
+- Date: 2026-11-23
+- Raised by: implement (group 2)
+
+## D-030: Test doubles until Guardian's role store exists
+- Choice: Until group 4, `TestCase` binds Keystone's `FakePermissions` and `FakeRoles` with `super-admin` (global), `admin` (global, and in Roster organizations and teams) and `member` (organizations and teams); `admin` grants what Keystone `Abilities` grant it. `grant()` in tests/Pest.php assigns through them. The upgrade's grant tests use Roster v0.1's role tables from `tests/Fixtures/roster-roles` (Roster v2 no longer creates them), run only by the tests that need them.
+- Rationale: Task 2.1. Keeping the fixture out of the base migrations means the adoption (group 5) never sees source tables unless a test asks for them.
+- Date: 2026-11-23
+- Raised by: implement (group 2)

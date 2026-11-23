@@ -10,14 +10,13 @@ use RefactorCircus\Guardian\Tests\Modes\SsoUnavailable\SsoUnavailableTestCase;
 use RefactorCircus\Guardian\Tests\RenamedTablesTestCase;
 use RefactorCircus\Guardian\Tests\StandaloneTestCase;
 use RefactorCircus\Guardian\Tests\TestCase;
+use RefactorCircus\Keystone\Authorization\Contracts\Roles;
+use RefactorCircus\Keystone\Testing\FakeRoles;
 use RefactorCircus\Keystone\Testing\McpTools;
 use RefactorCircus\Keystone\Testing\Parity;
 use RefactorCircus\Roster\Domains\Organization\Actions\CreateOrganizationAction;
 use RefactorCircus\Roster\Domains\Organization\Data\CreateOrganizationData;
 use RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel;
-use RefactorCircus\Roster\Domains\Permission\Services\Permissions;
-use RefactorCircus\Roster\Domains\Role\Models\RoleAssignmentModel;
-use RefactorCircus\Roster\Domains\Role\Models\RoleModel;
 use RefactorCircus\Roster\Domains\Team\Models\TeamModel;
 use RefactorCircus\Standards\Pest\ArchPreset;
 use Workbench\App\Models\User;
@@ -55,20 +54,15 @@ function user(array $attributes = []): User
 }
 
 /**
- * Give a user a Roster role by slug: global, in an organization, or on a team.
+ * Give a user a role by slug, globally, in an organization, or on a team,
+ * through the role store TestCase binds (Keystone's FakeRoles).
  */
 function grant(User $user, string $slug, ?OrganizationModel $organization = null, ?TeamModel $team = null): void
 {
-    $role = RoleModel::query()->where('slug', $slug)->firstOrFail();
+    $roles = app(Roles::class);
 
-    RoleAssignmentModel::query()->create([
-        'role_id' => $role->getKey(),
-        'user_id' => $user->getKey(),
-        'organization_id' => $organization?->getKey() ?? $team?->organization_id,
-        'team_id' => $team?->getKey(),
-    ]);
-
-    app(Permissions::class)->flush();
+    expect($roles)->toBeInstanceOf(FakeRoles::class)
+        ->and($roles->assign($user, $slug, $team ?? $organization))->toBeTrue("No {$slug} role there");
 }
 
 /**

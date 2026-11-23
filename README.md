@@ -21,7 +21,7 @@ composer require refactor-circus/roster refactor-circus/guardian
 php artisan migrate
 ```
 
-Without Roster, Guardian is inactive: it boots, `php artisan about` shows "Inactive: install refactor-circus/roster" (or "Inactive: needs a newer refactor-circus/roster" for a Roster without the sign-in and provisioning seams), and it registers no routes, migrations, tools or commands.
+Only SSO and SCIM need Roster. Without it they are skipped: `php artisan about` shows them as "Inactive: install refactor-circus/roster" (or "Inactive: needs a newer refactor-circus/roster" for a Roster without the sign-in and provisioning seams), and their routes, tools, migrations and the upgrade command are not registered. Everything else works.
 
 Guardian has no UI of its own: it serves a JSON API and MCP tools. Atrium v2, or any front end, builds on the API.
 

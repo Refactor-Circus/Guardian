@@ -85,56 +85,74 @@ arch('tables are named through Tables, never as literals')
         [...array_values(array_filter(
             phpFiles(__DIR__.'/../src'),
             fn (string $path): bool => ! str_ends_with($path, 'Support/Tables.php'),
-        )), ...(array) glob(__DIR__.'/../database/migrations/*.php')],
+        )), ...phpFiles(__DIR__.'/../database/migrations')],
         array_values(Tables::DEFAULTS),
     ))
     ->toBeEmpty();
 
-// Without Roster, Guardian must boot (criterion 7): only the layers that
-// load behind Integration::rosterInstalled() may name Roster's classes.
+// The existing Roster reference is kept, not widened (criterion 4, D-003):
+// only SSO, SCIM, the upgrade and the shared request and policy bases (for
+// the organization scope SSO and SCIM supply) name Roster's classes.
 // Support\Integration names them as strings, for class_exists().
-arch('only the Roster-facing layers name Roster\'s classes')
+arch('only SSO, SCIM, the upgrade and the shared bases name Roster\'s classes')
     ->expect('RefactorCircus\Guardian')
     ->not->toUse('RefactorCircus\Roster')
     ->ignoring([
-        'RefactorCircus\Guardian\Domains',
-        'RefactorCircus\Guardian\Mcp',
+        'RefactorCircus\Guardian\Domains\Sso',
+        'RefactorCircus\Guardian\Domains\Scim',
         'RefactorCircus\Guardian\Upgrade',
-        'RefactorCircus\Guardian\Policies',
-        'RefactorCircus\Guardian\Http',
-        'RefactorCircus\Guardian\Console',
-        'RefactorCircus\Guardian\Database',
+        'RefactorCircus\Guardian\Console\Commands\UpgradeFromRosterCommand',
+        'RefactorCircus\Guardian\Policies\Policy',
+        'RefactorCircus\Guardian\Http\Requests\Request',
+        'RefactorCircus\Guardian\Mcp\Requests\Request',
         'RefactorCircus\Guardian\Tests',
     ]);
+
+// Every new domain works with no Roster installed (criterion 4). The rule
+// covers each domain as it appears.
+arch('the new domains use nothing in Roster')
+    ->expect([
+        'RefactorCircus\Guardian\Domains\Role',
+        'RefactorCircus\Guardian\Domains\Permission',
+        'RefactorCircus\Guardian\Domains\TwoFactor',
+        'RefactorCircus\Guardian\Domains\Session',
+        'RefactorCircus\Guardian\Domains\Password',
+        'RefactorCircus\Guardian\Domains\Token',
+        'RefactorCircus\Guardian\Domains\LoginProtection',
+        'RefactorCircus\Guardian\Domains\SecurityEvent',
+    ])
+    ->not->toUse('RefactorCircus\Roster');
 
 // v2 has no UI (criterion 2): nothing in Guardian names Atrium.
 arch('nothing uses Atrium')
     ->expect('RefactorCircus\Guardian')
     ->not->toUse('RefactorCircus\Atrium');
 
-arch('the package provider reaches the Roster-facing layers only once Roster is installed')
+// Without Roster, only SSO and SCIM are skipped (criterion 3): their
+// providers, Roster-backed migrations and the upgrade command register only
+// after the rosterInstalled() check in the same body.
+arch('only the SSO and SCIM layers wait for Roster')
     ->expect(function (): array {
-        $source = (string) file_get_contents(__DIR__.'/../src/GuardianServiceProvider.php');
         $gated = [
-            'DomainServiceProvider::class',
-            'registerPolicies(',
-            'registerMcpServer(',
-            'registerCortex(',
-            'loadMigrationsFrom(',
-            'publishesMigrations(',
+            'src/Domains/DomainServiceProvider.php' => ['SsoServiceProvider::class', 'ScimServiceProvider::class'],
+            'src/GuardianServiceProvider.php' => ['UpgradeFromRosterCommand::class', "migrations/roster'"],
         ];
         $early = [];
 
-        // Each method (or closure) on its own: a gated call must come after
-        // the rosterInstalled() check in the same body.
-        foreach (preg_split('/\bfunction\s+/', $source) ?: [] as $body) {
-            $gate = strpos($body, 'rosterInstalled()');
+        foreach ($gated as $file => $calls) {
+            $source = (string) file_get_contents(__DIR__.'/../'.$file);
 
-            foreach ($gated as $call) {
-                $at = strpos($body, $call);
+            // Each method (or closure) on its own: a gated call must come
+            // after the rosterInstalled() check in the same body.
+            foreach (preg_split('/\bfunction\s+/', $source) ?: [] as $body) {
+                $gate = strpos($body, 'rosterInstalled()');
 
-                if ($at !== false && ($gate === false || $at < $gate)) {
-                    $early[] = strtok($body, '(').': '.$call;
+                foreach ($calls as $call) {
+                    $at = strpos($body, $call);
+
+                    if ($at !== false && ($gate === false || $at < $gate)) {
+                        $early[] = $file.' '.strtok($body, '(').': '.$call;
+                    }
                 }
             }
         }

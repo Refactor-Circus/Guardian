@@ -51,7 +51,6 @@ it('allows Roster\'s seams and public domain API', function (string $reference):
     'RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel',
     'RefactorCircus\Roster\Domains\Organization\Actions\RemoveMemberAction',
     'RefactorCircus\Roster\Domains\Organization\Services\MembershipSources',
-    'RefactorCircus\Roster\Domains\Permission\Services\Authorizer',
     'RefactorCircus\Roster\Domains\User\Data\CreateUserData',
     'RefactorCircus\Roster\Support\Users',
     'RefactorCircus\Roster\Support\Statuses',
@@ -83,4 +82,53 @@ it('never calls Roster\'s @internal registration methods', function (): void {
     }
 
     expect($offenders)->toBe([]);
+});
+
+/**
+ * Every Roster class Guardian's src/ and database/ name, written as code
+ * (`Roster\X`) or as a string (`'Roster\\X'`), by file.
+ *
+ * @return array<string, list<string>>
+ */
+function rosterReferences(): array
+{
+    $root = dirname(__DIR__, 2);
+    $references = [];
+
+    foreach ([...phpFiles($root.'/src'), ...phpFiles($root.'/database')] as $file) {
+        $source = str_replace('\\\\', '\\', (string) file_get_contents($file));
+
+        if (preg_match_all('/RefactorCircus\\\\Roster\\\\[A-Za-z\\\\]*[A-Za-z]/', $source, $matches) > 0) {
+            $references[substr($file, strlen($root) + 1)] = array_values(array_unique($matches[0]));
+        }
+    }
+
+    return $references;
+}
+
+// Criterion 4: the existing reference is kept, not widened.
+it('names only the allow-listed Roster classes', function (): void {
+    /** @var list<string> $allowed */
+    $allowed = require dirname(__DIR__).'/Fixtures/roster-references.php';
+    $offenders = [];
+
+    foreach (rosterReferences() as $file => $classes) {
+        foreach (array_diff($classes, $allowed) as $class) {
+            $offenders[] = $file.': '.$class;
+        }
+    }
+
+    expect($offenders)->toBe([]);
+});
+
+it('keeps Roster\'s Role and Permission domains off the allow-list and out of src/', function (): void {
+    /** @var list<string> $allowed */
+    $allowed = require dirname(__DIR__).'/Fixtures/roster-references.php';
+    $named = array_merge(...array_values(rosterReferences()));
+
+    $isRbac = fn (string $class): bool => str_starts_with($class, 'RefactorCircus\\Roster\\Domains\\Role\\')
+        || str_starts_with($class, 'RefactorCircus\\Roster\\Domains\\Permission\\');
+
+    expect(array_values(array_filter($allowed, $isRbac)))->toBe([])
+        ->and(array_values(array_filter($named, $isRbac)))->toBe([]);
 });

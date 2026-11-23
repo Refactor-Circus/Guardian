@@ -63,13 +63,18 @@ final class GuardianServer extends Server
     ];
 
     /**
-     * Every tool works on Roster's organizations and users, so without a
-     * Roster Guardian can work with the server offers none.
+     * The SSO and SCIM tools work on Roster's organizations and users, so
+     * without a Roster they can work with the server leaves them out; every
+     * other tool is offered (criterion 3).
      */
     public function createContext(): ServerContext
     {
         if (! app(Integration::class)->rosterInstalled()) {
-            $this->tools = [];
+            $this->tools = [ToolSearch::class => array_values(array_filter(
+                self::TOOLS,
+                fn (string $tool): bool => ! str_starts_with($tool, 'RefactorCircus\\Guardian\\Domains\\Sso\\')
+                    && ! str_starts_with($tool, 'RefactorCircus\\Guardian\\Domains\\Scim\\'),
+            ))];
         }
 
         return parent::createContext();

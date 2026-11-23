@@ -56,24 +56,9 @@ describe('composer.json', function (): void {
         expect(guardianComposer()['name'])->toBe('refactor-circus/guardian');
     });
 
-    it('requires only php, Laravel and Keystone', function (): void {
-        $require = guardianComposer()['require'];
-
-        expect($require)->toHaveKeys(['php', 'laravel/framework', 'refactor-circus/keystone'])
-            ->and(array_keys($require))->toHaveCount(3)
-            ->and($require['php'])->toBe('^8.5')
-            ->and($require['refactor-circus/keystone'])->toBe('^0.1')
-            ->and($require['laravel/framework'])->toBe(keenComposer()['require']['laravel/framework']);
-    });
-
-    it('suggests Roster, laravel/mcp and the four SSO vendors', function (): void {
-        $suggest = guardianComposer()['suggest'];
-
-        expect(array_keys($suggest))->toEqualCanonicalizing([
-            'refactor-circus/roster',
-            'laravel/mcp',
-            ...array_keys(ROSTER_SSO_VENDOR_SUGGESTIONS),
-        ]);
+    // Requirements, suggestions and the branch alias: tests/Feature/ComposerTest.php.
+    it('matches Keen\'s Laravel constraint', function (): void {
+        expect(guardianComposer()['require']['laravel/framework'])->toBe(keenComposer()['require']['laravel/framework']);
     });
 
     it('words the SSO vendor suggestions as Roster does at the pinned commit', function (): void {
@@ -87,7 +72,7 @@ describe('composer.json', function (): void {
     it('develops against Roster, Keen, Ringside, Standards, the SSO vendors and Keen\'s dev tools', function (): void {
         $requireDev = guardianComposer()['require-dev'];
 
-        foreach (['roster' => '^0.1', 'keen' => '^0.1', 'ringside' => 'dev-main', 'standards' => 'dev-main'] as $package => $constraint) {
+        foreach (['roster' => '^2.0', 'keen' => '^2.0', 'ringside' => 'dev-main', 'standards' => 'dev-main'] as $package => $constraint) {
             expect($requireDev['refactor-circus/'.$package] ?? null)->toBe($constraint, 'refactor-circus/'.$package);
         }
 
@@ -145,8 +130,9 @@ describe('local install', function (): void {
         $scripts = guardianComposer()['scripts'];
         $keen = keenComposer()['scripts'];
 
-        // v2 has no Atrium, so no without-Atrium suite (criterion 2).
-        unset($keen['test:without-atrium']);
+        // v2 has no Atrium, so no without-Atrium suite (criterion 2); the
+        // client generator comes with the OpenAPI export (criterion 55).
+        unset($keen['test:without-atrium'], $keen['client:generate']);
 
         expect(array_keys($scripts))->toBe(array_keys($keen))
             ->and($scripts['local:install'])->toBe($keen['local:install'])

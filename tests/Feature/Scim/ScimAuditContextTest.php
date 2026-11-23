@@ -16,8 +16,6 @@ use RefactorCircus\Keystone\Audit\NullAuditTrail;
 use RefactorCircus\Keystone\Packages\Package;
 use RefactorCircus\Keystone\Packages\PackageRegistry;
 use RefactorCircus\Roster\Domains\Organization\Services\MembershipSources;
-use RefactorCircus\Roster\Domains\Permission\Services\PermissionCatalogue;
-use RefactorCircus\Roster\Domains\Permission\Services\Resources;
 use RefactorCircus\Roster\Domains\User\Actions\SuspendUserAction;
 use RefactorCircus\Roster\Domains\User\Events\UserCreatedEvent;
 use RefactorCircus\Roster\Domains\User\Models\UserModel;
@@ -129,9 +127,7 @@ it('registers the SCIM audit context only while an audit log is available', func
     // callbacks run at once on a booted application.
     app()->instance(AuditHooks::class, $hooks = new AuditHooks);
 
-    foreach ([Resources::class, PermissionCatalogue::class, MembershipSources::class] as $registry) {
-        app()->forgetInstance($registry);
-    }
+    app()->forgetInstance(MembershipSources::class);
 
     (new ScimServiceProvider(app()))->boot();
 

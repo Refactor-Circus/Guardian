@@ -31,12 +31,12 @@ function authorizationWorld(): array
 }
 
 /**
- * Turn Roster's authorization back on, as Roster's AuthorizationTestCase
- * does: the base TestCase turns it off for surface tests.
+ * Turn Guardian's authorization back on: the base TestCase turns it off for
+ * surface tests.
  */
 function authorizationOn(): void
 {
-    config(['roster.authorization' => true]);
+    config(['guardian.authorization.enabled' => true]);
 }
 
 /**

@@ -5,8 +5,6 @@ declare(strict_types=1);
 use RefactorCircus\Guardian\Domains\Scim\ScimServiceProvider;
 use RefactorCircus\Roster\Domains\Organization\Resources\MemberResource;
 use RefactorCircus\Roster\Domains\Organization\Services\MembershipSources;
-use RefactorCircus\Roster\Domains\Permission\Services\PermissionCatalogue;
-use RefactorCircus\Roster\Domains\Permission\Services\Resources;
 use Workbench\App\Models\User;
 
 require_once __DIR__.'/helpers.php';
@@ -16,15 +14,12 @@ require_once __DIR__.'/helpers.php';
 // the members SCIM provisions join with it.
 
 /**
- * Boot the SCIM domain again on a fresh source registry. Roster's resource
- * and permission registries refuse a taken name, so they start fresh too.
- * Booted callbacks run at once on a booted application.
+ * Boot the SCIM domain again on a fresh source registry; it defines its
+ * abilities only once. Booted callbacks run at once on a booted application.
  */
 function bootScimDomainWith(MembershipSources $sources): void
 {
     app()->instance(MembershipSources::class, $sources);
-    app()->forgetInstance(Resources::class);
-    app()->forgetInstance(PermissionCatalogue::class);
 
     (new ScimServiceProvider(app()))->boot();
 }

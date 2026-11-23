@@ -14,8 +14,9 @@ use RefactorCircus\Guardian\Domains\Sso\Policies\SsoConnectionPolicy;
 use RefactorCircus\Guardian\Domains\Sso\Policies\SsoIdentityPolicy;
 
 /*
- * Guardian works on refactor-circus/roster's users and organizations. Without
- * Roster installed it registers nothing, and `php artisan about` says so.
+ * Guardian is the suite's security package. Only SSO and SCIM build on
+ * refactor-circus/roster's users and organizations: without Roster they are
+ * skipped, `php artisan about` says so, and everything else works.
  */
 
 return [
@@ -101,9 +102,9 @@ return [
     | The JSON API for managing SSO connections, linked identities and SCIM
     | tokens. Disabled by default.
     |
-    | SECURITY: each route checks the caller's Roster permissions, but it
-    | needs an authenticated user to check: add authentication middleware
-    | (e.g. `auth:sanctum`) before enabling it.
+    | SECURITY: each route checks the caller's permissions (see
+    | Authorization below), but it needs an authenticated user to check: add
+    | authentication middleware (e.g. `auth:sanctum`) before enabling it.
     |
     */
 
@@ -111,6 +112,27 @@ return [
         'enabled' => false,
         'prefix' => 'guardian',
         'middleware' => ['api', 'throttle:guardian'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authorization
+    |--------------------------------------------------------------------------
+    |
+    | Every API route and MCP tool checks the caller's abilities (such as
+    | `guardian.sso.manage`) in the scope it is about, through Keystone's
+    | permissions contract: whichever role store is bound answers, or the
+    | host's Gate when none is.
+    |
+    | enabled: Set to false to leave the route middleware as the only check,
+    |          as suits an operator API or a trusted server-to-server
+    |          integration. SECURITY: anyone the middleware lets in may then
+    |          do anything.
+    |
+    */
+
+    'authorization' => [
+        'enabled' => true,
     ],
 
     /*
@@ -153,9 +175,9 @@ return [
     |
     | The policy the Gate uses for each Guardian model. Point a model at a
     | class of your own (extending the bundled one, or not) to change who may
-    | do what. The bundled policies answer with Roster's permissions:
-    | `guardian.sso.view`, `guardian.sso.manage` and `guardian.scim.manage`,
-    | in the record's organization.
+    | do what. The bundled policies answer with Keystone's permissions
+    | contract: `guardian.sso.view`, `guardian.sso.manage` and
+    | `guardian.scim.manage`, in the record's organization.
     |
     */
 
@@ -195,7 +217,7 @@ return [
     | transports are disabled by default.
     |
     | web:   An HTTP MCP endpoint at `route`, wrapped in `middleware`.
-    |        SECURITY: tools check the caller's Roster permissions, so add
+    |        SECURITY: tools check the caller's permissions, so add
     |        authentication middleware (e.g. `auth:sanctum`) before enabling.
     | local: A stdio server started with `php artisan mcp:start <handle>`.
     |

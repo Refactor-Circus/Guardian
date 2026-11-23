@@ -15,7 +15,7 @@ Use this skill when a Laravel application uses `refactor-circus/guardian`, the a
 ## Install
 
 - `composer require refactor-circus/roster refactor-circus/guardian`, then `php artisan migrate`.
-- Guardian requires only refactor-circus/keystone. Without Roster it is inactive: `php artisan about` says "Inactive: install refactor-circus/roster" and nothing else registers.
+- Guardian requires only refactor-circus/keystone. Only SSO and SCIM need Roster: without it `php artisan about` shows them as "Inactive: install refactor-circus/roster" and they are skipped; everything else works.
 - Optional SSO vendors: `laravel/socialite`, plus `firebase/php-jwt` (OIDC), `socialiteproviders/saml2` (SAML) or `socialiteproviders/microsoft-azure` (Entra ID). Without them the sign-in routes are not registered.
 
 ## Config (`config/guardian.php`)
@@ -29,7 +29,7 @@ Use this skill when a Laravel application uses `refactor-circus/guardian`, the a
 
 - `guardian.sso.view`, `guardian.sso.manage`, `guardian.scim.manage`, registered on Roster's catalogue and granted to the built-in `admin` role.
 - Existing built-in roles do not gain them automatically: run `php artisan roster:sync-permissions`, then grant them by hand. The upgrade from Roster moves the old `roster.*` grants.
-- Check them with Roster's `Authorizer::check($user, 'guardian.sso.manage', $organization)`.
+- Check them with Keystone's contract: `app(Permissions::class)->allows($user, 'guardian.sso.manage', $organization)`.
 
 ## HTTP API, SCIM endpoint and MCP
 

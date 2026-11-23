@@ -11,21 +11,22 @@ use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Guardian\Domains\Sso\Services\Sso;
 use RefactorCircus\Guardian\Domains\Sso\Services\SsoSignInRequirement;
 use RefactorCircus\Guardian\Domains\Sso\Support\SsoAudit;
+use RefactorCircus\Guardian\Support\Authorization;
 use RefactorCircus\Guardian\Upgrade\Handover;
 use RefactorCircus\Keystone\Audit\AuditHooks;
+use RefactorCircus\Keystone\Authorization\Abilities;
 use RefactorCircus\Keystone\Support\ServiceProvider;
-use RefactorCircus\Roster\Domains\Permission\Services\PermissionCatalogue;
-use RefactorCircus\Roster\Domains\Permission\Services\Resources;
 use RefactorCircus\Roster\Roster;
 
 /**
  * Single sign-on connections (OIDC, SAML, Entra ID) and linked identities.
  *
- * Registered only while a Roster with the seams is installed. Everything
- * reaches Roster through its public seams: the `guardian.sso` resource and
- * the `guardian.sso.*` permissions, granted to admins and answered by the
- * connection policy from `guardian.policies`, and the sign-in requirement
- * that holds an enforced connection's domains to single sign-on. Its audit
+ * Registered only while a Roster with the seams is installed. The
+ * `guardian.sso.*` abilities are defined in Keystone's `Abilities` (granted
+ * to `admin` by a role store that creates it) and answered by the connection
+ * policy from `guardian.policies`, in the connection's Roster organization.
+ * Roster is reached through its public seams: the sign-in requirement that
+ * holds an enforced connection's domains to single sign-on. Its audit
  * entries get the subject and organization Roster gave them.
  *
  * The sign-in routes and the morph aliases for Roster's old class names wait
@@ -69,15 +70,23 @@ class SsoServiceProvider extends ServiceProvider
     }
 
     /**
-     * The `guardian.sso` resource and its permissions, through the seams
-     * every package uses. Policies come from `guardian.policies`.
+     * The `guardian.sso.*` abilities, defined once per application, and the
+     * connection policy as the answer to them. Policies come from
+     * `guardian.policies`.
      */
     private function registerAuthorization(): void
     {
-        $this->app->make(Resources::class)->resource('guardian.sso', SsoConnectionModel::class);
+        $this->app->make(Authorization::class)->resource('guardian.sso', SsoConnectionModel::class);
 
-        $this->app->make(PermissionCatalogue::class)
-            ->permission('guardian.sso.view', "View an organization's single sign-on connections.", ['admin'])
-            ->permission('guardian.sso.manage', 'Configure single sign-on connections.', ['admin']);
+        $abilities = $this->app->make(Abilities::class);
+
+        foreach ([
+            'guardian.sso.view' => "View an organization's single sign-on connections.",
+            'guardian.sso.manage' => 'Configure single sign-on connections.',
+        ] as $ability => $description) {
+            if (! $abilities->has($ability)) {
+                $abilities->define($ability, $description, ['admin']);
+            }
+        }
     }
 }

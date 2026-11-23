@@ -9,6 +9,12 @@ use Laravel\Mcp\Server\McpServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 use RefactorCircus\Guardian\GuardianServiceProvider;
 use RefactorCircus\Guardian\Upgrade\Handover;
+use RefactorCircus\Keystone\Authorization\Abilities;
+use RefactorCircus\Keystone\Authorization\Contracts\Permissions;
+use RefactorCircus\Keystone\Testing\FakePermissions;
+use RefactorCircus\Keystone\Testing\FakeRoles;
+use RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel;
+use RefactorCircus\Roster\Domains\Team\Models\TeamModel;
 use RefactorCircus\Roster\RosterServiceProvider;
 use Workbench\App\Models\User;
 
@@ -42,6 +48,33 @@ abstract class TestCase extends Orchestra
     public static bool $mcpServers = false;
 
     /**
+     * Roles and permissions come from Keystone's test fakes (criterion 5):
+     * `super-admin` (global), and `admin` and `member` in Roster's
+     * organizations and teams (and `admin` globally too), granting what
+     * Keystone's `Abilities` grant them, as a role store that creates them
+     * would. `grant()` in tests/Pest.php assigns them.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        FakePermissions::install();
+
+        $admin = array_keys(array_filter(
+            app(Abilities::class)->all(),
+            fn (array $ability): bool => in_array('admin', $ability['grantTo'], true),
+        ));
+
+        $roles = FakeRoles::install()
+            ->define('super-admin', [Permissions::SUPER_ADMIN])
+            ->define('admin', $admin);
+
+        foreach ([OrganizationModel::class, TeamModel::class] as $scope) {
+            $roles->define('admin', $admin, $scope)->define('member', [], $scope);
+        }
+    }
+
+    /**
      * @return array<int, class-string>
      */
     protected function getPackageProviders($app): array
@@ -67,9 +100,10 @@ abstract class TestCase extends Orchestra
             $app['config']->set('guardian.mcp.web.enabled', true);
             $app['config']->set('guardian.mcp.local.enabled', true);
         }
-        // Surface tests cover behaviour; tests/Feature/Authorization turns it
-        // back on, as Roster's suite does.
+        // Surface tests cover behaviour; tests/Feature/Authorization turns
+        // Guardian's back on, as Roster's suite does.
         $app['config']->set('roster.authorization', false);
+        $app['config']->set('guardian.authorization.enabled', false);
         // Roster at the seams branch still ships SSO and SCIM: keep its live
         // routes off Guardian's identical URIs (criterion 28).
         $app['config']->set('roster.sso.prefix', 'roster-legacy/sso');
@@ -127,7 +161,7 @@ abstract class TestCase extends Orchestra
     protected function guardianMigrations(): array
     {
         return array_values(array_filter(
-            (array) glob(dirname(__DIR__).'/database/migrations/*.php'),
+            [...(array) glob(dirname(__DIR__).'/database/migrations/*.php'), ...(array) glob(dirname(__DIR__).'/database/migrations/roster/*.php')],
             fn (mixed $path): bool => is_string($path) && ! str_ends_with($path, '_upgrade_guardian_from_roster.php'),
         ));
     }

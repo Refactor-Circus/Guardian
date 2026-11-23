@@ -9,15 +9,17 @@ use Illuminate\Database\Eloquent\Model;
 use RefactorCircus\Guardian\Domains\Sso\Actions\SsoLoginAction;
 use RefactorCircus\Guardian\Domains\Sso\Concerns\JoinsOrganizations;
 use RefactorCircus\Guardian\Domains\Sso\Data\IdentityClaims;
+use RefactorCircus\Keystone\Authorization\Contracts\Roles;
 use RefactorCircus\Roster\Domains\Organization\Enums\MembershipSource;
 use RefactorCircus\Roster\Domains\Organization\Models\MembershipModel;
 use RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel;
-use RefactorCircus\Roster\Domains\Role\Models\RoleAssignmentModel;
 use Workbench\App\Models\User;
 
 // Criterion 9: Guardian joins SSO and SCIM users to an organization with its
 // own helper, not Roster's internal trait, and keeps Roster's rule: a new
 // member gets `roster.roles.default_member`, an existing one is left alone.
+// Criterion 5: the role is given through Keystone's Roles (the FakeRoles
+// TestCase binds).
 
 /**
  * The role slugs a user holds in an organization.
@@ -26,13 +28,9 @@ use Workbench\App\Models\User;
  */
 function organizationRoles(Model $user, OrganizationModel $organization): array
 {
-    return RoleAssignmentModel::query()
-        ->where('user_id', $user->getKey())
-        ->where('organization_id', $organization->getKey())
-        ->with('role')
-        ->get()
-        ->map(fn (RoleAssignmentModel $assignment): string => (string) $assignment->role?->slug)
-        ->all();
+    assert($user instanceof User);
+
+    return app(Roles::class)->of($user, $organization);
 }
 
 it('gives a member SSO brings in the default member role', function (): void {
@@ -108,3 +106,13 @@ it('refuses a membership source nothing registers', function (): void {
 
     $joiner($connection->organization, user());
 })->throws(InvalidArgumentException::class, 'The membership source [nowhere] is not registered');
+
+it('assigns no role when the role store does not know the default member role', function (): void {
+    config(['roster.roles.default_member' => 'nobody']);
+    $connection = acmeWithSso();
+
+    [$user] = app(SsoLoginAction::class)->execute($connection, new IdentityClaims('sub-1', 'ada@acme.test', 'Ada'));
+
+    expect($connection->organization->membershipFor($user))->not->toBeNull()
+        ->and(organizationRoles($user, $connection->organization))->toBe([]);
+});

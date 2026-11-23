@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use RefactorCircus\Guardian\Upgrade\RosterUpgrade;
 use RefactorCircus\Guardian\Upgrade\UpgradeReport;
-use RefactorCircus\Roster\Domains\Permission\Services\Permissions;
 use RefactorCircus\Roster\Domains\Team\Models\TeamModel;
 
 /*
@@ -34,12 +33,27 @@ const ROSTER_PERMISSIONS = [
 ];
 
 /**
+ * Roster v0.1's role tables, with its built-in roles (tests/Fixtures): Roster
+ * v2 no longer creates them, but an install upgrading from v0.1 still has
+ * them.
+ */
+function legacyRosterRoleTables(): void
+{
+    if (! Schema::hasTable('roster_roles')) {
+        (require dirname(__DIR__, 2).'/Fixtures/roster-roles/2026_01_01_000003_create_legacy_roster_role_tables.php')->up();
+    }
+}
+
+/**
  * Roster's SSO and SCIM permissions, as Roster registered them at the pinned
- * SHA and granted them to its built-in `admin` role. A Roster that has handed
- * them over no longer creates them, so they are put back here.
+ * SHA and granted them to its built-in `admin` role, in Roster v0.1's role
+ * tables. A Roster that has handed them over no longer creates them, so they
+ * are put back here.
  */
 function seedRosterPermissions(): void
 {
+    legacyRosterRoleTables();
+
     $now = now();
     $admin = DB::table('roster_roles')->whereNull('organization_id')->where('slug', 'admin')->value('id');
 
@@ -54,8 +68,6 @@ function seedRosterPermissions(): void
             DB::table('roster_permission_role')->insert(['role_id' => $admin, 'permission_id' => $permission]);
         }
     }
-
-    app(Permissions::class)->forgetCache();
 }
 
 function runUpgrade(): UpgradeReport

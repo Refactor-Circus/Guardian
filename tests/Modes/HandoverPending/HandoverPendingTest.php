@@ -12,7 +12,7 @@ use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Guardian\Upgrade\Handover;
 use RefactorCircus\Guardian\Upgrade\UpgradeReport;
-use RefactorCircus\Roster\Domains\Permission\Services\Permissions;
+use RefactorCircus\Keystone\Authorization\Abilities;
 
 /*
  * Criteria 28 and 31: while the installed Roster still ships SSO and SCIM,
@@ -34,8 +34,8 @@ it('loads neither the SSO web routes nor the SCIM server routes', function (): v
 it('still loads the API routes, permissions and resources', function (): void {
     expect(Route::has('guardian.organizations.sso-connections.index'))->toBeTrue()
         ->and(Route::has('guardian.organizations.scim-tokens.index'))->toBeTrue()
-        ->and(app(Permissions::class)->knows('guardian.sso.manage'))->toBeTrue()
-        ->and(app(Permissions::class)->knows('guardian.scim.manage'))->toBeTrue();
+        ->and(app(Abilities::class)->has('guardian.sso.manage'))->toBeTrue()
+        ->and(app(Abilities::class)->has('guardian.scim.manage'))->toBeTrue();
 });
 
 it('registers no morph aliases for Roster\'s class names', function (): void {

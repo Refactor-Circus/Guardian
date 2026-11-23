@@ -40,7 +40,11 @@ it('rejects users without the permission with 403', function (string $method, st
 it('lets any signed-in user use the self-service routes', function (string $method, string $name, Closure $parameters, array $body): void {
     $world = authorizationWorld();
 
-    $this->actingAs(user())->json($method, route($name, $parameters($world)), $body)->assertOk();
+    // Past authorization: the answer is the route's own (200, 201, 404 for
+    // another user's record, 422 for a missing code).
+    $status = $this->actingAs(user())->json($method, route($name, $parameters($world)), $body)->status();
+
+    expect($status)->not->toBeIn([401, 403]);
 })->with(array_intersect_key(apiRoutes(), array_flip(SELF_SERVICE_ROUTES)));
 
 it('lets a super-admin through', function (string $method, string $name, Closure $parameters, array $body): void {

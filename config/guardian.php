@@ -20,6 +20,9 @@ use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Guardian\Domains\Sso\Policies\SsoConnectionPolicy;
 use RefactorCircus\Guardian\Domains\Sso\Policies\SsoIdentityPolicy;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\RecoveryCodeModel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Policies\TwoFactorMethodPolicy;
 
 /*
  * Guardian is the suite's security package. Only SSO and SCIM build on
@@ -329,6 +332,32 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Two-Factor Authentication
+    |--------------------------------------------------------------------------
+    |
+    | Users enrol an authenticator app (TOTP), and get ten single-use
+    | recovery codes with their first factor, through the
+    | `guardian.two-factor.*` routes. Secrets are encrypted at rest, codes
+    | are kept only as HMACs, and a TOTP code is never accepted twice.
+    |
+    | required: Require two-factor of every user. With the
+    |           `guardian.two-factor` middleware on your routes, a user
+    |           without a factor is refused until they enrol.
+    | issuer:   The name authenticator apps show; null uses `app.name`.
+    |
+    | SECURITY: removing a factor needs a code from another one, or a
+    | recovery code; an admin with `guardian.two-factor.manage` can reset a
+    | user who lost theirs.
+    |
+    */
+
+    'two_factor' => [
+        'required' => false,
+        'issuer' => null,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Policies
     |--------------------------------------------------------------------------
     |
@@ -350,6 +379,8 @@ return [
         RoleAssignmentModel::class => RoleAssignmentPolicy::class,
         PermissionModel::class => PermissionPolicy::class,
         SecurityEventModel::class => SecurityEventPolicy::class,
+        TwoFactorMethodModel::class => TwoFactorMethodPolicy::class,
+        RecoveryCodeModel::class => TwoFactorMethodPolicy::class,
     ],
 
     /*
@@ -374,6 +405,10 @@ return [
         'permission_role' => 'guardian_permission_role',
         'role_assignments' => 'guardian_role_assignments',
         'security_events' => 'guardian_security_events',
+        'two_factor_methods' => 'guardian_two_factor_methods',
+        'recovery_codes' => 'guardian_recovery_codes',
+        'passkeys' => 'guardian_passkeys',
+        'one_time_codes' => 'guardian_one_time_codes',
     ],
 
     /*

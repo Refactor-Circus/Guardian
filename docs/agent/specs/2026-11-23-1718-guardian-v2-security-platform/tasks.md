@@ -103,11 +103,11 @@ depends on: 9
 files: composer.json (pragmarx/google2fa), database/migrations/2026_11_24_000005_create_guardian_two_factor_tables.php, src/Domains/TwoFactor/Models/{TwoFactorMethodModel,RecoveryCodeModel}.php, src/Domains/TwoFactor/Services/{Totp,RecoveryCodes}.php, src/Domains/TwoFactor/Actions/{StartTotpEnrolmentAction,ConfirmTotpAction,RegenerateRecoveryCodesAction,ShowTwoFactorAction,RemoveTwoFactorMethodAction,ResetTwoFactorAction}.php, src/Domains/TwoFactor/Data/*, src/Domains/TwoFactor/Events/*, src/Domains/TwoFactor/Policies/*, src/Domains/TwoFactor/Resources/*, src/Domains/TwoFactor/Http/**, src/Domains/TwoFactor/Mcp/**, src/Domains/TwoFactor/routes.php, src/Domains/TwoFactor/TwoFactorServiceProvider.php, src/Domains/DomainServiceProvider.php, config/guardian.php, tests/Feature/TwoFactor/TotpTest.php, tests/Feature/TwoFactor/RecoveryCodesTest.php, tests/Feature/TwoFactor/StatusTest.php, tests/Pest.php
 criteria: 26, 27, 28, 31
 
-- [ ] 10.1 Write tests: The tables, including passkey and one-time-code tables; TOTP against the RFC 6238 vectors through the library; enrolment returns the secret and URI; confirmation within ±1 step; replay refused; recovery codes: returned once, single use, hashed, regenerating replaces them; status payload masks secrets; removing a factor needs another factor's code; last factor while required refused; admin reset with `guardian.two-factor.manage`; events recorded; parity exemptions for the secret-returning actions
-- [ ] 10.2 Require `pragmarx/google2fa` (if no release installs on PHP 8.5, implement `Services\Totp` per RFC 6238 and record a D-entry)
-- [ ] 10.3 Add the migration for all four 2FA tables, the models (encrypted casts) and the services
-- [ ] 10.4 Add the actions, requests, controllers, routes, MCP status and reset tools, and the `two_factor` config
-- [ ] 10.5 Run vendor/bin/pest; all green
+- [x] 10.1 Write tests: The tables, including passkey and one-time-code tables; TOTP against the RFC 6238 vectors through the library; enrolment returns the secret and URI; confirmation within ±1 step; replay refused; recovery codes: returned once, single use, hashed, regenerating replaces them; status payload masks secrets; removing a factor needs another factor's code; last factor while required refused; admin reset with `guardian.two-factor.manage`; events recorded; parity exemptions for the secret-returning actions
+- [x] 10.2 Require `pragmarx/google2fa` (if no release installs on PHP 8.5, implement `Services\Totp` per RFC 6238 and record a D-entry)
+- [x] 10.3 Add the migration for all four 2FA tables, the models (encrypted casts) and the services
+- [x] 10.4 Add the actions, requests, controllers, routes, MCP status and reset tools, and the `two_factor` config
+- [x] 10.5 Run vendor/bin/pest; all green
 
 ## Group 11: Email and SMS one-time codes
 depends on: 10

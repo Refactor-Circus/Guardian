@@ -101,6 +101,11 @@ const PARITY_EXCEPTIONS = [
     // Only Guardian writes the security log, from the events it observes;
     // nobody may add to it over the API or MCP.
     'RecordSecurityEventAction' => ['http', 'mcp'],
+    // Enrolment answers a TOTP secret, and regeneration recovery codes:
+    // secrets an agent must never be handed (D-021).
+    'StartTotpEnrolmentAction' => ['mcp'],
+    'ConfirmTotpAction' => ['mcp'],
+    'RegenerateRecoveryCodesAction' => ['mcp'],
 ];
 
 /**

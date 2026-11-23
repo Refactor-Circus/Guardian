@@ -40,6 +40,15 @@ return [
     'permission_name_taken' => 'A permission with this name already exists.',
     'system_permission' => 'Built-in permissions cannot be renamed or deleted.',
 
+    // Two-factor
+    'two_factor_required' => 'Two-factor authentication is required: keep at least one factor.',
+    'two_factor_method_unavailable' => 'Codes cannot be sent by :type here.',
+    'two_factor_throttled' => 'Too many attempts. Try again in :seconds seconds.',
+    'two_factor_nothing_pending' => 'Nothing is waiting to be confirmed. Start the enrolment again.',
+    'two_factor_invalid_code' => 'This code is not valid.',
+    'two_factor_other_factor_needed' => 'Enter a current code from another of your factors, or a recovery code.',
+    'two_factor_not_enabled' => 'Two-factor authentication is not on for this account.',
+
     // SCIM provisioning
     'scim_deprovisioned' => 'Deprovisioned from :organization by its identity provider.',
 

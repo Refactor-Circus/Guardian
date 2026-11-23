@@ -10,6 +10,8 @@ use RefactorCircus\Guardian\Domains\SecurityEvent\Data\RecordSecurityEventData;
 use RefactorCircus\Guardian\Domains\SecurityEvent\Enums\SecurityEventType;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Enums\TwoFactorMethodType;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
 use RefactorCircus\Roster\Domains\Organization\Actions\AddMemberAction;
 use RefactorCircus\Roster\Domains\Organization\Data\AddMemberData;
 
@@ -18,7 +20,8 @@ use RefactorCircus\Roster\Domains\Organization\Data\AddMemberData;
  * pinned SHA (tests/moved-tests.json), with Guardian's route names: an
  * organization `acme` with a member `target`, a connection `acme-okta`, the
  * target's identity on it and a SCIM token; plus a shared role `editor`,
- * held by the target, and a security event of the target's.
+ * held by the target, a security event of the target's and their
+ * confirmed authenticator.
  *
  * @return array<string, mixed>
  */
@@ -36,9 +39,11 @@ function authorizationWorld(): array
     $role = RoleModel::query()->create(['name' => 'Editor', 'slug' => 'editor', 'scope' => RoleModel::ANY]);
     $assignment = RoleAssignmentModel::query()->create(['role_id' => $role->id, 'user_id' => $target->getKey()]);
 
+    $twoFactorMethod = TwoFactorMethodModel::query()->create(['user_id' => $target->getKey(), 'type' => TwoFactorMethodType::Totp, 'secret' => 'JBSWY3DPEHPK3PXP', 'confirmed_at' => now()]);
+
     $securityEvent = app(RecordSecurityEventAction::class)->execute(new RecordSecurityEventData(type: SecurityEventType::LoginSucceeded, user: (string) $target->getKey()));
 
-    return compact('acme', 'target', 'connection', 'identity', 'scimToken', 'role', 'assignment', 'securityEvent');
+    return compact('acme', 'target', 'connection', 'identity', 'scimToken', 'role', 'assignment', 'securityEvent', 'twoFactorMethod');
 }
 
 /**
@@ -86,6 +91,12 @@ function apiRoutes(): array
         'security-events.index' => ['GET', 'guardian.security-events.index', fn (): array => [], []],
         'security-events.show' => ['GET', 'guardian.security-events.show', fn (array $w): array => [$w['securityEvent']->id], []],
         'me.security-events.index' => ['GET', 'guardian.me.security-events.index', fn (): array => [], []],
+        'two-factor.show' => ['GET', 'guardian.two-factor.show', fn (): array => [], []],
+        'two-factor.totp.store' => ['POST', 'guardian.two-factor.totp.store', fn (): array => [], []],
+        'two-factor.totp.confirm' => ['POST', 'guardian.two-factor.totp.confirm', fn (): array => [], ['code' => '123456']],
+        'two-factor.recovery-codes.store' => ['POST', 'guardian.two-factor.recovery-codes.store', fn (): array => [], []],
+        'two-factor.methods.destroy' => ['DELETE', 'guardian.two-factor.methods.destroy', fn (array $w): array => [$w['twoFactorMethod']->id], []],
+        'users.two-factor.destroy' => ['DELETE', 'guardian.users.two-factor.destroy', $user, []],
         'scim-tokens.destroy' => ['DELETE', 'guardian.scim-tokens.destroy', fn (array $w): array => [$w['scimToken']->id], []],
     ];
 }
@@ -94,7 +105,14 @@ function apiRoutes(): array
  * The routes every signed-in user may use on themselves, so a user without
  * any permission is not refused.
  */
-const SELF_SERVICE_ROUTES = ['me.security-events.index'];
+const SELF_SERVICE_ROUTES = [
+    'me.security-events.index',
+    'two-factor.show',
+    'two-factor.totp.store',
+    'two-factor.totp.confirm',
+    'two-factor.recovery-codes.store',
+    'two-factor.methods.destroy',
+];
 
 /**
  * Every Guardian JSON API route that needs a permission.

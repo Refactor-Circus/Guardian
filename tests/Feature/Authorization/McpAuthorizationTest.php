@@ -5,12 +5,14 @@ declare(strict_types=1);
 require_once __DIR__.'/fixtures.php';
 
 use RefactorCircus\Guardian\Domains\SecurityEvent\Mcp\Tools\ListMySecurityEventsTool;
+use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\RemoveTwoFactorMethodTool;
+use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\ShowTwoFactorTool;
 use RefactorCircus\Guardian\Mcp\GuardianServer;
 
 /**
  * Tools every signed-in user may use on themselves.
  */
-const SELF_SERVICE_TOOLS = [ListMySecurityEventsTool::class];
+const SELF_SERVICE_TOOLS = [ListMySecurityEventsTool::class, ShowTwoFactorTool::class, RemoveTwoFactorMethodTool::class];
 
 // The SSO and SCIM cases of Roster's tests/Authorization/McpAuthorizationTest.php at
 // the pinned SHA, against GuardianServer.
@@ -41,6 +43,8 @@ function toolArguments(): array
             'CreatePermissionTool' => fn (): array => ['name' => 'a.b'],
             'UpdatePermissionTool', 'DeletePermissionTool' => fn (): array => ['permission' => 'guardian.sso.view'],
             'ShowSecurityEventTool' => fn (array $w): array => ['event' => $w['securityEvent']->id],
+            'ResetTwoFactorTool' => fn (array $w): array => ['user' => (string) $w['target']->getKey()],
+            'RemoveTwoFactorMethodTool' => fn (array $w): array => ['method' => $w['twoFactorMethod']->id, 'code' => '123456'],
             'RevokeScimTokenTool' => fn (array $w): array => ['token' => $w['scimToken']->id],
             default => fn (): array => [],
         }])
@@ -55,8 +59,10 @@ it('refuses every tool to guests and to users without the permission', function 
 
     $this->actingAs(user());
 
+    // A self-service tool answers for the caller (another user's record is
+    // not found), never Unauthorized.
     in_array($tool, SELF_SERVICE_TOOLS, true)
-        ? mcpTool($tool, $arguments)->assertOk()
+        ? mcpTool($tool, $arguments)->assertDontSee('Unauthorized.')
         : mcpTool($tool, $arguments)->assertHasErrors(['Unauthorized.']);
 })->with(fn (): array => array_keys(toolArguments()));
 

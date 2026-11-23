@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Mcp\Request;
+use Laravel\Mcp\Server\Tools\SearchTools;
 use Laravel\Mcp\Server\Transport\FakeTransporter;
 use RefactorCircus\Guardian\Domains\DomainServiceProvider;
 use RefactorCircus\Guardian\Domains\Permission\Services\GuardianPermissions;
@@ -137,4 +139,24 @@ describe('a Roster without the seams Guardian uses', function (): void {
             fn (string $class, string $method): bool => true,
         ),
     ]);
+});
+
+it('serves the role and permission API without Roster (criterion 3)', function (): void {
+    $names = array_values(array_filter(
+        array_keys(Route::getRoutes()->getRoutesByName()),
+        fn (string $name): bool => str_starts_with($name, 'guardian.roles.'),
+    ));
+
+    $search = (new GuardianServer(new FakeTransporter))->createContext()->tools()
+        ->first(fn (object $tool): bool => $tool instanceof SearchTools);
+
+    expect($search)->toBeInstanceOf(SearchTools::class);
+
+    /** @var SearchTools $search */
+    $catalog = json_decode((string) $search->handle(new Request(['query' => '', 'limit' => 50]))->content(), true, 512, JSON_THROW_ON_ERROR);
+    $tools = array_column($catalog['tools'], 'name');
+
+    expect($names)->toContain('guardian.roles.index', 'guardian.roles.store', 'guardian.roles.show', 'guardian.roles.update', 'guardian.roles.destroy')
+        ->and($tools)->toContain('list-roles-tool', 'show-role-tool', 'create-role-tool', 'update-role-tool', 'delete-role-tool')
+        ->and(array_filter($tools, fn (string $tool): bool => str_contains($tool, 'sso') || str_contains($tool, 'scim')))->toBe([]);
 });

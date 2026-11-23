@@ -51,11 +51,11 @@ depends on: 4
 files: src/Domains/Role/Actions/{CreateRoleAction,UpdateRoleAction,DeleteRoleAction,ShowRoleAction,ListRolesAction}.php, src/Domains/Role/Data/{CreateRoleData,UpdateRoleData,ListRolesData}.php, src/Domains/Role/Concerns/GuardsEscalation.php, src/Domains/Role/Policies/RolePolicy.php, src/Domains/Role/Resources/RoleResource.php, src/Domains/Role/Http/Requests/*Role*Request.php, src/Domains/Role/Http/Controllers/RoleController.php, src/Domains/Role/routes.php, src/Domains/Role/Mcp/**, src/Mcp/GuardianServer.php, config/guardian.php (policies), tests/Feature/Role/RoleActionsTest.php, tests/Feature/Http/RolesHttpTest.php, tests/Feature/Mcp/RoleToolsTest.php, tests/Pest.php
 criteria: 15, 16, 17, 18
 
-- [ ] 5.1 Write tests: `RoleActionsTest` (create, update, delete, show and list; events; system role refused; escalation on permissions and the super flag); HTTP by route name (200, 201 and 204, plus 401 and 403 with `guardian.roles.view` and `guardian.roles.manage` in a scope); MCP tools with output schemas; parity
-- [ ] 5.2 Port the role actions, Data and `GuardsEscalation` from Roster onto scope morphs
-- [ ] 5.3 Add `RolePolicy`, `RoleResource` (`slug`, not `id`, ISO timestamps), the requests, the controller and the routes
-- [ ] 5.4 Add the MCP requests and tools, and register them in `GuardianServer::TOOLS`
-- [ ] 5.5 Run vendor/bin/pest; all green
+- [x] 5.1 Write tests: `RoleActionsTest` (create, update, delete, show and list; events; system role refused; escalation on permissions and the super flag); HTTP by route name (200, 201 and 204, plus 401 and 403 with `guardian.roles.view` and `guardian.roles.manage` in a scope); MCP tools with output schemas; parity
+- [x] 5.2 Port the role actions, Data and `GuardsEscalation` from Roster onto scope morphs
+- [x] 5.3 Add `RolePolicy`, `RoleResource` (`slug`, not `id`, ISO timestamps), the requests, the controller and the routes
+- [x] 5.4 Add the MCP requests and tools, and register them in `GuardianServer::TOOLS`
+- [x] 5.5 Run vendor/bin/pest; all green
 
 ## Group 6: Role assignments and user abilities
 depends on: 5

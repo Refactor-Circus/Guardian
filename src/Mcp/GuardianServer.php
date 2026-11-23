@@ -10,6 +10,11 @@ use Laravel\Mcp\Server\Attributes\Version;
 use Laravel\Mcp\Server\ServerContext;
 use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\ToolSearch;
+use RefactorCircus\Guardian\Domains\Role\Mcp\Tools\CreateRoleTool;
+use RefactorCircus\Guardian\Domains\Role\Mcp\Tools\DeleteRoleTool;
+use RefactorCircus\Guardian\Domains\Role\Mcp\Tools\ListRolesTool;
+use RefactorCircus\Guardian\Domains\Role\Mcp\Tools\ShowRoleTool;
+use RefactorCircus\Guardian\Domains\Role\Mcp\Tools\UpdateRoleTool;
 use RefactorCircus\Guardian\Domains\Scim\Mcp\Tools\CreateScimTokenTool;
 use RefactorCircus\Guardian\Domains\Scim\Mcp\Tools\ListScimTokensTool;
 use RefactorCircus\Guardian\Domains\Scim\Mcp\Tools\RevokeScimTokenTool;
@@ -26,19 +31,26 @@ use RefactorCircus\Keystone\Mcp\Server;
 #[Name('Guardian')]
 #[Version('1.0.0')]
 #[Instructions(
-    'Manage the single sign-on connections, linked sign-in identities and SCIM provisioning tokens of Roster '.
-    'organizations. Every call acts as the signed-in user and needs the guardian.sso.view, guardian.sso.manage '.
-    'or guardian.scim.manage permission in the organization it is about.',
+    'Manage roles, permissions and who holds them, and the single sign-on connections, linked sign-in identities '.
+    'and SCIM provisioning tokens of Roster organizations. Every call acts as the signed-in user and needs the '.
+    'matching guardian.* permission (guardian.roles.view, guardian.roles.manage, guardian.roles.assign, '.
+    'guardian.sso.view, guardian.sso.manage, guardian.scim.manage) in the scope it is about.',
 )]
 final class GuardianServer extends Server
 {
     /**
-     * Every tool the server offers, with the names, descriptions and output
-     * schemas they had in Roster.
+     * Every tool the server offers. The SSO and SCIM tools keep the names,
+     * descriptions and output schemas they had in Roster.
      *
      * @var array<int, class-string<Tool>>
      */
     public const array TOOLS = [
+        // Roles
+        ListRolesTool::class,
+        ShowRoleTool::class,
+        CreateRoleTool::class,
+        UpdateRoleTool::class,
+        DeleteRoleTool::class,
         // Single sign-on
         ListSsoConnectionsTool::class,
         ShowSsoConnectionTool::class,

@@ -27,6 +27,8 @@ function toolArguments(): array
             'ShowSsoConnectionTool', 'UpdateSsoConnectionTool', 'DeleteSsoConnectionTool' => fn (): array => ['connection' => 'acme-okta'],
             'ListSsoIdentitiesTool' => $user,
             'UnlinkSsoIdentityTool' => fn (array $w): array => ['identity' => $w['identity']->id],
+            'ShowRoleTool', 'UpdateRoleTool', 'DeleteRoleTool' => fn (): array => ['role' => 'editor'],
+            'CreateRoleTool' => fn (): array => ['name' => 'X'],
             'RevokeScimTokenTool' => fn (array $w): array => ['token' => $w['scimToken']->id],
             default => fn (): array => [],
         }])

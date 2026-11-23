@@ -191,3 +191,9 @@
 - Rationale: Criteria 10 to 14 leave these open. Each choice keeps answers consistent with Keystone's `FakePermissions` and Roster v0.1, so packages see no change when Guardian replaces them.
 - Date: 2026-11-23
 - Raised by: implement (group 4); conservative default, no user available
+
+## D-033: How the API and MCP name scopes and roles
+- Choice: Every role request names its scope as `scope_type` (a morph alias, or an Eloquent model class) plus `scope_id`, resolved by `Support\Scopes` (any Eloquent model; an unknown type or record is a 422 on `scope_type`, a type without an id a 422 on `scope_id`). Roles are named by slug (`roles/{role}`), seen from the named scope: that scope's own role first, then a shared one (`global` before the others). A role's own `scope` (`global`, `any` or a scope type) is a separate field. A scope's own role may be assignable `any` or with the owner's type, never `global`; a slug is unique per owner. Viewing (`index`, `show`) is checked in the named scope (`show` falls back to the role's owner); managing (`store`, `update`, `destroy`) in the role's owner, so a shared role is managed only globally. `Support\Authorization` routes `guardian.roles.*` to `RolePolicy`, which gains `assign()`. The escalation guard asks Keystone's `Permissions::allows()` per permission in the role's owner (so a scope that grants by itself counts) and `isSuperAdmin()` for super roles; it is skipped without an actor or with `guardian.authorization.enabled` off, as Roster's was.
+- Rationale: Criteria 15 to 18 and task 5.3 (`slug`, not `id`) leave the addressing open. Morph types keep Guardian Roster-free (D-005); checking manage in the owner stops a scope admin from editing roles every scope shares.
+- Date: 2026-11-23
+- Raised by: implement (group 5); conservative default, no user available

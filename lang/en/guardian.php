@@ -23,6 +23,23 @@ return [
     'unknown_organization' => 'No organization has this slug.',
     'unknown_sso_connection' => 'No SSO connection in this organization has this slug.',
 
+    // Roles and permissions
+    'unknown_scope_type' => 'No scope has this type.',
+    'unknown_scope' => 'No scope of this type has this id.',
+    'unknown_role' => 'No role here has this slug.',
+    'cannot_grant' => 'You cannot grant permissions you do not hold here: :permissions.',
+    'only_super_admins' => 'Only super-admins may give, take away or change a super role.',
+    'global_role_shared' => 'A global role cannot belong to one scope.',
+    'role_scope_owner' => 'A scope\'s own role may only be assigned in that scope.',
+    'role_scope_unknown' => 'A role\'s scope is global, any, or a scope type.',
+    'role_slug_taken' => 'A role with this slug already exists here.',
+    'cannot_delete_system' => 'Built-in roles cannot be deleted.',
+    'role_not_assignable' => 'This role cannot be assigned here.',
+    'role_already_assigned' => 'The user already holds this role here.',
+    'unknown_user' => 'No user has this id.',
+    'permission_name_taken' => 'A permission with this name already exists.',
+    'system_permission' => 'Built-in permissions cannot be renamed or deleted.',
+
     // SCIM provisioning
     'scim_deprovisioned' => 'Deprovisioned from :organization by its identity provider.',
 

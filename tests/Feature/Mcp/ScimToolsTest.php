@@ -69,7 +69,7 @@ function rosterToolFor(string $tool): string
     return 'RefactorCircus\\Roster\\Domains\\'.$domain.'\\Mcp\\Tools\\'.class_basename($tool);
 }
 
-it('lists exactly the ten tools that moved from Roster', function (): void {
+it('lists the ten tools that moved from Roster, in order, among the others', function (): void {
     // The tools sit behind tool search, so browse the catalog as a client does.
     $search = (new GuardianServer(new FakeTransporter))->createContext()->tools()
         ->first(fn (Tool $tool): bool => $tool instanceof SearchTools);
@@ -80,7 +80,7 @@ it('lists exactly the ten tools that moved from Roster', function (): void {
     $catalog = json_decode((string) $search->handle(new Request(['query' => '', 'limit' => 50]))->content(), true, 512, JSON_THROW_ON_ERROR);
 
     expect($catalog['hasMore'])->toBeFalse()
-        ->and(array_column($catalog['tools'], 'name'))
+        ->and(array_values(array_filter(array_column($catalog['tools'], 'name'), fn (string $name): bool => str_contains($name, 'sso') || str_contains($name, 'scim'))))
         ->toBe(array_map(fn (string $tool): string => app($tool)->name(), GUARDIAN_TOOLS))
         ->toHaveCount(10);
 });

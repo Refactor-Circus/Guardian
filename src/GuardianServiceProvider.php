@@ -13,6 +13,7 @@ use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use RefactorCircus\Guardian\Console\Commands\AdoptRosterRolesCommand;
 use RefactorCircus\Guardian\Console\Commands\UpgradeFromRosterCommand;
 use RefactorCircus\Guardian\Domains\DomainServiceProvider;
 use RefactorCircus\Guardian\Domains\Permission\Services\GuardianPermissions;
@@ -87,6 +88,10 @@ class GuardianServiceProvider extends PackageServiceProvider
             $this->publishes([
                 __DIR__.'/../lang' => $this->app->langPath('vendor/guardian'),
             ], ['guardian', 'guardian-lang']);
+
+            // Roster's old role tables are plain tables: adopting them needs
+            // no Roster installed.
+            $this->commands([AdoptRosterRolesCommand::class]);
         }
 
         $this->registerPolicies();

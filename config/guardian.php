@@ -264,6 +264,38 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Adopting Roster's Roles
+    |--------------------------------------------------------------------------
+    |
+    | Roster v0.1 kept roles, permissions and assignments in its own tables.
+    | The `adopt_roster_role_tables` migration (and `php artisan
+    | guardian:adopt-roster-roles`) copies them into Guardian's once, while
+    | Guardian holds nothing but its seeded built-in roles, and never alters
+    | or drops Roster's tables: drop them by hand once you are done.
+    |
+    | roster_tables: Where Roster kept them (its `roster.tables.*` names).
+    | scope_types:   The morph type Roster's `organization` and `team`
+    |                scopes become: a model class, or the alias your morph
+    |                map gives it. Set these before migrating when you map
+    |                Roster's models to aliases.
+    |
+    */
+
+    'adopt' => [
+        'roster_tables' => [
+            'permissions' => 'roster_permissions',
+            'roles' => 'roster_roles',
+            'permission_role' => 'roster_permission_role',
+            'role_assignments' => 'roster_role_assignments',
+        ],
+        'scope_types' => [
+            'organization' => 'RefactorCircus\\Roster\\Domains\\Organization\\Models\\OrganizationModel',
+            'team' => 'RefactorCircus\\Roster\\Domains\\Team\\Models\\TeamModel',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Policies
     |--------------------------------------------------------------------------
     |

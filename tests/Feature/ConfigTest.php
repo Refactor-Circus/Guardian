@@ -191,11 +191,26 @@ it('has the users and roles defaults', function (): void {
         ]]);
 });
 
+it('has the adoption defaults: Roster v0.1\'s table names and model classes', function (): void {
+    expect(shippedGuardianConfig()['adopt'])->toBe([
+        'roster_tables' => [
+            'permissions' => 'roster_permissions',
+            'roles' => 'roster_roles',
+            'permission_role' => 'roster_permission_role',
+            'role_assignments' => 'roster_role_assignments',
+        ],
+        'scope_types' => [
+            'organization' => 'RefactorCircus\\Roster\\Domains\\Organization\\Models\\OrganizationModel',
+            'team' => 'RefactorCircus\\Roster\\Domains\\Team\\Models\\TeamModel',
+        ],
+    ]);
+});
+
 it('has exactly the documented sections, each under a banner', function (): void {
     $source = (string) file_get_contents(dirname(__DIR__, 2).'/config/guardian.php');
 
     expect(array_keys(shippedGuardianConfig()))->toBe([
-        'sso', 'scim', 'routes', 'authorization', 'super_admins', 'permission_cache', 'rate_limit', 'audit', 'users', 'roles', 'policies', 'tables', 'mcp', 'cortex', 'migrations',
+        'sso', 'scim', 'routes', 'authorization', 'super_admins', 'permission_cache', 'rate_limit', 'audit', 'users', 'roles', 'adopt', 'policies', 'tables', 'mcp', 'cortex', 'migrations',
     ])->and(substr_count($source, '|--------------------------------------------------------------------------'))
         ->toBe(2 * count(shippedGuardianConfig()));
 });

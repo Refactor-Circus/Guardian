@@ -83,10 +83,10 @@ depends on: 7
 files: src/Upgrade/RosterRoleAdoption.php, src/Upgrade/UpgradeReport.php, src/Console/Commands/AdoptRosterRolesCommand.php, database/migrations/2026_11_24_000003_adopt_roster_role_tables.php, src/GuardianServiceProvider.php, config/guardian.php, tests/Fixtures/roster-role-tables.php, tests/Feature/Upgrade/RosterRoleAdoptionTest.php
 criteria: 20, 21
 
-- [ ] 8.1 Write tests: The fixture creates `roster_*` role tables with global, organization, team, owner-custom and super rows, plus expected `allows()` answers recorded from Roster's resolution rules; adoption copies them with ULIDs kept, maps scopes and owners, and renames permissions; the answers match; a second run reports "already adopted"; with no source tables it reports "nothing to adopt"; when Guardian already has assignments or custom roles nothing changes; the source tables and rows are untouched; custom `guardian.adopt.*` config is honoured, and the migration logs the report while the command prints it
-- [ ] 8.2 Implement `RosterRoleAdoption`: plan first, then copy in one transaction, then sync. Record the architecture/dependencies departure (Roster table and class names as strings) in `docs/agent/standards-feedback.md`.
-- [ ] 8.3 Add the migration, `guardian:adopt-roster-roles` and the `adopt` config section
-- [ ] 8.4 Run vendor/bin/pest; all green
+- [x] 8.1 Write tests: The fixture creates `roster_*` role tables with global, organization, team, owner-custom and super rows, plus expected `allows()` answers recorded from Roster's resolution rules; adoption copies them with ULIDs kept, maps scopes and owners, and renames permissions; the answers match; a second run reports "already adopted"; with no source tables it reports "nothing to adopt"; when Guardian already has assignments or custom roles nothing changes; the source tables and rows are untouched; custom `guardian.adopt.*` config is honoured, and the migration logs the report while the command prints it
+- [x] 8.2 Implement `RosterRoleAdoption`: plan first, then copy in one transaction, then sync. Record the architecture/dependencies departure (Roster table and class names as strings) in `docs/agent/standards-feedback.md`.
+- [x] 8.3 Add the migration, `guardian:adopt-roster-roles` and the `adopt` config section
+- [x] 8.4 Run vendor/bin/pest; all green
 
 ## Group 9: Security event log
 depends on: 8

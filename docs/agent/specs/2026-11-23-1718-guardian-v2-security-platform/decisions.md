@@ -209,3 +209,9 @@
 - Rationale: Criterion 16 ("a `system` permission cannot be deleted or renamed") implies app permissions can be renamed, which Roster v0.1 did not allow; the rest keeps Roster's behaviour.
 - Date: 2026-11-23
 - Raised by: implement (group 7); conservative default, no user available
+
+## D-036: Details of the role adoption
+- Choice: (1) "Already adopted" means a Guardian role keeps one of Roster's role ULIDs; it is checked before "Guardian holds roles", so a second run reports it. (2) "Only the seeded built-ins" means no assignment and every role a shared `system` role whose slug is in `guardian.roles.built_in`; extra permissions do not block adoption. (3) A Roster permission whose Guardian name already exists (the synced system rows, or `guardian.*` names `guardian:upgrade-from-roster` already wrote into Roster's tables) maps onto Guardian's row, which keeps its id; any other is copied with its ULID. Grants are de-duplicated. (4) Rows are written with the query builder in one transaction, then `BuiltInRoles::sync()` runs and `GuardianPermissions::forgetEveryone()` drops what was remembered. (5) The report is its own value object, `Upgrade\AdoptionReport` (outcome, counts, renames, the scope types used), not an extension of the SSO/SCIM `UpgradeReport`, whose "nothing to upgrade" line speaks of SSO and SCIM. (6) The command is registered whether or not Roster is installed: Roster v0.1's tables need no Roster classes. (7) A scope type in `guardian.adopt.scope_types` that names an Eloquent model is stored as its morph class; anything else is stored as given (a morph alias).
+- Rationale: Criteria 20 and 21 leave these open; each keeps the adoption non-destructive and idempotent (D-007).
+- Date: 2026-11-23
+- Raised by: implement (group 8); conservative default, no user available

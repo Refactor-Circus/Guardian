@@ -62,6 +62,9 @@ function toolArguments(): array
             'ForgetDeviceTool' => fn (array $w): array => ['device' => $w['device']->id],
             'RevokeTokenTool' => fn (): array => ['token' => 'x'],
             'ListUserTokensTool', 'RevokeUserTokensTool' => fn (array $w): array => ['user' => (string) $w['target']->getKey()],
+            'ClearLockoutTool' => fn (): array => ['identifier' => 'ada@example.com'],
+            'CreateIpRuleTool' => fn (): array => ['cidr' => '198.51.100.0/24', 'action' => 'deny'],
+            'DeleteIpRuleTool' => fn (array $w): array => ['rule' => $w['ipRule']->id],
             'RevokeScimTokenTool' => fn (array $w): array => ['token' => $w['scimToken']->id],
             default => fn (): array => [],
         }])

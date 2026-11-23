@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
+use Laravel\Mcp\Request;
 use Laravel\Mcp\Server\Testing\TestResponse;
 use Laravel\Mcp\Server\Tool;
+use Laravel\Mcp\Server\Tools\SearchTools;
+use Laravel\Mcp\Server\Transport\FakeTransporter;
 use RefactorCircus\Guardian\Mcp\GuardianServer;
 use RefactorCircus\Guardian\Tests\HandoverPendingTestCase;
 use RefactorCircus\Guardian\Tests\Modes\SsoUnavailable\SsoUnavailableTestCase;
@@ -45,6 +48,65 @@ ArchPreset::register();
 function mcpTool(string $tool, array $arguments = []): TestResponse
 {
     return McpTools::call(GuardianServer::class, $tool, $arguments);
+}
+
+/**
+ * The names of every tool in GuardianServer's catalog, browsed as an MCP
+ * client browses it through `search_tools`: that answers at most 50 a call
+ * and has no offset, so once a page says there is more, the client pages on
+ * by searching each word of the tool names it has seen ("list", "role",
+ * "scim", ...), 50 at a time, until no search turns up a tool it has not
+ * seen. Names are kept in the order they were first seen: the first page is
+ * the catalog's own order.
+ *
+ * @return list<string>
+ */
+function toolCatalog(): array
+{
+    $search = (new GuardianServer(new FakeTransporter))->createContext()->tools()
+        ->first(fn (object $tool): bool => $tool instanceof SearchTools);
+
+    expect($search)->toBeInstanceOf(SearchTools::class);
+
+    /** @var SearchTools $search */
+    $page = function (string $query) use ($search): array {
+        /** @var array{tools: list<array{name: string}>, hasMore: bool} $result */
+        $result = json_decode((string) $search->handle(new Request(['query' => $query, 'limit' => 50]))->content(), true, 512, JSON_THROW_ON_ERROR);
+
+        return $result;
+    };
+
+    $first = $page('');
+    $names = array_column($first['tools'], 'name');
+
+    if (! $first['hasMore']) {
+        return $names;
+    }
+
+    $searched = [];
+
+    do {
+        $found = false;
+
+        foreach ($names as $name) {
+            foreach (explode('-', $name) as $term) {
+                if ($term === 'tool' || isset($searched[$term])) {
+                    continue;
+                }
+
+                $searched[$term] = true;
+
+                foreach (array_column($page($term)['tools'], 'name') as $match) {
+                    if (! in_array($match, $names, true)) {
+                        $names[] = $match;
+                        $found = true;
+                    }
+                }
+            }
+        }
+    } while ($found);
+
+    return $names;
 }
 
 /**

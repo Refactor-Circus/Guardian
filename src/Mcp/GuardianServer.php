@@ -10,6 +10,10 @@ use Laravel\Mcp\Server\Attributes\Version;
 use Laravel\Mcp\Server\ServerContext;
 use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\ToolSearch;
+use RefactorCircus\Guardian\Domains\LoginProtection\Mcp\Tools\ClearLockoutTool;
+use RefactorCircus\Guardian\Domains\LoginProtection\Mcp\Tools\CreateIpRuleTool;
+use RefactorCircus\Guardian\Domains\LoginProtection\Mcp\Tools\DeleteIpRuleTool;
+use RefactorCircus\Guardian\Domains\LoginProtection\Mcp\Tools\ListIpRulesTool;
 use RefactorCircus\Guardian\Domains\Password\Mcp\Tools\ShowPasswordPolicyTool;
 use RefactorCircus\Guardian\Domains\Permission\Mcp\Tools\CreatePermissionTool;
 use RefactorCircus\Guardian\Domains\Permission\Mcp\Tools\DeletePermissionTool;
@@ -63,10 +67,10 @@ use RefactorCircus\Keystone\Mcp\Server;
 #[Name('Guardian')]
 #[Version('1.0.0')]
 #[Instructions(
-    'Manage roles, permissions and who holds them, read the security log, see and reset two-factor and set who must use it, see and revoke sessions and devices, read the password rules, list and revoke API tokens, and manage the single sign-on connections, linked sign-in identities '.
+    'Manage roles, permissions and who holds them, read the security log, see and reset two-factor and set who must use it, see and revoke sessions and devices, read the password rules, list and revoke API tokens, clear sign-in lockouts and manage IP rules, and manage the single sign-on connections, linked sign-in identities '.
     'and SCIM provisioning tokens of Roster organizations. Every call acts as the signed-in user and needs the '.
     'matching guardian.* permission (guardian.roles.view, guardian.roles.manage, guardian.roles.assign, '.
-    'guardian.security.view, guardian.two-factor.manage, guardian.sessions.manage, guardian.tokens.manage, guardian.sso.view, guardian.sso.manage, guardian.scim.manage) in the scope it is '.
+    'guardian.security.view, guardian.security.manage, guardian.two-factor.manage, guardian.sessions.manage, guardian.tokens.manage, guardian.sso.view, guardian.sso.manage, guardian.scim.manage) in the scope it is '.
     'about; everyone may read their own security events and two-factor status and manage their own sessions, devices and API tokens.',
 )]
 final class GuardianServer extends Server
@@ -122,6 +126,11 @@ final class GuardianServer extends Server
         RevokeTokenTool::class,
         ListUserTokensTool::class,
         RevokeUserTokensTool::class,
+        // Login protection
+        ClearLockoutTool::class,
+        ListIpRulesTool::class,
+        CreateIpRuleTool::class,
+        DeleteIpRuleTool::class,
         // Single sign-on
         ListSsoConnectionsTool::class,
         ShowSsoConnectionTool::class,

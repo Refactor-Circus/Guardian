@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use RefactorCircus\Guardian\Domains\LoginProtection\Models\IpRuleModel;
+use RefactorCircus\Guardian\Domains\LoginProtection\Policies\IpRulePolicy;
 use RefactorCircus\Guardian\Domains\Password\Models\PasswordHistoryModel;
 use RefactorCircus\Guardian\Domains\Password\Policies\PasswordHistoryPolicy;
 use RefactorCircus\Guardian\Domains\Permission\Models\PermissionModel;
@@ -507,6 +509,57 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Login Protection
+    |--------------------------------------------------------------------------
+    |
+    | Put the `guardian.login-throttle` middleware on your login route.
+    | Guardian counts failed sign-ins (Laravel's `Failed` event) by the
+    | identifier typed and by address; once either has failed too often the
+    | route answers 429 with `Retry-After` and Laravel's `Lockout` fires. A
+    | sign-in clears the identifier's count; an admin can clear a lockout
+    | through `DELETE lockouts`. A sign-in from a new device after three
+    | failures in the past hour, or from a network (/24, /48) never seen for
+    | the user, is recorded as suspicious and the user told; it is never
+    | blocked.
+    |
+    | identifier_field: The credential that identifies the account.
+    | max_attempts:     Failures allowed per identifier...
+    | decay_minutes:    ...within this window, after which they are forgotten.
+    | ip_max_attempts:  Failures allowed per address in the same window.
+    |
+    | SECURITY: identifiers are counted and recorded only as HMACs.
+    |
+    */
+
+    'login' => [
+        'identifier_field' => 'email',
+        'max_attempts' => 5,
+        'decay_minutes' => 15,
+        'ip_max_attempts' => 50,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | IP Rules
+    |--------------------------------------------------------------------------
+    |
+    | Addresses and ranges (IPv4 or IPv6 CIDR) allowed or denied through the
+    | `guardian.ip-rules.*` routes and tools, enforced by the `guardian.ip`
+    | middleware with a 403 `ip_denied`. A deny rule always wins; expired
+    | rules are ignored. Rules are cached and refreshed on every change.
+    |
+    | mode: 'denylist' refuses only denied addresses. 'allowlist' also
+    |       refuses every address no allow rule matches. SECURITY: add an
+    |       allow rule for your own network before switching to allowlist.
+    |
+    */
+
+    'ip_rules' => [
+        'mode' => 'denylist',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Policies
     |--------------------------------------------------------------------------
     |
@@ -536,6 +589,7 @@ return [
         DeviceModel::class => SessionPolicy::class,
         SessionModel::class => SessionPolicy::class,
         PasswordHistoryModel::class => PasswordHistoryPolicy::class,
+        IpRuleModel::class => IpRulePolicy::class,
     ],
 
     /*
@@ -568,6 +622,7 @@ return [
         'devices' => 'guardian_devices',
         'sessions' => 'guardian_sessions',
         'password_histories' => 'guardian_password_histories',
+        'ip_rules' => 'guardian_ip_rules',
     ],
 
     /*

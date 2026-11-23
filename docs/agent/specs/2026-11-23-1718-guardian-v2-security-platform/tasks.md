@@ -186,11 +186,11 @@ depends on: 17
 files: database/migrations/2026_11_24_000009_create_guardian_ip_rule_tables.php, src/Domains/LoginProtection/** (new: Services/{LoginFailures,SuspiciousSignIns,IpRules}.php, Listeners/{CountLoginFailures,DetectSuspiciousSignIn}.php, Http/Middleware/{ThrottleLogins,EnforceIpRules}.php, Notifications/SuspiciousSignInNotification.php, Models/IpRuleModel.php, Actions/{ClearLockoutAction,CreateIpRuleAction,DeleteIpRuleAction,ListIpRulesAction}.php, Data/*, Events/*, Policies/*, Resources/*, Http/**, Mcp/**, routes.php, LoginProtectionServiceProvider.php), src/Domains/Session/Listeners/TrackSignIn.php, src/Domains/DomainServiceProvider.php, src/GuardianServiceProvider.php, src/Mcp/GuardianServer.php, config/guardian.php, tests/Feature/LoginProtection/*, tests/Feature/Http/LoginProtectionHttpTest.php
 criteria: 49, 50, 51, 52
 
-- [ ] 18.1 Write tests: Lockout after 5 identifier failures and after 50 IP failures (429 with `Retry-After`, `Lockout` fired and recorded); a sign-in clears the identifier; the admin clears a lockout over HTTP and MCP; suspicious sign-in with each signal and without either: event, notification in place of the new-device notice, never blocked; IP rules: deny match; allowlist mode; deny wins; IPv6; expired ignored; cache refreshed on write; invalid CIDR 422; `ip.denied` throttled; CRUD with `guardian.security.manage`; middleware aliases registered
-- [ ] 18.2 Add `LoginFailures`, the listeners, `ThrottleLogins` (alias `guardian.login-throttle`) and the clear-lockout action, route and tool
-- [ ] 18.3 Add `SuspiciousSignIns` and the notification, and hand off from `TrackSignIn`
-- [ ] 18.4 Add the IP rule migration, model, service, `EnforceIpRules` (alias `guardian.ip`), the CRUD and MCP, and the `login` and `ip_rules` config
-- [ ] 18.5 Run vendor/bin/pest; all green
+- [x] 18.1 Write tests: Lockout after 5 identifier failures and after 50 IP failures (429 with `Retry-After`, `Lockout` fired and recorded); a sign-in clears the identifier; the admin clears a lockout over HTTP and MCP; suspicious sign-in with each signal and without either: event, notification in place of the new-device notice, never blocked; IP rules: deny match; allowlist mode; deny wins; IPv6; expired ignored; cache refreshed on write; invalid CIDR 422; `ip.denied` throttled; CRUD with `guardian.security.manage`; middleware aliases registered
+- [x] 18.2 Add `LoginFailures`, the listeners, `ThrottleLogins` (alias `guardian.login-throttle`) and the clear-lockout action, route and tool
+- [x] 18.3 Add `SuspiciousSignIns` and the notification, and hand off from `TrackSignIn`
+- [x] 18.4 Add the IP rule migration, model, service, `EnforceIpRules` (alias `guardian.ip`), the CRUD and MCP, and the `login` and `ip_rules` config
+- [x] 18.5 Run vendor/bin/pest; all green
 
 ## Group 19: OpenAPI export and TypeScript client
 depends on: 18

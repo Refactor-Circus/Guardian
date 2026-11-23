@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RefactorCircus\Guardian\Domains;
 
 use Illuminate\Support\ServiceProvider;
+use RefactorCircus\Guardian\Domains\LoginProtection\LoginProtectionServiceProvider;
 use RefactorCircus\Guardian\Domains\Password\PasswordServiceProvider;
 use RefactorCircus\Guardian\Domains\Permission\PermissionServiceProvider;
 use RefactorCircus\Guardian\Domains\Role\RoleServiceProvider;
@@ -37,6 +38,7 @@ final class DomainServiceProvider extends ServiceProvider
         SessionServiceProvider::class,
         PasswordServiceProvider::class,
         TokenServiceProvider::class,
+        LoginProtectionServiceProvider::class,
     ];
 
     public function register(): void

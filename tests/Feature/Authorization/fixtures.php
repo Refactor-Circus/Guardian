@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use RefactorCircus\Guardian\Domains\LoginProtection\Models\IpRuleModel;
 use RefactorCircus\Guardian\Domains\Role\Models\RoleAssignmentModel;
 use RefactorCircus\Guardian\Domains\Role\Models\RoleModel;
 use RefactorCircus\Guardian\Domains\Scim\Models\ScimTokenModel;
@@ -53,9 +54,11 @@ function authorizationWorld(): array
     $device = DeviceModel::query()->create(['user_id' => $target->getKey(), 'fingerprint_hash' => 'target-device', 'first_seen_at' => now(), 'last_seen_at' => now()]);
     $session = SessionModel::query()->create(['user_id' => $target->getKey(), 'device_id' => $device->id, 'key_hash' => 'target-session', 'last_active_at' => now()]);
 
+    $ipRule = IpRuleModel::query()->create(['cidr' => '192.0.2.0/24', 'action' => 'deny']);
+
     $securityEvent = app(RecordSecurityEventAction::class)->execute(new RecordSecurityEventData(type: SecurityEventType::LoginSucceeded, user: (string) $target->getKey()));
 
-    return compact('acme', 'target', 'connection', 'identity', 'scimToken', 'role', 'assignment', 'securityEvent', 'twoFactorMethod', 'passkey', 'twoFactorPolicy', 'device', 'session');
+    return compact('acme', 'target', 'connection', 'identity', 'scimToken', 'role', 'assignment', 'securityEvent', 'twoFactorMethod', 'passkey', 'twoFactorPolicy', 'device', 'session', 'ipRule');
 }
 
 /**
@@ -135,6 +138,10 @@ function apiRoutes(): array
         'tokens.destroy' => ['DELETE', 'guardian.tokens.destroy', fn (): array => ['x'], []],
         'users.tokens.index' => ['GET', 'guardian.users.tokens.index', $user, []],
         'users.tokens.destroy' => ['DELETE', 'guardian.users.tokens.destroy', $user, []],
+        'lockouts.destroy' => ['DELETE', 'guardian.lockouts.destroy', fn (): array => [], ['identifier' => 'ada@example.com']],
+        'ip-rules.index' => ['GET', 'guardian.ip-rules.index', fn (): array => [], []],
+        'ip-rules.store' => ['POST', 'guardian.ip-rules.store', fn (): array => [], ['cidr' => '198.51.100.0/24', 'action' => 'deny']],
+        'ip-rules.destroy' => ['DELETE', 'guardian.ip-rules.destroy', fn (array $w): array => [$w['ipRule']->id], []],
         'users.two-factor.destroy' => ['DELETE', 'guardian.users.two-factor.destroy', $user, []],
         'scim-tokens.destroy' => ['DELETE', 'guardian.scim-tokens.destroy', fn (array $w): array => [$w['scimToken']->id], []],
     ];

@@ -2,10 +2,7 @@
 
 declare(strict_types=1);
 
-use Laravel\Mcp\Request;
 use Laravel\Mcp\Server\Tool;
-use Laravel\Mcp\Server\Tools\SearchTools;
-use Laravel\Mcp\Server\Transport\FakeTransporter;
 use RefactorCircus\Guardian\Domains\Scim\Mcp\Tools\CreateScimTokenTool;
 use RefactorCircus\Guardian\Domains\Scim\Mcp\Tools\ListScimTokensTool;
 use RefactorCircus\Guardian\Domains\Scim\Mcp\Tools\RevokeScimTokenTool;
@@ -70,17 +67,12 @@ function rosterToolFor(string $tool): string
 }
 
 it('lists the ten tools that moved from Roster, in order, among the others', function (): void {
-    // The tools sit behind tool search, so browse the catalog as a client does.
-    $search = (new GuardianServer(new FakeTransporter))->createContext()->tools()
-        ->first(fn (Tool $tool): bool => $tool instanceof SearchTools);
+    // The tools sit behind tool search, so browse the catalog as a client
+    // does, paging past search_tools' 50 a call.
+    $catalog = toolCatalog();
 
-    expect($search)->toBeInstanceOf(SearchTools::class);
-
-    /** @var SearchTools $search */
-    $catalog = json_decode((string) $search->handle(new Request(['query' => '', 'limit' => 50]))->content(), true, 512, JSON_THROW_ON_ERROR);
-
-    expect($catalog['hasMore'])->toBeFalse()
-        ->and(array_values(array_filter(array_column($catalog['tools'], 'name'), fn (string $name): bool => str_contains($name, 'sso') || str_contains($name, 'scim'))))
+    expect($catalog)->toHaveCount(count(GuardianServer::TOOLS))
+        ->and(array_values(array_filter($catalog, fn (string $name): bool => str_contains($name, 'sso') || str_contains($name, 'scim'))))
         ->toBe(array_map(fn (string $tool): string => app($tool)->name(), GUARDIAN_TOOLS))
         ->toHaveCount(10);
 });

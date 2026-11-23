@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use RefactorCircus\Guardian\Domains\LoginProtection\Models\IpRuleModel;
+use RefactorCircus\Guardian\Domains\LoginProtection\Policies\IpRulePolicy;
 use RefactorCircus\Guardian\Domains\Password\Models\PasswordHistoryModel;
 use RefactorCircus\Guardian\Domains\Password\Policies\PasswordHistoryPolicy;
 use RefactorCircus\Guardian\Domains\Permission\Models\PermissionModel;
@@ -190,6 +192,7 @@ it('maps every model to its policy and every table to its default name', functio
         DeviceModel::class => SessionPolicy::class,
         SessionModel::class => SessionPolicy::class,
         PasswordHistoryModel::class => PasswordHistoryPolicy::class,
+        IpRuleModel::class => IpRulePolicy::class,
     ])->and($config['tables'])->toBe([
         'sso_connections' => 'guardian_sso_connections',
         'sso_identities' => 'guardian_sso_identities',
@@ -209,6 +212,7 @@ it('maps every model to its policy and every table to its default name', functio
         'devices' => 'guardian_devices',
         'sessions' => 'guardian_sessions',
         'password_histories' => 'guardian_password_histories',
+        'ip_rules' => 'guardian_ip_rules',
     ]);
 });
 
@@ -273,6 +277,11 @@ it('has the token defaults: no driver', function (): void {
     expect(shippedGuardianConfig()['tokens'])->toBe(['driver' => null, 'abilities' => ['*'], 'max_lifetime_days' => 365]);
 });
 
+it('has the login protection and IP rule defaults', function (): void {
+    expect(shippedGuardianConfig()['login'])->toBe(['identifier_field' => 'email', 'max_attempts' => 5, 'decay_minutes' => 15, 'ip_max_attempts' => 50])
+        ->and(shippedGuardianConfig()['ip_rules'])->toBe(['mode' => 'denylist']);
+});
+
 it('has the security log defaults', function (): void {
     expect(shippedGuardianConfig()['security_log'])->toBe([
         'enabled' => true,
@@ -285,7 +294,7 @@ it('has exactly the documented sections, each under a banner', function (): void
     $source = (string) file_get_contents(dirname(__DIR__, 2).'/config/guardian.php');
 
     expect(array_keys(shippedGuardianConfig()))->toBe([
-        'sso', 'scim', 'routes', 'authorization', 'super_admins', 'permission_cache', 'rate_limit', 'audit', 'users', 'roles', 'adopt', 'security_log', 'two_factor', 'sessions', 'devices', 'passwords', 'tokens', 'policies', 'tables', 'mcp', 'cortex', 'migrations',
+        'sso', 'scim', 'routes', 'authorization', 'super_admins', 'permission_cache', 'rate_limit', 'audit', 'users', 'roles', 'adopt', 'security_log', 'two_factor', 'sessions', 'devices', 'passwords', 'tokens', 'login', 'ip_rules', 'policies', 'tables', 'mcp', 'cortex', 'migrations',
     ])->and(substr_count($source, '|--------------------------------------------------------------------------'))
         ->toBe(2 * count(shippedGuardianConfig()));
 });

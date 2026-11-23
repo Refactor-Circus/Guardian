@@ -10,8 +10,10 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Request;
+use RefactorCircus\Guardian\Domains\LoginProtection\Services\SuspiciousSignIns;
 use RefactorCircus\Guardian\Domains\SecurityEvent\Enums\SecurityEventType;
 use RefactorCircus\Guardian\Domains\Session\Models\DeviceModel;
+use RefactorCircus\Guardian\Domains\Session\Models\SessionModel;
 use RefactorCircus\Guardian\Domains\Session\Notifications\NewDeviceSignInNotification;
 use RefactorCircus\Guardian\Domains\Session\Services\Devices;
 use RefactorCircus\Guardian\Domains\Session\Services\Sessions;
@@ -21,7 +23,7 @@ use RefactorCircus\Guardian\Domains\TwoFactor\Services\SecurityLog;
  * On sign-in (criterion 37): notes the device and starts the session's
  * record (when the sign-in has a session). The first sign-in from a device
  * by a user who already has another records `device.new` and tells the
- * user. On sign-out the record is closed.
+ * user, or hands off to `SuspiciousSignIns` when it is suspicious. On sign-out the record is closed.
  */
 final class TrackSignIn
 {
@@ -30,6 +32,7 @@ final class TrackSignIn
         private readonly Devices $devices,
         private readonly Sessions $sessions,
         private readonly SecurityLog $log,
+        private readonly SuspiciousSignIns $suspicious,
     ) {}
 
     public function subscribe(Dispatcher $events): void
@@ -48,12 +51,10 @@ final class TrackSignIn
 
         [$device, $new] = $this->devices->seen($event->user, $request);
 
-        if ($request->hasSession()) {
-            $this->sessions->start($event->user, $request, $device);
-        }
+        $session = $request->hasSession() ? $this->sessions->start($event->user, $request, $device) : null;
 
         if ($new && $this->devices->hasOthers($event->user, $device)) {
-            $this->newDevice($event->user, $device, $request);
+            $this->newDevice($event->user, $device, $session, $request);
         }
     }
 
@@ -67,11 +68,17 @@ final class TrackSignIn
     }
 
     /**
-     * A sign-in from a device new to a user who has others.
+     * A sign-in from a device new to a user who has others: recorded, and
+     * the user told, with the suspicious sign-in notice when it is one
+     * (criterion 51), else the new-device notice.
      */
-    private function newDevice(Authenticatable $user, DeviceModel $device, Request $request): void
+    private function newDevice(Authenticatable $user, DeviceModel $device, ?SessionModel $session, Request $request): void
     {
         $this->log->record(SecurityEventType::DeviceNew, $user, ['device' => $device->id]);
+
+        if ($this->suspicious->check($user, $request, $device, $session)) {
+            return;
+        }
 
         if ($this->config->get('guardian.devices.notify', true) !== false && method_exists($user, 'notify')) {
             $user->notify(new NewDeviceSignInNotification($device->name, $request->ip(), now()->toImmutable()));

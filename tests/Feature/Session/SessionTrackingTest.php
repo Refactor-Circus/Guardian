@@ -140,13 +140,14 @@ it('announces a new device and records device.new', function (): void {
     $ada = user();
     signInFrom($ada);
 
-    signInFrom($ada, 'Mozilla/5.0 (iPhone) Safari/18.0', '198.51.100.20');
+    // The same network, so the sign-in is not suspicious (criterion 51).
+    signInFrom($ada, 'Mozilla/5.0 (iPhone) Safari/18.0', '203.0.113.20');
 
     Notification::assertSentTo($ada, NewDeviceSignInNotification::class, function (NewDeviceSignInNotification $notification) use ($ada): bool {
         $mail = $notification->toMail($ada);
 
         return $notification->via($ada) === ['mail']
-            && str_contains(implode(' ', $mail->introLines), '198.51.100.20');
+            && str_contains(implode(' ', $mail->introLines), '203.0.113.20');
     });
 
     $event = SecurityEventModel::query()->where('type', 'device.new')->sole();

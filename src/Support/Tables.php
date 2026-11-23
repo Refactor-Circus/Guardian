@@ -40,5 +40,6 @@ final class Tables extends KeystoneTables
         'devices' => 'guardian_devices',
         'sessions' => 'guardian_sessions',
         'password_histories' => 'guardian_password_histories',
+        'ip_rules' => 'guardian_ip_rules',
     ];
 }

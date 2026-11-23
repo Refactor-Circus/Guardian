@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-use Laravel\Mcp\Request;
-use Laravel\Mcp\Server\Tools\SearchTools;
 use Laravel\Mcp\Server\Transport\FakeTransporter;
 use RefactorCircus\Guardian\Domains\DomainServiceProvider;
 use RefactorCircus\Guardian\Domains\Permission\Services\GuardianPermissions;
@@ -147,14 +145,7 @@ it('serves the role, permission and security log API without Roster (criterion 3
         fn (string $name): bool => str_starts_with($name, 'guardian.roles.') || str_starts_with($name, 'guardian.permissions.') || str_contains($name, 'security-events'),
     ));
 
-    $search = (new GuardianServer(new FakeTransporter))->createContext()->tools()
-        ->first(fn (object $tool): bool => $tool instanceof SearchTools);
-
-    expect($search)->toBeInstanceOf(SearchTools::class);
-
-    /** @var SearchTools $search */
-    $catalog = json_decode((string) $search->handle(new Request(['query' => '', 'limit' => 50]))->content(), true, 512, JSON_THROW_ON_ERROR);
-    $tools = array_column($catalog['tools'], 'name');
+    $tools = toolCatalog();
 
     expect($names)->toContain('guardian.roles.index', 'guardian.roles.store', 'guardian.roles.show', 'guardian.roles.update', 'guardian.roles.destroy')
         ->and($names)->toContain('guardian.permissions.index', 'guardian.security-events.index', 'guardian.security-events.show', 'guardian.me.security-events.index')

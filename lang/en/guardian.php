@@ -75,6 +75,15 @@ return [
     'password_recently_used' => 'Choose a password you have not used recently.',
     'password_expired' => 'Your password has expired: change it to continue.',
 
+    // Login protection
+    'suspicious_subject' => 'Unusual sign-in to your account',
+    'suspicious_line' => 'Your account was just signed in to from a new device: :device.',
+    'suspicious_failures' => 'It came after :count failed attempts at your password in the past hour.',
+    'suspicious_network' => 'It came from a network your account has not been used from before.',
+    'suspicious_act' => 'If this was not you, change your password now and sign out your other sessions.',
+    'ip_denied' => 'Access from your network is not allowed.',
+    'ip_rule_invalid_cidr' => 'Give an IPv4 or IPv6 address, or a CIDR range such as 203.0.113.0/24.',
+
     // SCIM provisioning
     'scim_deprovisioned' => 'Deprovisioned from :organization by its identity provider.',
 

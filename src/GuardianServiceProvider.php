@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\RateLimiter;
 use RefactorCircus\Guardian\Console\Commands\AdoptRosterRolesCommand;
 use RefactorCircus\Guardian\Console\Commands\UpgradeFromRosterCommand;
 use RefactorCircus\Guardian\Domains\DomainServiceProvider;
+use RefactorCircus\Guardian\Domains\LoginProtection\Http\Middleware\EnforceIpRules;
+use RefactorCircus\Guardian\Domains\LoginProtection\Http\Middleware\ThrottleLogins;
 use RefactorCircus\Guardian\Domains\Password\Http\Middleware\EnsurePasswordFresh;
 use RefactorCircus\Guardian\Domains\Permission\Services\GuardianPermissions;
 use RefactorCircus\Guardian\Domains\Role\Services\GuardianRoles;
@@ -179,6 +181,8 @@ class GuardianServiceProvider extends PackageServiceProvider
         $router->aliasMiddleware('guardian.two-factor', EnsureTwoFactor::class);
         $router->aliasMiddleware('guardian.session', TrackSession::class);
         $router->aliasMiddleware('guardian.password-fresh', EnsurePasswordFresh::class);
+        $router->aliasMiddleware('guardian.login-throttle', ThrottleLogins::class);
+        $router->aliasMiddleware('guardian.ip', EnforceIpRules::class);
     }
 
     private function binds(): bool

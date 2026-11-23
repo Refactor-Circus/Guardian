@@ -69,6 +69,7 @@ it('names its tables through Tables, on Keystone\'s Tables', function (): void {
             'devices' => 'guardian_devices',
             'sessions' => 'guardian_sessions',
             'password_histories' => 'guardian_password_histories',
+            'ip_rules' => 'guardian_ip_rules',
         ]);
 
     config()->set('guardian.tables.scim_users', 'acme_scim_users');

@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
-use RefactorCircus\Guardian\Atrium\GuardianPlugin;
 use RefactorCircus\Guardian\Console\Commands\UpgradeFromRosterCommand;
 use RefactorCircus\Guardian\Domains\DomainServiceProvider;
 use RefactorCircus\Guardian\Exceptions\StrandedTablesException;
@@ -104,36 +103,7 @@ class GuardianServiceProvider extends PackageServiceProvider
             $this->commands([UpgradeFromRosterCommand::class]);
         }
 
-        $this->bootWithAtrium();
-
         $this->app->booted(fn () => $this->reportStranded());
-    }
-
-    /**
-     * Guardian's Atrium plugin, its views and its tabs and sections on other
-     * packages' screens, only while Roster and Atrium (with its screen
-     * extensions registry) are installed and `guardian.ui.enabled` is on
-     * (D-038). Only
-     * src/Atrium names Atrium's classes, so nothing here loads them first.
-     */
-    private function bootWithAtrium(): void
-    {
-        $integration = $this->app->make(Integration::class);
-
-        if (! $integration->rosterInstalled() || ! $integration->atriumInstalled() || config('guardian.ui.enabled') !== true) {
-            return;
-        }
-
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'guardian');
-
-        if ($this->app->runningInConsole()) {
-            $this->publishes([
-                __DIR__.'/../resources/views' => resource_path('views/vendor/guardian'),
-            ], ['guardian', 'guardian-views']);
-        }
-
-        $this->registerAtriumPlugin(GuardianPlugin::class);
-        GuardianPlugin::registerScreens();
     }
 
     /**

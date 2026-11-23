@@ -21,9 +21,9 @@ composer require refactor-circus/roster refactor-circus/guardian
 php artisan migrate
 ```
 
-Without Roster, Guardian is inactive: it boots, `php artisan about` shows "Inactive: install refactor-circus/roster" (or "Inactive: needs a newer refactor-circus/roster" for a Roster without the sign-in and provisioning seams), and it registers no routes, migrations, tools, commands or screens.
+Without Roster, Guardian is inactive: it boots, `php artisan about` shows "Inactive: install refactor-circus/roster" (or "Inactive: needs a newer refactor-circus/roster" for a Roster without the sign-in and provisioning seams), and it registers no routes, migrations, tools or commands.
 
-With [refactor-circus/atrium](https://github.com/refactor-circus/atrium) installed, Guardian adds its tabs and sections to Roster's Atrium screens. Without Atrium everything else works.
+Guardian has no UI of its own: it serves a JSON API and MCP tools. Atrium v2, or any front end, builds on the API.
 
 You may publish the config, migrations and translations:
 
@@ -56,7 +56,6 @@ Without them the sign-in routes are not registered; connections can still be man
 - `audit.enabled`: with refactor-circus/keen installed, Guardian's changes are recorded as package `guardian`.
 - `policies`, `tables`, `mcp`, `cortex`: as in every suite package.
 - `migrations.force_rollback`: see [Rolling back](#rolling-back).
-- `atrium.screens` and `atrium.organization_route`: see [Atrium screens](#atrium-screens).
 
 ## Permissions
 
@@ -69,21 +68,6 @@ Guardian registers three permissions on Roster's catalogue, granted to the built
 | `guardian.scim.manage` | Issuing and revoking SCIM provisioning tokens |
 
 New installs get them with the built-in roles. On an existing install, built-in roles do not gain them automatically: run `php artisan roster:sync-permissions` to create them, then grant them to the roles that need them by hand. The upgrade from Roster moves the grants of Roster's old `roster.sso.*` / `roster.scim.*` permissions for you.
-
-## Atrium screens
-
-Where Guardian's tabs and sections go is config, in `atrium.screens`:
-
-```php
-'screens' => [
-    'roster.organization' => ['guardian.sso', 'guardian.scim'],
-    'roster.user' => ['aside' => 'guardian.sso-identities'],
-],
-```
-
-A plain value is a tab (`guardian.sso`, `guardian.scim`); a `slot => key` entry is a section in that slot (`guardian.sso-identities`). Move an entry under another screen key to place it there, or empty the list to add nothing. Each tab and section still checks its permission. The `guardian.sso` tab is where an organization's connections are managed; each connection's page links back to it through `atrium.organization_route`.
-
-A bad entry (an unknown key, a target that is not a string, or an entry Atrium rejects) throws an `InvalidArgumentException` at boot in the `local` and `testing` environments. In any other environment it is reported once, skipped, and the rest registers.
 
 ## HTTP API
 
@@ -104,7 +88,7 @@ The sign-in routes (`guardian.sso.discover`, `start`, `callback`, `metadata`, `l
 
 ## SCIM
 
-Each organization has a SCIM 2.0 server at `/scim/v2/{organization}` (`Users`, `Groups`, `Bulk`, `ServiceProviderConfig`, `ResourceTypes`, `Schemas`; routes `guardian.scim.*`). Requests need one of the organization's SCIM tokens, issued in Atrium, through the API or MCP, and shown once. Members SCIM provisions join with the membership source `scim`.
+Each organization has a SCIM 2.0 server at `/scim/v2/{organization}` (`Users`, `Groups`, `Bulk`, `ServiceProviderConfig`, `ResourceTypes`, `Schemas`; routes `guardian.scim.*`). Requests need one of the organization's SCIM tokens, issued through the API or MCP, and shown once. Members SCIM provisions join with the membership source `scim`.
 
 ## MCP
 
@@ -121,7 +105,7 @@ SSO and SCIM used to ship with Roster. Guardian takes them over; your connection
    - renames the permissions `roster.sso.view`, `roster.sso.manage` and `roster.scim.manage` to `guardian.*`, keeping every role's grant.
    - lists leftover config (below).
 4. **Config and env keys.** Rename published `roster.sso.*` / `roster.scim.*` config keys and their env variables to `guardian.sso.*` / `guardian.scim.*` in `config/guardian.php`. There is no automated config or env key migration, and Guardian never reads the old keys as a fallback. The upgrade lists every `roster.sso.*` / `roster.scim.*` value still set that differs from Guardian's, with the `guardian.*` key to move it to.
-5. **Other renames.** Route names (`roster.sso.*` to `guardian.sso.*`, `roster.scim.*` to `guardian.scim.*`, the API's `roster.*` to `guardian.*`), Atrium tab keys, table names and resource keys change. URLs, payloads and MCP tool names do not.
+5. **Other renames.** Route names (`roster.sso.*` to `guardian.sso.*`, `roster.scim.*` to `guardian.scim.*`, the API's `roster.*` to `guardian.*`, table names and resource keys change. URLs, payloads and MCP tool names do not.
 6. **Audit history.** With Keen, SSO and SCIM entries are recorded as package `guardian` instead of `roster`, under Guardian's event class names. History queries, filters and exports by package or event show a break at the handover. Entries stored with Roster's model class names still resolve to Guardian's models.
 7. **Stranded data.** If Roster is upgraded before the upgrade runs, Guardian's migrations create empty tables while Roster's still hold the rows. Guardian then warns: `php artisan about` names the tables and the command, and each boot reports one exception. SSO enforcement is off for those connections until you run `php artisan guardian:upgrade-from-roster`.
 

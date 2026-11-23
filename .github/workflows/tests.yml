@@ -84,19 +84,17 @@ jobs:
         if: runner.os != 'Windows'
         run: composer test:unit
 
-      # Bare `pest` would pick up the Browser suite, which needs Playwright.
-      # That is installed and run by the browser-tests workflow instead.
       - name: Test Suite (Windows)
         if: runner.os == 'Windows'
-        run: vendor/bin/pest --exclude-testsuite=Browser
+        run: vendor/bin/pest
 
   # Guardian requires only Keystone: without Roster it must boot, say so in
-  # `php artisan about`, and register nothing else (criterion 7). Roster,
-  # Atrium and Keen are dev dependencies, so they are removed here first.
+  # `php artisan about`, and register nothing else (criterion 7). Roster and
+  # Keen are dev dependencies, so they are removed here first.
   standalone:
     runs-on: ubuntu-latest
 
-    name: Standalone (no Roster, Atrium or Keen)
+    name: Standalone (no Roster or Keen)
 
     steps:
       - name: Checkout code
@@ -111,17 +109,17 @@ jobs:
           tools: composer:v2
           coverage: none
 
-      - name: Install dependencies without Roster, Atrium and Keen
+      - name: Install dependencies without Roster and Keen
         run: |
-          composer remove --dev --no-update refactor-circus/roster refactor-circus/atrium refactor-circus/keen
+          composer remove --dev --no-update refactor-circus/roster refactor-circus/keen
           composer update --prefer-dist --no-interaction --no-progress --no-scripts
           composer run prepare
 
-      - name: Roster, Atrium and Keen are absent
+      - name: Roster and Keen are absent
         run: |
           php -r '
             require "vendor/autoload.php";
-            foreach (["RefactorCircus\\Roster\\Roster", "RefactorCircus\\Atrium\\Atrium", "RefactorCircus\\Keen\\Keen"] as $class) {
+            foreach (["RefactorCircus\\Roster\\Roster", "RefactorCircus\\Keen\\Keen"] as $class) {
                 if (class_exists($class)) {
                     fwrite(STDERR, "{$class} is still installed.\n");
                     exit(1);
@@ -131,41 +129,6 @@ jobs:
 
       - name: Standalone suite
         run: vendor/bin/pest tests/Modes/Standalone
-
-  # Guardian runs without Atrium (criterion 30, D-020): the JSON API, MCP
-  # tools and the SSO and SCIM endpoints work, and nothing reaches Atrium.
-  # No other dev dependency requires Atrium (Roster and Keen only suggest
-  # it), so only Atrium is removed.
-  without-atrium:
-    runs-on: ubuntu-latest
-
-    name: Without Atrium
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
-        with:
-          php-version: 8.5
-          extensions: dom, curl, libxml, mbstring, zip, fileinfo, sqlite, pdo_sqlite, bcmath, intl, sockets
-          ini-values: error_reporting=E_ALL
-          tools: composer:v2
-          coverage: none
-
-      - name: Install dependencies without Atrium
-        run: |
-          composer remove --dev --no-update refactor-circus/atrium
-          composer update --prefer-dist --no-interaction --no-progress --no-scripts
-          composer run prepare
-
-      - name: Atrium is not installed
-        run: |
-          php -r "require 'vendor/autoload.php'; exit(class_exists('RefactorCircus\\Atrium\\Atrium') ? 1 : 0);"
-
-      - name: Without-Atrium suite
-        run: composer test:without-atrium
 
   # The upgrade renames Roster's tables, and DDL behaves differently on MySQL
   # (no transactional DDL, foreign keys that must follow a rename): its

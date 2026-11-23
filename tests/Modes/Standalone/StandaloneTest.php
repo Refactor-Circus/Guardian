@@ -19,8 +19,8 @@ use RefactorCircus\Keystone\Packages\PackageRegistry;
 /*
  * Without Roster, Guardian is inert (criterion 7, D-023, D-032): it boots,
  * says why in `php artisan about`, and registers nothing else. These tests
- * also run in the `standalone` CI job, with Roster, Atrium and Keen
- * uninstalled, so they name none of their classes.
+ * also run in the `standalone` CI job, with Roster and Keen uninstalled,
+ * so they name none of their classes.
  */
 
 /**
@@ -46,7 +46,7 @@ function assertGuardianRegisteredNothing(): void
 {
     $routes = array_filter(
         array_keys(Route::getRoutes()->getRoutesByName()),
-        fn (string $name): bool => str_starts_with($name, 'guardian.') || str_starts_with($name, 'atrium.guardian.'),
+        fn (string $name): bool => str_starts_with($name, 'guardian.'),
     );
 
     expect($routes)->toBe([])
@@ -67,30 +67,11 @@ function assertGuardianRegisteredNothing(): void
             array_keys(Artisan::all()),
             fn (string $command): bool => str_starts_with($command, 'guardian:'),
         ))->toBe([]);
-
-    $atrium = 'RefactorCircus\\Atrium\\Atrium';
-
-    if (! class_exists($atrium)) {
-        return;
-    }
-
-    $registrations = app($atrium)->screens()->snapshot();
-    $keys = [];
-
-    array_walk_recursive($registrations, function (mixed $value) use (&$keys): void {
-        if (is_object($value) && property_exists($value, 'key')) {
-            $keys[] = $value->key;
-        }
-    });
-
-    expect(app($atrium)->pluginRegistry()->has('guardian'))->toBeFalse()
-        ->and(array_filter($keys, fn (mixed $key): bool => is_string($key) && str_starts_with($key, 'guardian.')))->toBe([]);
 }
 
-it('sees neither Roster nor Atrium', function (): void {
+it('does not see Roster', function (): void {
     expect(app(Integration::class)->rosterInstalled())->toBeFalse()
-        ->and(app(Integration::class)->rosterPresent())->toBeFalse()
-        ->and(app(Integration::class)->atriumInstalled())->toBeFalse();
+        ->and(app(Integration::class)->rosterPresent())->toBeFalse();
 });
 
 it('says in php artisan about that Roster is needed', function (): void {
@@ -104,7 +85,7 @@ it('registers nothing but its config, translations and package entry', function 
 it('still boots its config, translations, package entry and rate limiter', function (): void {
     expect(config('guardian.sso.prefix'))->toBe('roster/sso')
         ->and(config('guardian.scim.middleware'))->toBe(['api', 'throttle:guardian'])
-        ->and(__('guardian::guardian.sso'))->toBe('Single sign-on')
+        ->and(__('guardian::guardian.sso_not_found'))->toBe('No single sign-on is set up for this email domain.')
         ->and(app(PackageRegistry::class)->has('guardian'))->toBeTrue()
         ->and(RateLimiter::limiter('guardian'))->not->toBeNull();
 });
@@ -126,8 +107,7 @@ describe('a Roster without the seams Guardian uses', function (): void {
         ),
         // Roster and its methods are there, but not the seam classes.
         'without the seam classes' => fn (): Integration => new Integration(
-            fn (string $class): bool => $class === 'RefactorCircus\\Roster\\Roster'
-                || $class === 'RefactorCircus\\Atrium\\Domains\\Screens\\Services\\ScreenExtensions',
+            fn (string $class): bool => $class === 'RefactorCircus\\Roster\\Roster',
             fn (string $class, string $method): bool => true,
         ),
     ]);

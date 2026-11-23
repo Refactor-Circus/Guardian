@@ -50,7 +50,7 @@ arch('action input validates itself')
     ->expect(fn (): array => Arch::dataWithoutRules(Arch::domainClasses('RefactorCircus\Guardian', GUARDIAN_DOMAINS, 'Data')))
     ->toBeEmpty();
 
-arch('every action is reachable from the HTTP API, MCP and a UI')
+arch('every action is reachable from the HTTP API and MCP')
     ->expect(fn (): array => parityGaps())
     ->toBeEmpty();
 
@@ -98,7 +98,6 @@ arch('only the Roster-facing layers name Roster\'s classes')
     ->not->toUse('RefactorCircus\Roster')
     ->ignoring([
         'RefactorCircus\Guardian\Domains',
-        'RefactorCircus\Guardian\Atrium',
         'RefactorCircus\Guardian\Mcp',
         'RefactorCircus\Guardian\Upgrade',
         'RefactorCircus\Guardian\Policies',
@@ -108,37 +107,10 @@ arch('only the Roster-facing layers name Roster\'s classes')
         'RefactorCircus\Guardian\Tests',
     ]);
 
-// Without Atrium, Guardian must boot and serve everything but its screens
-// (criterion 30): only src/Atrium, loaded behind atriumInstalled(), may name
-// Atrium's classes. Support\Integration names one as a string.
-arch('only the Atrium layer names Atrium\'s classes')
+// v2 has no UI (criterion 2): nothing in Guardian names Atrium.
+arch('nothing uses Atrium')
     ->expect('RefactorCircus\Guardian')
-    ->not->toUse('RefactorCircus\Atrium')
-    ->ignoring([
-        'RefactorCircus\Guardian\Atrium',
-        'RefactorCircus\Guardian\Tests',
-    ]);
-
-arch('the package provider reaches the Atrium layer only once Atrium is installed')
-    ->expect(function (): array {
-        $source = (string) file_get_contents(__DIR__.'/../src/GuardianServiceProvider.php');
-        $early = [];
-
-        foreach (preg_split('/\bfunction\s+/', $source) ?: [] as $body) {
-            $gate = strpos($body, 'atriumInstalled()');
-
-            foreach (['registerAtriumPlugin(', 'GuardianPlugin::'] as $call) {
-                $at = strpos($body, $call);
-
-                if ($at !== false && ($gate === false || $at < $gate)) {
-                    $early[] = strtok($body, '(').': '.$call;
-                }
-            }
-        }
-
-        return $early;
-    })
-    ->toBeEmpty();
+    ->not->toUse('RefactorCircus\Atrium');
 
 arch('the package provider reaches the Roster-facing layers only once Roster is installed')
     ->expect(function (): array {
@@ -148,7 +120,6 @@ arch('the package provider reaches the Roster-facing layers only once Roster is 
             'registerPolicies(',
             'registerMcpServer(',
             'registerCortex(',
-            'registerAtriumPlugin(',
             'loadMigrationsFrom(',
             'publishesMigrations(',
         ];

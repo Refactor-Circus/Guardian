@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 // Criterion 8: the tests moved from Roster are recorded, by file and test
 // name, against the Roster SHA they were copied from, and none is lost.
+// v2.0.0 removed the Atrium UI (criterion 2): its moved UI and browser tests
+// are listed under `removed`, and must stay deleted.
 
 /**
- * @return array{source: string, sha: string, files: array<string, array{from: string, tests: array<int, string>}>}
+ * @return array{source: string, sha: string, files: array<string, array{from: string, tests: array<int, string>}>, removed: array{reason: string, files: array<string, string>}}
  */
 function movedTests(): array
 {
-    /** @var array{source: string, sha: string, files: array<string, array{from: string, tests: array<int, string>}>} */
+    /** @var array{source: string, sha: string, files: array<string, array{from: string, tests: array<int, string>}>, removed: array{reason: string, files: array<string, string>}} */
     return json_decode((string) file_get_contents(dirname(__DIR__).'/moved-tests.json'), true, 512, JSON_THROW_ON_ERROR);
 }
 
@@ -48,3 +50,20 @@ it('keeps at least as many cases per moved file as the manifest records', functi
     array_keys(movedTests()['files']),
     movedTests()['files'],
 ));
+
+it('records the moved UI tests v2 removed, and keeps them deleted', function (): void {
+    $removed = movedTests()['removed'];
+
+    expect($removed['reason'])->toContain('Atrium')
+        ->and(array_keys($removed['files']))->toEqualCanonicalizing([
+            'tests/Feature/Ui/SsoPagesTest.php',
+            'tests/Feature/Ui/ScimPagesTest.php',
+            'tests/Browser/SsoBrowserTest.php',
+            'tests/Browser/ScimBrowserTest.php',
+        ])
+        ->and(array_intersect(array_keys($removed['files']), array_keys(movedTests()['files'])))->toBe([]);
+
+    foreach (array_keys($removed['files']) as $file) {
+        expect(dirname(__DIR__, 2).'/'.$file)->not->toBeFile();
+    }
+});

@@ -95,11 +95,10 @@ it('stores connections through the moved model, with its lifecycle events', func
         ->and($connection->fresh()?->config['client_secret'] ?? null)->toBe('top-secret');
 });
 
-it('reads Roster and Atrium as installed', function (): void {
+it('reads Roster as installed', function (): void {
     $integration = app(Integration::class);
 
     expect($integration->rosterInstalled())->toBeTrue()
-        ->and($integration->atriumInstalled())->toBeTrue()
         ->and(app(Integration::class))->toBe($integration);
 });
 
@@ -121,21 +120,9 @@ it('publishes its config and translations', function (): void {
         ->and(ServiceProvider::pathsToPublish(GuardianServiceProvider::class, 'guardian-lang'))->toHaveCount(1);
 });
 
-it('publishes its views under the umbrella tag and guardian-views', function (): void {
-    $views = realpath(dirname(__DIR__, 2).'/resources/views');
-    $target = resource_path('views/vendor/guardian');
-
-    $published = fn (string $tag): array => collect(ServiceProvider::pathsToPublish(GuardianServiceProvider::class, $tag))
-        ->mapWithKeys(fn (string $to, string $from): array => [(string) realpath($from) => $to])
-        ->all();
-
-    expect($published('guardian-views'))->toBe([$views => $target])
-        ->and($published('guardian'))->toMatchArray([$views => $target]);
-});
-
 it('loads its translations', function (): void {
-    expect(__('guardian::guardian.sso'))->toBe('Single sign-on')
-        ->and(__('guardian::guardian.scim'))->toBe('SCIM provisioning');
+    expect(__('guardian::guardian.sso_not_found'))->toBe('No single sign-on is set up for this email domain.')
+        ->and(__('guardian::guardian.scim_deprovisioned', ['organization' => 'Acme']))->toBe('Deprovisioned from Acme by its identity provider.');
 });
 
 it('resolves one Guardian through the container and the facade', function (): void {

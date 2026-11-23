@@ -2,7 +2,7 @@
 name: guardian
 description: >
   Single sign-on (OIDC, SAML, Microsoft Entra ID) and SCIM 2.0 provisioning for Roster organizations with
-  refactor-circus/guardian: config, permissions, Atrium screen placement, HTTP API, MCP tools, and the upgrade from Roster.
+  refactor-circus/guardian: config, permissions, HTTP API, MCP tools, and the upgrade from Roster.
 license: MIT
 metadata:
   author: Jay Fletcher
@@ -30,20 +30,6 @@ Use this skill when a Laravel application uses `refactor-circus/guardian`, the a
 - `guardian.sso.view`, `guardian.sso.manage`, `guardian.scim.manage`, registered on Roster's catalogue and granted to the built-in `admin` role.
 - Existing built-in roles do not gain them automatically: run `php artisan roster:sync-permissions`, then grant them by hand. The upgrade from Roster moves the old `roster.*` grants.
 - Check them with Roster's `Authorizer::check($user, 'guardian.sso.manage', $organization)`.
-
-## Atrium screens
-
-`atrium.screens` places Guardian's tabs and sections on other packages' screens:
-
-```php
-'screens' => [
-    'roster.organization' => ['guardian.sso', 'guardian.scim'],
-    'roster.user' => ['aside' => 'guardian.sso-identities'],
-],
-```
-
-- A plain value is a tab key; a `slot => key` entry is a section in that slot. Move an entry to another screen key, or empty the list to add nothing.
-- A bad entry throws `InvalidArgumentException` at boot in `local` / `testing`; elsewhere it is reported once and skipped.
 
 ## HTTP API, SCIM endpoint and MCP
 

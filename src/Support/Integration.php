@@ -10,11 +10,9 @@ use Closure;
  * Which of the packages Guardian builds on are installed, and new enough.
  *
  * Guardian works on refactor-circus/roster's users and organizations through
- * Roster's seams, and adds its screens through refactor-circus/atrium's
- * screen extensions registry. Both are optional: without a Roster that has
- * the seams, Guardian registers nothing past its config, translations and
- * package entry; without an Atrium that has the registry, it adds nothing
- * to Atrium. Classes are named as strings, so asking never loads them.
+ * Roster's seams. Roster is optional: without a Roster that has the seams,
+ * Guardian registers nothing past its config, translations and package
+ * entry. Classes are named as strings, so asking never loads them.
  *
  * The checks are injected, so tests can stand in a package that is missing,
  * or one too old for Guardian.
@@ -40,8 +38,6 @@ final class Integration
         'RefactorCircus\\Roster\\Domains\\Permission\\Services\\PermissionCatalogue',
         'RefactorCircus\\Roster\\Domains\\Organization\\Services\\MembershipSources',
     ];
-
-    private const string SCREEN_EXTENSIONS = 'RefactorCircus\\Atrium\\Domains\\Screens\\Services\\ScreenExtensions';
 
     /**
      * @var Closure(string): bool
@@ -98,13 +94,5 @@ final class Integration
     public function rosterPresent(): bool
     {
         return ($this->classExists)(self::ROSTER);
-    }
-
-    /**
-     * Whether an Atrium with the screen extensions registry is installed.
-     */
-    public function atriumInstalled(): bool
-    {
-        return ($this->classExists)(self::SCREEN_EXTENSIONS);
     }
 }

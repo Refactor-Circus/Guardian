@@ -18,9 +18,9 @@ use RefactorCircus\Roster\Domains\Team\Models\TeamModel;
  * answer with Roster's permissions (`guardian.sso.view`, `guardian.sso.manage`,
  * `guardian.scim.manage`) through Roster's `Authorizer::permits()`: a method
  * asks whether the user holds the permission in the organization or team the
- * subject belongs to. HTTP, MCP and Atrium therefore make the same check.
+ * subject belongs to. HTTP and MCP therefore make the same check.
  *
- * Guardian's API, MCP tools and Atrium screens reach a policy with the
+ * Guardian's API and MCP tools reach a policy with the
  * model's class, the organization the call is about, and the user the call is
  * about when everyone may do it to themselves:
  *

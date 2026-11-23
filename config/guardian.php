@@ -27,7 +27,7 @@ return [
     |
     | Organizations can sign their people in through their own identity
     | provider (OIDC, SAML or Microsoft Entra ID), configured per
-    | organization in Atrium or via the API. Requires the optional package
+    | organization via the API or MCP. Requires the optional package
     | laravel/socialite plus, per protocol, firebase/php-jwt (OIDC),
     | socialiteproviders/saml2 (SAML) or socialiteproviders/microsoft-azure
     | (Entra ID).
@@ -72,8 +72,8 @@ return [
     | audit_context_packages: Package keys whose audit entries record the
     |                         SCIM token a change came through.
     |
-    | Each request needs one of the organization's SCIM tokens (issued in
-    | Atrium or via the API, shown once, revocable). SECURITY: a token can
+    | Each request needs one of the organization's SCIM tokens (issued via
+    | the API or MCP, shown once, revocable). SECURITY: a token can
     | change the organization's membership; treat it like a password. It
     | only ever reaches its own organization, and only claims existing
     | accounts on the organization's own domains.
@@ -248,57 +248,6 @@ return [
 
     'migrations' => [
         'force_rollback' => (bool) env('GUARDIAN_FORCE_ROLLBACK', false),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Atrium Screens
-    |--------------------------------------------------------------------------
-    |
-    | With refactor-circus/atrium installed, Guardian manages SSO connections
-    | and SCIM tokens from the Atrium dashboard: the tabs and section placed
-    | under Atrium below, and its own SSO connection page.
-    |
-    | enabled: Set to false to add nothing to Atrium. The JSON API, MCP tools
-    |          and the sign-in and SCIM endpoints keep working.
-    |
-    */
-
-    'ui' => [
-        'enabled' => true,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Atrium
-    |--------------------------------------------------------------------------
-    |
-    | With refactor-circus/atrium installed, Guardian adds its tabs and
-    | sections to other packages' Atrium screens.
-    |
-    | screens:            Screen key => what Guardian adds there. A plain
-    |                     value is a tab (`guardian.sso`, `guardian.scim`);
-    |                     a `slot => key` entry is a section in that slot
-    |                     (`guardian.sso-identities`). Move an entry to
-    |                     another screen, or empty the list to add nothing.
-    |                     Each tab and section still checks its permission.
-    | organization_route: The route the SSO connection page links back to,
-    |                     with the organization and `tab=guardian.sso`. No
-    |                     link shows when the route does not exist.
-    |
-    | A bad entry (an unknown key, or one Atrium rejects) throws an
-    | InvalidArgumentException at boot in the local and testing
-    | environments. Elsewhere it is reported once and skipped, and the rest
-    | registers.
-    |
-    */
-
-    'atrium' => [
-        'screens' => [
-            'roster.organization' => ['guardian.sso', 'guardian.scim'],
-            'roster.user' => ['aside' => 'guardian.sso-identities'],
-        ],
-        'organization_route' => 'atrium.roster.organizations.show',
     ],
 
 ];

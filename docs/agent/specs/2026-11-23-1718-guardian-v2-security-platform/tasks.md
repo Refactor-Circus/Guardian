@@ -7,11 +7,11 @@ depends on: none
 files: src/Atrium/** (delete), resources/views/** (delete), lang/en/guardian.php, src/GuardianServiceProvider.php, config/guardian.php, composer.json, package.json (delete), package-lock.json (delete), phpunit.xml.dist, .github/workflows/tests.yml, .github/workflows/browser-tests.yml (delete), tests/Feature/Atrium/** (delete), tests/Feature/Ui/** (delete), tests/Browser/** (delete), tests/Modes/WithoutAtrium/** (delete), tests/WithoutAtriumTestCase.php (delete), tests/Feature/StylesTest.php (delete), tests/TestCase.php, tests/Pest.php, tests/moved-tests.json, tests/Feature/MovedTestsManifestTest.php, tests/ArchTest.php, tests/Feature/ComposerTest.php, tests/Feature/RemovedSurfacesTest.php
 criteria: 2
 
-- [ ] 1.1 Write tests: `RemovedSurfacesTest` (no `atrium` in `src/` or `config/`, case-insensitive; no `atrium.guardian.*` route; `config('guardian.ui')` and `config('guardian.atrium')` null; no Guardian view namespace); `ArchTest` (nothing uses `RefactorCircus\Atrium`, no `ignoring`); `ComposerTest` (no `refactor-circus/atrium` in require, require-dev, suggest, conflict or repositories; no `test:without-atrium` or `test:browser` script; no `pestphp/pest-plugin-browser`)
-- [ ] 1.2 Delete `src/Atrium/`, `resources/views/` and the Atrium-only lang keys. Drop `registerAtriumPlugin()` and the view loading from `GuardianServiceProvider`, and the `ui`/`atrium` sections from `config/guardian.php`.
-- [ ] 1.3 Remove the Atrium entries, the browser plugin and the scripts from `composer.json`, delete the root `package.json`/`package-lock.json` if only styles or browser tests used them, and run `composer update`. Remove the browser and without-Atrium suites from `phpunit.xml.dist` and CI.
-- [ ] 1.4 Delete the Atrium-only tests and test cases, remove Atrium from `TestCase`, and update `moved-tests.json` and its manifest test for the deleted files
-- [ ] 1.5 Run vendor/bin/pest; all green
+- [x] 1.1 Write tests: `RemovedSurfacesTest` (no `atrium` in `src/` or `config/`, case-insensitive; no `atrium.guardian.*` route; `config('guardian.ui')` and `config('guardian.atrium')` null; no Guardian view namespace); `ArchTest` (nothing uses `RefactorCircus\Atrium`, no `ignoring`); `ComposerTest` (no `refactor-circus/atrium` in require, require-dev, suggest, conflict or repositories; no `test:without-atrium` or `test:browser` script; no `pestphp/pest-plugin-browser`)
+- [x] 1.2 Delete `src/Atrium/`, `resources/views/` and the Atrium-only lang keys. Drop `registerAtriumPlugin()` and the view loading from `GuardianServiceProvider`, and the `ui`/`atrium` sections from `config/guardian.php`.
+- [x] 1.3 Remove the Atrium entries, the browser plugin and the scripts from `composer.json`, delete the root `package.json`/`package-lock.json` if only styles or browser tests used them, and run `composer update`. Remove the browser and without-Atrium suites from `phpunit.xml.dist` and CI.
+- [x] 1.4 Delete the Atrium-only tests and test cases, remove Atrium from `TestCase`, and update `moved-tests.json` and its manifest test for the deleted files
+- [x] 1.5 Run vendor/bin/pest; all green
 
 ## Group 2: v2 suite constraints, SSO/SCIM on Keystone's contract
 depends on: 1

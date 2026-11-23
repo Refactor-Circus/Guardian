@@ -5,17 +5,15 @@ declare(strict_types=1);
 namespace RefactorCircus\Guardian\Tests;
 
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Gate;
 use Laravel\Mcp\Server\McpServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
-use RefactorCircus\Atrium\AtriumServiceProvider;
 use RefactorCircus\Guardian\GuardianServiceProvider;
 use RefactorCircus\Guardian\Upgrade\Handover;
 use RefactorCircus\Roster\RosterServiceProvider;
 use Workbench\App\Models\User;
 
 /**
- * Guardian as an application installs it: with Roster and Atrium, on an
+ * Guardian as an application installs it: with Roster, on an
  * in-memory database migrated per test with foreign keys enforced.
  *
  * Roster here may be the seams branch, which still ships its own SSO and
@@ -44,29 +42,12 @@ abstract class TestCase extends Orchestra
     public static bool $mcpServers = false;
 
     /**
-     * Whether anyone signed in may open the Atrium dashboard (its
-     * `viewAtrium` gate), as in Roster's suite: Guardian's screens are then
-     * answered by their own permission checks alone.
-     */
-    protected bool $openAtrium = true;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        if ($this->openAtrium) {
-            Gate::define('viewAtrium', fn (): bool => true);
-        }
-    }
-
-    /**
      * @return array<int, class-string>
      */
     protected function getPackageProviders($app): array
     {
         return [
             McpServiceProvider::class,
-            AtriumServiceProvider::class,
             RosterServiceProvider::class,
             GuardianServiceProvider::class,
         ];
@@ -137,7 +118,6 @@ abstract class TestCase extends Orchestra
         // SHA, so the upgrade has something to move whichever Roster is
         // installed: one that still ships SSO and SCIM has made them already.
         $this->loadMigrationsFrom(__DIR__.'/Fixtures/roster-sso-scim');
-        $this->loadMigrationsFrom(dirname(__DIR__).'/vendor/refactor-circus/atrium/database/migrations');
         $this->loadMigrationsFrom(['--path' => $this->guardianMigrations()]);
     }
 

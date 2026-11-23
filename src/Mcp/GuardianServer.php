@@ -10,6 +10,7 @@ use Laravel\Mcp\Server\Attributes\Version;
 use Laravel\Mcp\Server\ServerContext;
 use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\ToolSearch;
+use RefactorCircus\Guardian\Domains\Password\Mcp\Tools\ShowPasswordPolicyTool;
 use RefactorCircus\Guardian\Domains\Permission\Mcp\Tools\CreatePermissionTool;
 use RefactorCircus\Guardian\Domains\Permission\Mcp\Tools\DeletePermissionTool;
 use RefactorCircus\Guardian\Domains\Permission\Mcp\Tools\ListPermissionsTool;
@@ -58,7 +59,7 @@ use RefactorCircus\Keystone\Mcp\Server;
 #[Name('Guardian')]
 #[Version('1.0.0')]
 #[Instructions(
-    'Manage roles, permissions and who holds them, read the security log, see and reset two-factor and set who must use it, see and revoke sessions and devices, and manage the single sign-on connections, linked sign-in identities '.
+    'Manage roles, permissions and who holds them, read the security log, see and reset two-factor and set who must use it, see and revoke sessions and devices, read the password rules, and manage the single sign-on connections, linked sign-in identities '.
     'and SCIM provisioning tokens of Roster organizations. Every call acts as the signed-in user and needs the '.
     'matching guardian.* permission (guardian.roles.view, guardian.roles.manage, guardian.roles.assign, '.
     'guardian.security.view, guardian.two-factor.manage, guardian.sessions.manage, guardian.sso.view, guardian.sso.manage, guardian.scim.manage) in the scope it is '.
@@ -110,6 +111,8 @@ final class GuardianServer extends Server
         RevokeUserSessionsTool::class,
         ListDevicesTool::class,
         ForgetDeviceTool::class,
+        // Passwords
+        ShowPasswordPolicyTool::class,
         // Single sign-on
         ListSsoConnectionsTool::class,
         ShowSsoConnectionTool::class,

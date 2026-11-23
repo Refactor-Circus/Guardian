@@ -165,10 +165,10 @@ depends on: 15
 files: database/migrations/2026_11_24_000008_create_guardian_password_tables.php, src/Domains/Password/** (new: PasswordPolicy.php, Rules/NotRecentlyUsed.php, Models/PasswordHistoryModel.php, Observers/RecordPasswordChange.php, Http/Middleware/EnsurePasswordFresh.php, Actions/{ShowPasswordPolicyAction,CheckPasswordAction}.php, Resources/*, Http/**, Mcp/**, routes.php, PasswordServiceProvider.php), src/Domains/DomainServiceProvider.php, src/GuardianServiceProvider.php, src/Mcp/GuardianServer.php, config/guardian.php, tests/Pest.php, tests/Fixtures/FakeUncompromisedVerifier.php, tests/Feature/Password/*, tests/Feature/Http/PasswordHttpTest.php
 criteria: 39, 40, 41, 42, 43
 
-- [ ] 16.1 Write tests: Rules built from each config key; the breach check through the fake verifier: rejected, accepted, and an outage passes and records the event; `Http::preventStrayRequests()` is on, so a real HIBP call would fail the test; history recorded on a password change, trimmed to `history`; reuse refused; rotation middleware: expired gives 403 `password_expired`, a baseline is created for users with no history; the policy endpoint; the check endpoint (200 payload, throttled, the password never in logs or events); the MCP show tool; check is parity-exempt
-- [ ] 16.2 Add `PasswordPolicy`, `NotRecentlyUsed`, the history migration, model and observer (on `guardian.users.model`), and the `PasswordReset` listener hook
-- [ ] 16.3 Add `EnsurePasswordFresh` (alias `guardian.password-fresh`), the actions, routes, MCP tool and the `passwords` config
-- [ ] 16.4 Run vendor/bin/pest; all green
+- [x] 16.1 Write tests: Rules built from each config key; the breach check through the fake verifier: rejected, accepted, and an outage passes and records the event; `Http::preventStrayRequests()` is on, so a real HIBP call would fail the test; history recorded on a password change, trimmed to `history`; reuse refused; rotation middleware: expired gives 403 `password_expired`, a baseline is created for users with no history; the policy endpoint; the check endpoint (200 payload, throttled, the password never in logs or events); the MCP show tool; check is parity-exempt
+- [x] 16.2 Add `PasswordPolicy`, `NotRecentlyUsed`, the history migration, model and observer (on `guardian.users.model`), and the `PasswordReset` listener hook
+- [x] 16.3 Add `EnsurePasswordFresh` (alias `guardian.password-fresh`), the actions, routes, MCP tool and the `passwords` config
+- [x] 16.4 Run vendor/bin/pest; all green
 
 ## Group 17: API tokens and drivers
 depends on: 16

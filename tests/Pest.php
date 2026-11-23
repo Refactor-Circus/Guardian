@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Http;
 use Laravel\Mcp\Server\Testing\TestResponse;
 use Laravel\Mcp\Server\Tool;
 use RefactorCircus\Guardian\Mcp\GuardianServer;
@@ -21,7 +22,9 @@ use RefactorCircus\Standards\Pest\ArchPreset;
 use Workbench\App\Models\User;
 use Workbench\Database\Factories\UserFactory;
 
-uses(TestCase::class)->in('Feature');
+// No test may reach the network: the breach check (HIBP) and every other
+// HTTP call must be faked (criterion 40).
+uses(TestCase::class)->beforeEach(fn () => Http::preventStrayRequests())->in('Feature');
 
 uses(RenamedTablesTestCase::class)->in('Modes/RenamedTables');
 uses(SsoUnavailableTestCase::class)->in('Modes/SsoUnavailable');
@@ -118,6 +121,9 @@ const PARITY_EXCEPTIONS = [
     'PassChallengeAction' => ['mcp'],
     'SendChallengeCodeAction' => ['mcp'],
     'StartPasskeyChallengeAction' => ['mcp'],
+    // Checking a password sends it: an agent must never be handed one, nor
+    // send one (D-021).
+    'CheckPasswordAction' => ['mcp'],
 ];
 
 /**

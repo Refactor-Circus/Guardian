@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use RefactorCircus\Guardian\Console\Commands\AdoptRosterRolesCommand;
 use RefactorCircus\Guardian\Console\Commands\UpgradeFromRosterCommand;
 use RefactorCircus\Guardian\Domains\DomainServiceProvider;
+use RefactorCircus\Guardian\Domains\Password\Http\Middleware\EnsurePasswordFresh;
 use RefactorCircus\Guardian\Domains\Permission\Services\GuardianPermissions;
 use RefactorCircus\Guardian\Domains\Role\Services\GuardianRoles;
 use RefactorCircus\Guardian\Domains\Session\Http\Middleware\TrackSession;
@@ -177,6 +178,7 @@ class GuardianServiceProvider extends PackageServiceProvider
 
         $router->aliasMiddleware('guardian.two-factor', EnsureTwoFactor::class);
         $router->aliasMiddleware('guardian.session', TrackSession::class);
+        $router->aliasMiddleware('guardian.password-fresh', EnsurePasswordFresh::class);
     }
 
     private function binds(): bool

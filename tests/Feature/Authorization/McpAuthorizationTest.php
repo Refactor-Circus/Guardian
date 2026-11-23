@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__.'/fixtures.php';
 
+use RefactorCircus\Guardian\Domains\Password\Mcp\Tools\ShowPasswordPolicyTool;
 use RefactorCircus\Guardian\Domains\SecurityEvent\Mcp\Tools\ListMySecurityEventsTool;
 use RefactorCircus\Guardian\Domains\Session\Mcp\Tools\ForgetDeviceTool;
 use RefactorCircus\Guardian\Domains\Session\Mcp\Tools\ListDevicesTool;
@@ -19,7 +20,7 @@ use RefactorCircus\Guardian\Mcp\GuardianServer;
 /**
  * Tools every signed-in user may use on themselves.
  */
-const SELF_SERVICE_TOOLS = [ListMySecurityEventsTool::class, ShowTwoFactorTool::class, RemoveTwoFactorMethodTool::class, ListPasskeysTool::class, RemovePasskeyTool::class, ListSessionsTool::class, RevokeSessionTool::class, RevokeOtherSessionsTool::class, ListDevicesTool::class, ForgetDeviceTool::class];
+const SELF_SERVICE_TOOLS = [ListMySecurityEventsTool::class, ShowTwoFactorTool::class, RemoveTwoFactorMethodTool::class, ListPasskeysTool::class, RemovePasskeyTool::class, ListSessionsTool::class, RevokeSessionTool::class, RevokeOtherSessionsTool::class, ListDevicesTool::class, ForgetDeviceTool::class, ShowPasswordPolicyTool::class];
 
 // The SSO and SCIM cases of Roster's tests/Authorization/McpAuthorizationTest.php at
 // the pinned SHA, against GuardianServer.

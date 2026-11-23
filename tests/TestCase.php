@@ -70,6 +70,9 @@ abstract class TestCase extends Orchestra
         parent::resolveApplicationConfiguration($app);
 
         $app['config']->set('guardian.authorization.bind', self::$bindAuthorization);
+        // The host's user model, as an app's auth config names it: Guardian
+        // watches it for password changes while providers boot.
+        $app['config']->set('auth.providers.users.model', User::class);
     }
 
     protected function defineEnvironment($app): void

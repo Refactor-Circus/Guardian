@@ -71,6 +71,10 @@ return [
     'new_device_ignore' => 'If this was you, there is nothing to do. If not, change your password and sign out your other sessions.',
     'unknown_device' => 'an unknown device',
 
+    // Passwords
+    'password_recently_used' => 'Choose a password you have not used recently.',
+    'password_expired' => 'Your password has expired: change it to continue.',
+
     // SCIM provisioning
     'scim_deprovisioned' => 'Deprovisioned from :organization by its identity provider.',
 

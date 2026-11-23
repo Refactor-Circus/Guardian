@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use RefactorCircus\Guardian\Domains\Password\Models\PasswordHistoryModel;
+use RefactorCircus\Guardian\Domains\Password\Policies\PasswordHistoryPolicy;
 use RefactorCircus\Guardian\Domains\Permission\Models\PermissionModel;
 use RefactorCircus\Guardian\Domains\Permission\Policies\PermissionPolicy;
 use RefactorCircus\Guardian\Domains\Role\Models\RoleAssignmentModel;
@@ -430,6 +432,51 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Passwords
+    |--------------------------------------------------------------------------
+    |
+    | The password policy. Use `PasswordPolicy::rules($user)` in your own
+    | registration, reset and change requests; `GET password-policy` answers
+    | the rules for UIs and `POST passwords/check` checks one. Defaults follow
+    | NIST SP 800-63B: length and breach screening, no composition rules and
+    | no forced rotation.
+    |
+    | column:           The user model's password column, watched for changes.
+    | min_length, max_length: Allowed lengths.
+    | mixed_case, numbers, symbols, letters: Require these characters.
+    | uncompromised:    Refuse passwords found in data breaches (HIBP range
+    |                   API: only the first 5 characters of the SHA-1 leave
+    |                   the app). If HIBP cannot be reached the check passes
+    |                   and `password.breach_check_unavailable` is recorded.
+    | uncompromised_threshold: Breaches a password may appear in and pass.
+    | history:          Previous passwords that cannot be reused (0: none).
+    | max_age_days:     With the `guardian.password-fresh` middleware, refuse
+    |                   users whose password is older than this (403
+    |                   `password_expired`). Null: never.
+    | check_per_minute: Password checks allowed per user, or per address.
+    |
+    | SECURITY: passwords are never stored, logged or put in an event; the
+    | history keeps only the hashes your user model stores.
+    |
+    */
+
+    'passwords' => [
+        'column' => 'password',
+        'min_length' => 12,
+        'max_length' => 128,
+        'mixed_case' => false,
+        'numbers' => false,
+        'symbols' => false,
+        'letters' => false,
+        'uncompromised' => true,
+        'uncompromised_threshold' => 0,
+        'history' => 5,
+        'max_age_days' => null,
+        'check_per_minute' => 10,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Policies
     |--------------------------------------------------------------------------
     |
@@ -458,6 +505,7 @@ return [
         TwoFactorPolicyModel::class => TwoFactorPolicyPolicy::class,
         DeviceModel::class => SessionPolicy::class,
         SessionModel::class => SessionPolicy::class,
+        PasswordHistoryModel::class => PasswordHistoryPolicy::class,
     ],
 
     /*
@@ -489,6 +537,7 @@ return [
         'two_factor_policies' => 'guardian_two_factor_policies',
         'devices' => 'guardian_devices',
         'sessions' => 'guardian_sessions',
+        'password_histories' => 'guardian_password_histories',
     ],
 
     /*

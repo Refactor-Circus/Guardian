@@ -128,6 +128,8 @@ function apiRoutes(): array
         'devices.destroy' => ['DELETE', 'guardian.devices.destroy', fn (array $w): array => [$w['device']->id], []],
         'users.sessions.index' => ['GET', 'guardian.users.sessions.index', $user, []],
         'users.sessions.destroy' => ['DELETE', 'guardian.users.sessions.destroy', $user, []],
+        'password-policy.show' => ['GET', 'guardian.password-policy.show', fn (): array => [], []],
+        'passwords.check' => ['POST', 'guardian.passwords.check', fn (): array => [], ['password' => 'a fine long passphrase']],
         'users.two-factor.destroy' => ['DELETE', 'guardian.users.two-factor.destroy', $user, []],
         'scim-tokens.destroy' => ['DELETE', 'guardian.scim-tokens.destroy', fn (array $w): array => [$w['scimToken']->id], []],
     ];
@@ -161,11 +163,30 @@ const SELF_SERVICE_ROUTES = [
 ];
 
 /**
+ * The routes anyone may use, signed in or not: a sign-up form needs the
+ * password rules before there is a user.
+ */
+const PUBLIC_ROUTES = [
+    'password-policy.show',
+    'passwords.check',
+];
+
+/**
+ * Every Guardian JSON API route that needs a signed-in user.
+ *
+ * @return array<string, array{0: string, 1: string, 2: Closure(array<string, mixed>): array<int, mixed>, 3: array<string, mixed>}>
+ */
+function signedInRoutes(): array
+{
+    return array_diff_key(apiRoutes(), array_flip(PUBLIC_ROUTES));
+}
+
+/**
  * Every Guardian JSON API route that needs a permission.
  *
  * @return array<string, array{0: string, 1: string, 2: Closure(array<string, mixed>): array<int, mixed>, 3: array<string, mixed>}>
  */
 function permissionRoutes(): array
 {
-    return array_diff_key(apiRoutes(), array_flip(SELF_SERVICE_ROUTES));
+    return array_diff_key(apiRoutes(), array_flip([...SELF_SERVICE_ROUTES, ...PUBLIC_ROUTES]));
 }

@@ -39,5 +39,6 @@ final class Tables extends KeystoneTables
         'two_factor_policies' => 'guardian_two_factor_policies',
         'devices' => 'guardian_devices',
         'sessions' => 'guardian_sessions',
+        'password_histories' => 'guardian_password_histories',
     ];
 }

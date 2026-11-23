@@ -29,7 +29,13 @@ it('rejects guests with 401', function (string $method, string $name, Closure $p
     $world = authorizationWorld();
 
     $this->json($method, route($name, $parameters($world)), $body)->assertUnauthorized();
-})->with(apiRoutes());
+})->with(signedInRoutes());
+
+it('lets guests use the public routes', function (string $method, string $name, Closure $parameters, array $body): void {
+    $world = authorizationWorld();
+
+    expect($this->json($method, route($name, $parameters($world)), $body)->status())->not->toBeIn([401, 403]);
+})->with(array_intersect_key(apiRoutes(), array_flip(PUBLIC_ROUTES)));
 
 it('rejects users without the permission with 403', function (string $method, string $name, Closure $parameters, array $body): void {
     $world = authorizationWorld();

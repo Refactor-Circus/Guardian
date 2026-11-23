@@ -68,6 +68,7 @@ it('names its tables through Tables, on Keystone\'s Tables', function (): void {
             'two_factor_policies' => 'guardian_two_factor_policies',
             'devices' => 'guardian_devices',
             'sessions' => 'guardian_sessions',
+            'password_histories' => 'guardian_password_histories',
         ]);
 
     config()->set('guardian.tables.scim_users', 'acme_scim_users');

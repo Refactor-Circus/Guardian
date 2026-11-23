@@ -36,18 +36,22 @@ use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\ListSsoIdentitiesTool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\ShowSsoConnectionTool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\UnlinkSsoIdentityTool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\UpdateSsoConnectionTool;
+use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\CreateTwoFactorPolicyTool;
+use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\DeleteTwoFactorPolicyTool;
 use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\ListPasskeysTool;
+use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\ListTwoFactorPoliciesTool;
 use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\RemovePasskeyTool;
 use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\RemoveTwoFactorMethodTool;
 use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\ResetTwoFactorTool;
 use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\ShowTwoFactorTool;
+use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\UpdateTwoFactorPolicyTool;
 use RefactorCircus\Guardian\Support\Integration;
 use RefactorCircus\Keystone\Mcp\Server;
 
 #[Name('Guardian')]
 #[Version('1.0.0')]
 #[Instructions(
-    'Manage roles, permissions and who holds them, read the security log, see and reset two-factor, and manage the single sign-on connections, linked sign-in identities '.
+    'Manage roles, permissions and who holds them, read the security log, see and reset two-factor and set who must use it, and manage the single sign-on connections, linked sign-in identities '.
     'and SCIM provisioning tokens of Roster organizations. Every call acts as the signed-in user and needs the '.
     'matching guardian.* permission (guardian.roles.view, guardian.roles.manage, guardian.roles.assign, '.
     'guardian.security.view, guardian.two-factor.manage, guardian.sso.view, guardian.sso.manage, guardian.scim.manage) in the scope it is '.
@@ -87,6 +91,10 @@ final class GuardianServer extends Server
         ListPasskeysTool::class,
         RemovePasskeyTool::class,
         ResetTwoFactorTool::class,
+        ListTwoFactorPoliciesTool::class,
+        CreateTwoFactorPolicyTool::class,
+        UpdateTwoFactorPolicyTool::class,
+        DeleteTwoFactorPolicyTool::class,
         // Single sign-on
         ListSsoConnectionsTool::class,
         ShowSsoConnectionTool::class,

@@ -65,6 +65,7 @@ it('names its tables through Tables, on Keystone\'s Tables', function (): void {
             'recovery_codes' => 'guardian_recovery_codes',
             'passkeys' => 'guardian_passkeys',
             'one_time_codes' => 'guardian_one_time_codes',
+            'two_factor_policies' => 'guardian_two_factor_policies',
         ]);
 
     config()->set('guardian.tables.scim_users', 'acme_scim_users');

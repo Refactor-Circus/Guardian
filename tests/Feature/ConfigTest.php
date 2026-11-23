@@ -25,7 +25,9 @@ use RefactorCircus\Guardian\Domains\TwoFactor\Models\OneTimeCodeModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\PasskeyModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\RecoveryCodeModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorPolicyModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Policies\TwoFactorMethodPolicy;
+use RefactorCircus\Guardian\Domains\TwoFactor\Policies\TwoFactorPolicyPolicy;
 use Workbench\App\Models\User;
 
 /*
@@ -179,6 +181,7 @@ it('maps every model to its policy and every table to its default name', functio
         RecoveryCodeModel::class => TwoFactorMethodPolicy::class,
         OneTimeCodeModel::class => TwoFactorMethodPolicy::class,
         PasskeyModel::class => TwoFactorMethodPolicy::class,
+        TwoFactorPolicyModel::class => TwoFactorPolicyPolicy::class,
     ])->and($config['tables'])->toBe([
         'sso_connections' => 'guardian_sso_connections',
         'sso_identities' => 'guardian_sso_identities',
@@ -194,6 +197,7 @@ it('maps every model to its policy and every table to its default name', functio
         'recovery_codes' => 'guardian_recovery_codes',
         'passkeys' => 'guardian_passkeys',
         'one_time_codes' => 'guardian_one_time_codes',
+        'two_factor_policies' => 'guardian_two_factor_policies',
     ]);
 });
 

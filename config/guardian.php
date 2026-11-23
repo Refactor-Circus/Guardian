@@ -24,7 +24,9 @@ use RefactorCircus\Guardian\Domains\TwoFactor\Models\OneTimeCodeModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\PasskeyModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\RecoveryCodeModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorPolicyModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Policies\TwoFactorMethodPolicy;
+use RefactorCircus\Guardian\Domains\TwoFactor\Policies\TwoFactorPolicyPolicy;
 
 /*
  * Guardian is the suite's security package. Only SSO and SCIM build on
@@ -345,7 +347,11 @@ return [
     |
     | required: Require two-factor of every user. With the
     |           `guardian.two-factor` middleware on your routes, a user
-    |           without a factor is refused until they enrol.
+    |           without a factor is refused until they enrol. Policies
+    |           (the `guardian.two-factor-policies.*` routes and tools)
+    |           require it of a role's holders or a scope's members, with
+    |           allowed methods and days of grace; bind your own
+    |           `TwoFactorRequirement` to decide another way.
     | issuer:   The name authenticator apps show; null uses `app.name`.
     | one_time_codes.ttl_minutes: How long an email or SMS code is valid.
     |           Each code is six digits, single use, with five attempts;
@@ -404,6 +410,7 @@ return [
         RecoveryCodeModel::class => TwoFactorMethodPolicy::class,
         OneTimeCodeModel::class => TwoFactorMethodPolicy::class,
         PasskeyModel::class => TwoFactorMethodPolicy::class,
+        TwoFactorPolicyModel::class => TwoFactorPolicyPolicy::class,
     ],
 
     /*
@@ -432,6 +439,7 @@ return [
         'recovery_codes' => 'guardian_recovery_codes',
         'passkeys' => 'guardian_passkeys',
         'one_time_codes' => 'guardian_one_time_codes',
+        'two_factor_policies' => 'guardian_two_factor_policies',
     ],
 
     /*

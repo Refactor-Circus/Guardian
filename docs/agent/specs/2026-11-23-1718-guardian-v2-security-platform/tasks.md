@@ -145,10 +145,10 @@ depends on: 13
 files: database/migrations/2026_11_24_000006_create_guardian_two_factor_policy_tables.php, src/Domains/TwoFactor/Contracts/TwoFactorRequirement.php, src/Domains/TwoFactor/Data/Requirement.php, src/Domains/TwoFactor/Services/PolicyTwoFactorRequirement.php, src/Domains/TwoFactor/Models/TwoFactorPolicyModel.php, src/Domains/TwoFactor/Actions/{CreateTwoFactorPolicyAction,UpdateTwoFactorPolicyAction,DeleteTwoFactorPolicyAction,ListTwoFactorPoliciesAction}.php, src/Domains/TwoFactor/Policies/TwoFactorPolicyPolicy.php, src/Domains/TwoFactor/Resources/TwoFactorPolicyResource.php, src/Domains/TwoFactor/Http/**, src/Domains/TwoFactor/Mcp/**, src/Domains/TwoFactor/routes.php, tests/Feature/TwoFactor/EnforcementTest.php, tests/Feature/Http/TwoFactorPoliciesHttpTest.php
 criteria: 34
 
-- [ ] 14.1 Write tests: global config; a global policy; a role policy (anywhere and in a scope); a scope policy reaching child scopes through `ScopeChain`; method intersection and the conflict fallback with its event; earliest deadline; a host-bound `TwoFactorRequirement` replaces the default; CRUD over HTTP and MCP with `guardian.two-factor.manage`
-- [ ] 14.2 Add the migration, model, contract, `Requirement` value object and `PolicyTwoFactorRequirement`, and bind it
-- [ ] 14.3 Add the CRUD actions, policy, resource, routes and MCP tools
-- [ ] 14.4 Run vendor/bin/pest; all green
+- [x] 14.1 Write tests: global config; a global policy; a role policy (anywhere and in a scope); a scope policy reaching child scopes through `ScopeChain`; method intersection and the conflict fallback with its event; earliest deadline; a host-bound `TwoFactorRequirement` replaces the default; CRUD over HTTP and MCP with `guardian.two-factor.manage`
+- [x] 14.2 Add the migration, model, contract, `Requirement` value object and `PolicyTwoFactorRequirement`, and bind it
+- [x] 14.3 Add the CRUD actions, policy, resource, routes and MCP tools
+- [x] 14.4 Run vendor/bin/pest; all green
 
 ## Group 15: Sessions and devices
 depends on: 14

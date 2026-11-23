@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use RefactorCircus\Guardian\Domains\TwoFactor\Http\Controllers\ChallengeController;
 use RefactorCircus\Guardian\Domains\TwoFactor\Http\Controllers\PasskeyController;
 use RefactorCircus\Guardian\Domains\TwoFactor\Http\Controllers\TwoFactorController;
+use RefactorCircus\Guardian\Domains\TwoFactor\Http\Controllers\TwoFactorPolicyController;
 
 // The signed-in user's own two-factor.
 Route::get('two-factor', [TwoFactorController::class, 'show'])->name('two-factor.show');
@@ -24,6 +25,12 @@ Route::delete('two-factor/methods/{method}', [TwoFactorController::class, 'destr
 Route::post('two-factor/challenge', [ChallengeController::class, 'pass'])->name('two-factor.challenge');
 Route::post('two-factor/challenge/send', [ChallengeController::class, 'send'])->name('two-factor.challenge.send');
 Route::post('two-factor/challenge/passkey-options', [ChallengeController::class, 'passkeyOptions'])->name('two-factor.challenge.passkey-options');
+
+// Enforcement policies.
+Route::get('two-factor-policies', [TwoFactorPolicyController::class, 'index'])->name('two-factor-policies.index');
+Route::post('two-factor-policies', [TwoFactorPolicyController::class, 'store'])->name('two-factor-policies.store');
+Route::patch('two-factor-policies/{policy}', [TwoFactorPolicyController::class, 'update'])->name('two-factor-policies.update');
+Route::delete('two-factor-policies/{policy}', [TwoFactorPolicyController::class, 'destroy'])->name('two-factor-policies.destroy');
 
 // An admin's reset of another user's two-factor.
 Route::delete('users/{user}/two-factor', [TwoFactorController::class, 'reset'])->name('users.two-factor.destroy');

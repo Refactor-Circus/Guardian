@@ -48,6 +48,7 @@ function toolArguments(): array
             'ResetTwoFactorTool' => fn (array $w): array => ['user' => (string) $w['target']->getKey()],
             'RemoveTwoFactorMethodTool' => fn (array $w): array => ['method' => $w['twoFactorMethod']->id, 'code' => '123456'],
             'RemovePasskeyTool' => fn (array $w): array => ['passkey' => $w['passkey']->id, 'code' => '123456'],
+            'UpdateTwoFactorPolicyTool', 'DeleteTwoFactorPolicyTool' => fn (array $w): array => ['policy' => $w['twoFactorPolicy']->id],
             'RevokeScimTokenTool' => fn (array $w): array => ['token' => $w['scimToken']->id],
             default => fn (): array => [],
         }])

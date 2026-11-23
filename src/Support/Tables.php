@@ -36,5 +36,6 @@ final class Tables extends KeystoneTables
         'recovery_codes' => 'guardian_recovery_codes',
         'passkeys' => 'guardian_passkeys',
         'one_time_codes' => 'guardian_one_time_codes',
+        'two_factor_policies' => 'guardian_two_factor_policies',
     ];
 }

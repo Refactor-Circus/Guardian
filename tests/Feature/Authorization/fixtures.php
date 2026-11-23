@@ -13,6 +13,7 @@ use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Enums\TwoFactorMethodType;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\PasskeyModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorPolicyModel;
 use RefactorCircus\Roster\Domains\Organization\Actions\AddMemberAction;
 use RefactorCircus\Roster\Domains\Organization\Data\AddMemberData;
 
@@ -22,7 +23,8 @@ use RefactorCircus\Roster\Domains\Organization\Data\AddMemberData;
  * organization `acme` with a member `target`, a connection `acme-okta`, the
  * target's identity on it and a SCIM token; plus a shared role `editor`,
  * held by the target, a security event of the target's and their
- * confirmed authenticator and passkey.
+ * confirmed authenticator and passkey, and a two-factor policy (not
+ * required) for the editor role.
  *
  * @return array<string, mixed>
  */
@@ -44,9 +46,11 @@ function authorizationWorld(): array
 
     $passkey = PasskeyModel::query()->create(['user_id' => $target->getKey(), 'credential_id' => 'target-credential', 'public_key' => 'x']);
 
+    $twoFactorPolicy = TwoFactorPolicyModel::query()->create(['role' => 'editor', 'required' => false]);
+
     $securityEvent = app(RecordSecurityEventAction::class)->execute(new RecordSecurityEventData(type: SecurityEventType::LoginSucceeded, user: (string) $target->getKey()));
 
-    return compact('acme', 'target', 'connection', 'identity', 'scimToken', 'role', 'assignment', 'securityEvent', 'twoFactorMethod', 'passkey');
+    return compact('acme', 'target', 'connection', 'identity', 'scimToken', 'role', 'assignment', 'securityEvent', 'twoFactorMethod', 'passkey', 'twoFactorPolicy');
 }
 
 /**
@@ -108,6 +112,10 @@ function apiRoutes(): array
         'two-factor.challenge.passkey-options' => ['POST', 'guardian.two-factor.challenge.passkey-options', fn (): array => [], []],
         'two-factor.recovery-codes.store' => ['POST', 'guardian.two-factor.recovery-codes.store', fn (): array => [], []],
         'two-factor.methods.destroy' => ['DELETE', 'guardian.two-factor.methods.destroy', fn (array $w): array => [$w['twoFactorMethod']->id], []],
+        'two-factor-policies.index' => ['GET', 'guardian.two-factor-policies.index', fn (): array => [], []],
+        'two-factor-policies.store' => ['POST', 'guardian.two-factor-policies.store', fn (): array => [], []],
+        'two-factor-policies.update' => ['PATCH', 'guardian.two-factor-policies.update', fn (array $w): array => [$w['twoFactorPolicy']->id], ['grace_days' => 3]],
+        'two-factor-policies.destroy' => ['DELETE', 'guardian.two-factor-policies.destroy', fn (array $w): array => [$w['twoFactorPolicy']->id], []],
         'users.two-factor.destroy' => ['DELETE', 'guardian.users.two-factor.destroy', $user, []],
         'scim-tokens.destroy' => ['DELETE', 'guardian.scim-tokens.destroy', fn (array $w): array => [$w['scimToken']->id], []],
     ];

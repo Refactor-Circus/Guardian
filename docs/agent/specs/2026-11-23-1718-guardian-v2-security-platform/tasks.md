@@ -73,10 +73,10 @@ depends on: 6
 files: src/Domains/Permission/Actions/{CreatePermissionAction,UpdatePermissionAction,DeletePermissionAction,ListPermissionsAction}.php, src/Domains/Permission/Data/*.php, src/Domains/Permission/Policies/PermissionPolicy.php, src/Domains/Permission/Resources/PermissionResource.php, src/Domains/Permission/Http/**, src/Domains/Permission/routes.php, src/Domains/Permission/Mcp/**, src/Mcp/GuardianServer.php, tests/Feature/Permission/PermissionActionsTest.php, tests/Feature/Http/PermissionsHttpTest.php, tests/Feature/Mcp/PermissionToolsTest.php
 criteria: 16, 17, 18
 
-- [ ] 7.1 Write tests: create, update, delete and list; a system permission cannot be deleted or renamed; names unique; cache forgotten; HTTP (`guardian.roles.manage`, 401 and 403) and MCP wiring; parity
-- [ ] 7.2 Port the permission actions, Data, events, policy and resource
-- [ ] 7.3 Add the requests, controller, routes and MCP tools
-- [ ] 7.4 Run vendor/bin/pest; all green
+- [x] 7.1 Write tests: create, update, delete and list; a system permission cannot be deleted or renamed; names unique; cache forgotten; HTTP (`guardian.roles.manage`, 401 and 403) and MCP wiring; parity
+- [x] 7.2 Port the permission actions, Data, events, policy and resource
+- [x] 7.3 Add the requests, controller, routes and MCP tools
+- [x] 7.4 Run vendor/bin/pest; all green
 
 ## Group 8: Adopt Roster's role tables
 depends on: 7

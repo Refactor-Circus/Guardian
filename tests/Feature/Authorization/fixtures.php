@@ -74,6 +74,10 @@ function apiRoutes(): array
         'role-assignments.store' => ['POST', 'guardian.role-assignments.store', fn (): array => [], ['user' => 'x', 'role' => 'member']],
         'role-assignments.destroy' => ['DELETE', 'guardian.role-assignments.destroy', fn (array $w): array => [$w['assignment']->id], []],
         'users.abilities.index' => ['GET', 'guardian.users.abilities.index', $user, []],
+        'permissions.index' => ['GET', 'guardian.permissions.index', fn (): array => [], []],
+        'permissions.store' => ['POST', 'guardian.permissions.store', fn (): array => [], ['name' => 'a.b']],
+        'permissions.update' => ['PATCH', 'guardian.permissions.update', fn (): array => ['guardian.sso.view'], ['description' => 'x']],
+        'permissions.destroy' => ['DELETE', 'guardian.permissions.destroy', fn (): array => ['guardian.sso.view'], []],
         'scim-tokens.destroy' => ['DELETE', 'guardian.scim-tokens.destroy', fn (array $w): array => [$w['scimToken']->id], []],
     ];
 }

@@ -17,13 +17,17 @@ use RefactorCircus\Keystone\Support\ServiceProvider;
 
 /**
  * Permissions: one row per Keystone ability (kept in step by
- * `guardian:sync-permissions`) plus a host's own. Needs nothing from Roster.
+ * `guardian:sync-permissions`) plus a host's own, managed through the
+ * `guardian.permissions.*` routes and their MCP tools. Needs nothing from
+ * Roster.
  */
 class PermissionServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
         $this->forgetOnWrites();
+
+        $this->loadApiRoutesFrom(__DIR__.'/routes.php');
 
         if ($this->app->runningInConsole()) {
             $this->commands([SyncPermissionsCommand::class]);

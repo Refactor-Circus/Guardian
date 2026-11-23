@@ -203,3 +203,9 @@
 - Rationale: Criteria 16, 17 and 19 leave the shapes open; these mirror Roster v0.1's rules on Guardian's scope morphs (D-033).
 - Date: 2026-11-23
 - Raised by: implement (group 6); conservative default, no user available
+
+## D-035: Permissions over the API
+- Choice: Permissions are global and named by their name in the route (`permissions/{permission}`); the resource has no `id`. Listing needs `guardian.roles.view`, creating, updating and deleting `guardian.roles.manage`, all checked globally through `RolePolicy` (the `guardian.roles` resource). An app permission may be renamed (unique, dotted lowercase) and roles keep granting it; a `system` permission keeps its name and cannot be deleted, but its description may change. Deleting detaches it from every role. The permission model's events forget every remembered answer, names included (D-032); the delete action forgets again after the pivot rows go. `search` matches a plain substring (LIKE wildcards in it are not escaped, as in Roster).
+- Rationale: Criterion 16 ("a `system` permission cannot be deleted or renamed") implies app permissions can be renamed, which Roster v0.1 did not allow; the rest keeps Roster's behaviour.
+- Date: 2026-11-23
+- Raised by: implement (group 7); conservative default, no user available

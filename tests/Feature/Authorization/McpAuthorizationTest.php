@@ -32,6 +32,8 @@ function toolArguments(): array
             'AssignRoleTool' => fn (array $w): array => ['user' => (string) $w['target']->getKey(), 'role' => 'member'],
             'RevokeRoleTool' => fn (array $w): array => ['assignment' => $w['assignment']->id],
             'ListUserAbilitiesTool' => fn (array $w): array => ['user' => (string) $w['target']->getKey()],
+            'CreatePermissionTool' => fn (): array => ['name' => 'a.b'],
+            'UpdatePermissionTool', 'DeletePermissionTool' => fn (): array => ['permission' => 'guardian.sso.view'],
             'RevokeScimTokenTool' => fn (array $w): array => ['token' => $w['scimToken']->id],
             default => fn (): array => [],
         }])

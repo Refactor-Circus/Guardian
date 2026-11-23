@@ -10,6 +10,10 @@ use Laravel\Mcp\Server\Attributes\Version;
 use Laravel\Mcp\Server\ServerContext;
 use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\ToolSearch;
+use RefactorCircus\Guardian\Domains\Permission\Mcp\Tools\CreatePermissionTool;
+use RefactorCircus\Guardian\Domains\Permission\Mcp\Tools\DeletePermissionTool;
+use RefactorCircus\Guardian\Domains\Permission\Mcp\Tools\ListPermissionsTool;
+use RefactorCircus\Guardian\Domains\Permission\Mcp\Tools\UpdatePermissionTool;
 use RefactorCircus\Guardian\Domains\Role\Mcp\Tools\AssignRoleTool;
 use RefactorCircus\Guardian\Domains\Role\Mcp\Tools\CreateRoleTool;
 use RefactorCircus\Guardian\Domains\Role\Mcp\Tools\DeleteRoleTool;
@@ -59,6 +63,11 @@ final class GuardianServer extends Server
         AssignRoleTool::class,
         RevokeRoleTool::class,
         ListUserAbilitiesTool::class,
+        // Permissions
+        ListPermissionsTool::class,
+        CreatePermissionTool::class,
+        UpdatePermissionTool::class,
+        DeletePermissionTool::class,
         // Single sign-on
         ListSsoConnectionsTool::class,
         ShowSsoConnectionTool::class,

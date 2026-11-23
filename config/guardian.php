@@ -36,7 +36,10 @@ use RefactorCircus\Guardian\Domains\TwoFactor\Policies\TwoFactorMethodPolicy;
 use RefactorCircus\Guardian\Domains\TwoFactor\Policies\TwoFactorPolicyPolicy;
 
 /*
- * Guardian is the suite's security package. Only SSO and SCIM build on
+ * Guardian is the suite's security package: roles and permissions (the role
+ * store behind Keystone's contract), two-factor, sessions and devices,
+ * passwords, API tokens, login protection, the security log, SSO and SCIM,
+ * served as a JSON API and MCP tools. Only SSO and SCIM build on
  * refactor-circus/roster's users and organizations: without Roster they are
  * skipped, `php artisan about` says so, and everything else works.
  */
@@ -121,12 +124,17 @@ return [
     | HTTP API Routes
     |--------------------------------------------------------------------------
     |
-    | The JSON API for managing SSO connections, linked identities and SCIM
-    | tokens. Disabled by default.
+    | The JSON API: roles and permissions, the security log, two-factor,
+    | sessions and devices, the password policy, API tokens, lockouts and IP
+    | rules, SSO connections and SCIM tokens, all named `guardian.*` under
+    | `prefix`. `openapi.json` describes it, and
+    | `@refactor-circus/guardian-client` is its typed client. Disabled by
+    | default.
     |
     | SECURITY: each route checks the caller's permissions (see
     | Authorization below), but it needs an authenticated user to check: add
     | authentication middleware (e.g. `auth:sanctum`) before enabling it.
+    | Only `password-policy` and `passwords/check` serve guests.
     |
     */
 
@@ -567,7 +575,9 @@ return [
     | class of your own (extending the bundled one, or not) to change who may
     | do what. The bundled policies answer with Keystone's permissions
     | contract: `guardian.sso.*` and `guardian.scim.manage` in the record's
-    | organization, `guardian.roles.*` in the scope a call is about.
+    | organization, `guardian.roles.*` in the scope a call is about, and
+    | `guardian.two-factor.manage`, `guardian.sessions.manage`,
+    | `guardian.security.view` and `guardian.security.manage` globally.
     |
     */
 
@@ -630,8 +640,11 @@ return [
     | MCP Server
     |--------------------------------------------------------------------------
     |
-    | Exposes the SSO and SCIM management actions as MCP tools. Both
-    | transports are disabled by default.
+    | Exposes Guardian's actions as MCP tools: roles and permissions, the
+    | security log, two-factor status and policies, sessions and devices,
+    | the password policy, API tokens (list and revoke), lockouts and IP
+    | rules, SSO connections and SCIM tokens. Enrolment, challenges and
+    | token issuing stay HTTP-only. Both transports are disabled by default.
     |
     | web:   An HTTP MCP endpoint at `route`, wrapped in `middleware`.
     |        SECURITY: tools check the caller's permissions, so add
@@ -657,9 +670,10 @@ return [
     | Cortex
     |--------------------------------------------------------------------------
     |
-    | With refactor-circus/cortex installed, Cortex agents can manage SSO
-    | connections and SCIM tokens, acting as the signed-in user. `tools`
-    | limits which tools are offered (null offers all).
+    | With refactor-circus/cortex installed, Cortex agents get Guardian's MCP
+    | tools (roles, two-factor policies, sessions, tokens, the security log,
+    | IP rules, SSO and SCIM), acting as the signed-in user. `tools` limits
+    | which tools are offered (null offers all).
     |
     */
 
@@ -675,11 +689,13 @@ return [
     |--------------------------------------------------------------------------
     |
     | Rolling back Guardian's create migrations refuses to drop a table that
-    | holds rows, and names the tables: after an upgrade from Roster they
-    | hold your connections, identities and tokens.
+    | holds rows, and names the tables: they hold your roles and grants,
+    | factors, sessions and security log, and after an upgrade from Roster
+    | your connections, identities and tokens.
     |
-    | force_rollback: Drop them anyway. SECURITY: this deletes every SSO
-    |                 connection, linked identity and SCIM token. Set
+    | force_rollback: Drop them anyway. SECURITY: this deletes every row
+    |                 in those tables (roles, grants, factors, SSO
+    |                 connections, SCIM tokens, ...). Set
     |                 GUARDIAN_FORCE_ROLLBACK=true only for the rollback you
     |                 mean, never in a routine deploy.
     |

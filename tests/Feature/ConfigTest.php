@@ -299,6 +299,21 @@ it('has exactly the documented sections, each under a banner', function (): void
         ->toBe(2 * count(shippedGuardianConfig()));
 });
 
+it('puts a banner over each section criterion 56 names', function (string $section): void {
+    $source = (string) file_get_contents(dirname(__DIR__, 2).'/config/guardian.php');
+    $rule = '    \|-{74}\n';
+
+    expect(preg_match('/'.$rule.'    \| [^\n]+\n'.$rule.'(?:    \|[^\n]*\n)+    \*\/\n\n    \''.preg_quote($section, '/').'\' =>/', $source))->toBe(1, "config/guardian.php has no banner over '{$section}'");
+})->with(['authorization', 'users', 'roles', 'super_admins', 'permission_cache', 'adopt', 'two_factor', 'sessions', 'devices', 'passwords', 'tokens', 'login', 'ip_rules', 'security_log']);
+
+it('describes the whole API, MCP server and Cortex reach in their banners, not only SSO and SCIM', function (string $section): void {
+    $source = (string) file_get_contents(dirname(__DIR__, 2).'/config/guardian.php');
+    $end = (int) strpos($source, "    '{$section}' =>");
+    $banner = substr($source, (int) strrpos(substr($source, 0, $end), '/*'), $end - (int) strrpos(substr($source, 0, $end), '/*'));
+
+    expect($banner)->toContain('roles')->toContain('two-factor');
+})->with(['routes', 'mcp', 'cortex']);
+
 it('never names a roster.* config key', function (): void {
     $source = (string) file_get_contents(dirname(__DIR__, 2).'/config/guardian.php');
 

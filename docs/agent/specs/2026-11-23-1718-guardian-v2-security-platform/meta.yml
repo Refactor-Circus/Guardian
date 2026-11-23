@@ -9,3 +9,5 @@ standards:
   refactor-circus/standards:
     version: dev-main
     reference: f6b96cbce802
+runs:
+  - { workflow: direct, result: approved, date: 2026-11-23 }

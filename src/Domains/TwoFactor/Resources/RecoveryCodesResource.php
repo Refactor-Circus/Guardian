@@ -19,6 +19,9 @@ final class RecoveryCodesResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return ['recovery_codes' => $this->resource];
+        return [
+            /** @var list<string> */
+            'recovery_codes' => $this->resource,
+        ];
     }
 }

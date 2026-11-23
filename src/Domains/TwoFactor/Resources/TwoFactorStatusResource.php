@@ -45,7 +45,9 @@ final class TwoFactorStatusResource extends JsonResource
 
         return [
             'enabled' => $status->enabled,
+            /** @var list<TwoFactorMethodResource> */
             'methods' => TwoFactorMethodResource::collection($status->methods)->resolve($request),
+            /** @var list<PasskeyResource> */
             'passkeys' => PasskeyResource::collection($status->passkeys)->resolve($request),
             'passkeys_available' => $status->passkeysAvailable,
             'recovery_codes_remaining' => $status->recoveryCodesRemaining,

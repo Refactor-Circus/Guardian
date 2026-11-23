@@ -47,6 +47,7 @@ final class SecurityEventResource extends JsonResource
             'identifier_hash' => $this->identifier_hash,
             'ip' => $this->ip,
             'user_agent' => $this->user_agent,
+            /** @var array<string, mixed> */
             'context' => (object) $this->context,
             'occurred_at' => $this->occurred_at->toIso8601String(),
         ];

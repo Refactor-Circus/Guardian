@@ -101,6 +101,12 @@
             "@test:types",
             "@test:unit"
         ],
+        "client:generate": [
+            "@php vendor/bin/testbench workbench:openapi openapi.json",
+            "npm --prefix client ci",
+            "npm --prefix client run generate",
+            "@php bin/client-stamp.php"
+        ],
         "clear": [
             "@php vendor/bin/testbench package:purge-skeleton --ansi"
         ],

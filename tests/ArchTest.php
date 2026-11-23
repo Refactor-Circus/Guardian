@@ -17,6 +17,10 @@ arch('it will not use dd(), ddd(), env(), or exit()')
     ->expect(['dd', 'ddd', 'env', 'exit'])
     ->each->not->toBeUsed();
 
+arch('nothing in the package uses Scramble, a workbench-only dev dependency')
+    ->expect('RefactorCircus\\Guardian')
+    ->not->toUse('Dedoc\\Scramble');
+
 arch('the package source declares strict types')
     ->expect('RefactorCircus\Guardian')
     ->toUseStrictTypes();

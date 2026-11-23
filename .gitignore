@@ -25,3 +25,4 @@ composer.local.lock
 /docs/agent/specs/**/*.tmp.*
 /docs/agent/specs/*/*body*.md
 /docs/agent/specs/*/replay/
+/client/node_modules

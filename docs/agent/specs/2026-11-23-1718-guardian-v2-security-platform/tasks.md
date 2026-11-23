@@ -197,11 +197,11 @@ depends on: 18
 files: composer.json (dedoc/scramble, client:generate), workbench/app/Providers/WorkbenchServiceProvider.php, testbench.yaml, src/Domains/*/Http/Controllers/*.php (@response annotations), openapi.json, client/package.json, client/package-lock.json, client/tsconfig.json, client/src/index.ts, client/src/schema.d.ts, client/dist/index.js, client/dist/index.d.ts, client/openapi.sha256, bin/client-stamp.php, .gitignore, .gitattributes, .github/workflows/tests.yml, tests/Feature/OpenApiTest.php, tests/Feature/ComposerTest.php, tests/ArchTest.php, tests/Modes/Standalone/StandaloneTest.php, tests/Pest.php
 criteria: 3, 53, 54, 55
 
-- [ ] 19.1 Write tests: `OpenApiTest`: a fresh export equals the committed file; two exports are byte-identical; 3.1 and `2.0.0`; one operation per `guardian.*` API route (operationId = name); no SCIM protocol or SSO web routes; stamp check; client package fields and exports; `ComposerTest`: the `client:generate` script order; the CI `client` job; nothing export-ignored; Arch: no `Dedoc\Scramble` in src; `StandaloneTest`: every non-SSO/SCIM route and tool is registered without Roster; `parityGaps()` is empty with the D-021 exemptions
-- [ ] 19.2 Require Scramble (dev) and configure it in the workbench (with the token driver and passkeys enabled, so their routes are documented). Add `@response` annotations where inference fails.
-- [ ] 19.3 Create `client/` (`@refactor-circus/guardian-client` 2.0.0, `createGuardianClient`), `bin/client-stamp.php` and `composer client:generate`. Run it and commit the output.
-- [ ] 19.4 Add the CI `client` job
-- [ ] 19.5 Run vendor/bin/pest; all green
+- [x] 19.1 Write tests: `OpenApiTest`: a fresh export equals the committed file; two exports are byte-identical; 3.1 and `2.0.0`; one operation per `guardian.*` API route (operationId = name); no SCIM protocol or SSO web routes; stamp check; client package fields and exports; `ComposerTest`: the `client:generate` script order; the CI `client` job; nothing export-ignored; Arch: no `Dedoc\Scramble` in src; `StandaloneTest`: every non-SSO/SCIM route and tool is registered without Roster; `parityGaps()` is empty with the D-021 exemptions
+- [x] 19.2 Require Scramble (dev) and configure it in the workbench (with the token driver and passkeys enabled, so their routes are documented). Add `@response` annotations where inference fails.
+- [x] 19.3 Create `client/` (`@refactor-circus/guardian-client` 2.0.0, `createGuardianClient`), `bin/client-stamp.php` and `composer client:generate`. Run it and commit the output.
+- [x] 19.4 Add the CI `client` job
+- [x] 19.5 Run vendor/bin/pest; all green
 
 ## Group 20: Docs, changelog and Boost skill
 depends on: 19

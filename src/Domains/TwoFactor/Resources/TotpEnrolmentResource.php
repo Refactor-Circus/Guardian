@@ -22,6 +22,7 @@ final class TotpEnrolmentResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            /** @var TwoFactorMethodResource */
             'method' => (new TwoFactorMethodResource($this->resource->method))->resolve($request),
             'secret' => $this->resource->secret,
             'otpauth_uri' => $this->resource->otpauthUri,

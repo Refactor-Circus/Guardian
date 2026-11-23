@@ -1,7 +1,10 @@
 laravel: '@testbench'
 
 providers:
-  # - Workbench\App\Providers\WorkbenchServiceProvider
+  - Laravel\Mcp\Server\McpServiceProvider
+  - RefactorCircus\Roster\RosterServiceProvider
+  - RefactorCircus\Guardian\GuardianServiceProvider
+  - Workbench\App\Providers\WorkbenchServiceProvider
 
 migrations:
   - workbench/database/migrations

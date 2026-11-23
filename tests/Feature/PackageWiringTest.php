@@ -130,9 +130,13 @@ describe('local install', function (): void {
         $scripts = guardianComposer()['scripts'];
         $keen = keenComposer()['scripts'];
 
-        // v2 has no Atrium, so no without-Atrium suite (criterion 2); the
-        // client generator comes with the OpenAPI export (criterion 55).
+        // v2 has no Atrium, so no without-Atrium suite (criterion 2). Both
+        // have a client generator, compared on its own (OpenApiTest), as
+        // each exports its document its own way (criterion 55).
         unset($keen['test:without-atrium'], $keen['client:generate']);
+
+        expect($scripts)->toHaveKey('client:generate');
+        unset($scripts['client:generate']);
 
         expect(array_keys($scripts))->toBe(array_keys($keen))
             ->and($scripts['local:install'])->toBe($keen['local:install'])

@@ -25,7 +25,15 @@ final class ConfirmedFactorResource extends JsonResource
         $factor = $this->resource->factor;
 
         return $factor instanceof TwoFactorMethodModel
-            ? ['method' => (new TwoFactorMethodResource($factor))->resolve($request), 'recovery_codes' => $this->resource->recoveryCodes]
-            : ['passkey' => (new PasskeyResource($factor))->resolve($request), 'recovery_codes' => $this->resource->recoveryCodes];
+            ? [
+                /** @var TwoFactorMethodResource */
+                'method' => (new TwoFactorMethodResource($factor))->resolve($request),
+                'recovery_codes' => $this->resource->recoveryCodes,
+            ]
+            : [
+                /** @var PasskeyResource */
+                'passkey' => (new PasskeyResource($factor))->resolve($request),
+                'recovery_codes' => $this->resource->recoveryCodes,
+            ];
     }
 }

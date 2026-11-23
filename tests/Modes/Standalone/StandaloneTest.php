@@ -153,3 +153,25 @@ it('serves the role, permission and security log API without Roster (criterion 3
         ->and($tools)->toContain('list-permissions-tool', 'list-role-assignments-tool', 'list-security-events-tool', 'list-my-security-events-tool')
         ->and(array_filter($tools, fn (string $tool): bool => str_contains($tool, 'sso') || str_contains($tool, 'scim')))->toBe([]);
 });
+
+it('registers every documented non-SSO/SCIM route and every non-SSO/SCIM tool without Roster', function (): void {
+    /** @var array<string, array<string, array{operationId?: string}>> $paths */
+    $paths = json_decode((string) file_get_contents(dirname(__DIR__, 3).'/openapi.json'), true, flags: JSON_THROW_ON_ERROR)['paths'];
+    $documented = [];
+
+    foreach ($paths as $item) {
+        foreach ($item as $operation) {
+            $documented[] = (string) ($operation['operationId'] ?? '');
+        }
+    }
+
+    $standalone = array_values(array_filter($documented, fn (string $name): bool => preg_match('/(^|\.)(sso|scim)[-.]/', $name) !== 1));
+    $expectedTools = array_values(array_filter(
+        GuardianServer::TOOLS,
+        fn (string $tool): bool => ! str_contains($tool, '\\Domains\\Sso\\') && ! str_contains($tool, '\\Domains\\Scim\\'),
+    ));
+
+    expect(count($standalone))->toBeGreaterThan(40)
+        ->and(array_diff($standalone, array_keys(Route::getRoutes()->getRoutesByName())))->toBe([])
+        ->and(array_diff(array_map(fn (string $tool): string => app($tool)->name(), $expectedTools), toolCatalog()))->toBe([]);
+});

@@ -49,6 +49,11 @@ return [
     'two_factor_other_factor_needed' => 'Enter a current code from another of your factors, or a recovery code.',
     'two_factor_not_enabled' => 'Two-factor authentication is not on for this account.',
 
+    'one_time_code_subject' => 'Your sign-in code',
+    'one_time_code_line' => 'Your sign-in code is :code.',
+    'one_time_code_expiry' => 'It expires in :minutes minutes and works once.',
+    'one_time_code_ignore' => 'If you did not ask for it, someone may know your password: change it.',
+
     // SCIM provisioning
     'scim_deprovisioned' => 'Deprovisioned from :organization by its identity provider.',
 

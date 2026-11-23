@@ -20,6 +20,7 @@ use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Guardian\Domains\Sso\Policies\SsoConnectionPolicy;
 use RefactorCircus\Guardian\Domains\Sso\Policies\SsoIdentityPolicy;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\OneTimeCodeModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\RecoveryCodeModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Policies\TwoFactorMethodPolicy;
@@ -335,7 +336,8 @@ return [
     | Two-Factor Authentication
     |--------------------------------------------------------------------------
     |
-    | Users enrol an authenticator app (TOTP), and get ten single-use
+    | Users enrol an authenticator app (TOTP) or an email address or phone
+    | number codes are sent to, and get ten single-use
     | recovery codes with their first factor, through the
     | `guardian.two-factor.*` routes. Secrets are encrypted at rest, codes
     | are kept only as HMACs, and a TOTP code is never accepted twice.
@@ -344,6 +346,11 @@ return [
     |           `guardian.two-factor` middleware on your routes, a user
     |           without a factor is refused until they enrol.
     | issuer:   The name authenticator apps show; null uses `app.name`.
+    | one_time_codes.ttl_minutes: How long an email or SMS code is valid.
+    |           Each code is six digits, single use, with five attempts;
+    |           at most one is sent per minute per user. Email codes go out
+    |           as a mail notification; bind your own `OneTimeCodeChannel`
+    |           to send SMS.
     |
     | SECURITY: removing a factor needs a code from another one, or a
     | recovery code; an admin with `guardian.two-factor.manage` can reset a
@@ -354,6 +361,9 @@ return [
     'two_factor' => [
         'required' => false,
         'issuer' => null,
+        'one_time_codes' => [
+            'ttl_minutes' => 10,
+        ],
     ],
 
     /*
@@ -381,6 +391,7 @@ return [
         SecurityEventModel::class => SecurityEventPolicy::class,
         TwoFactorMethodModel::class => TwoFactorMethodPolicy::class,
         RecoveryCodeModel::class => TwoFactorMethodPolicy::class,
+        OneTimeCodeModel::class => TwoFactorMethodPolicy::class,
     ],
 
     /*

@@ -2,13 +2,20 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\RateLimiter;
+use RefactorCircus\Guardian\Domains\TwoFactor\Actions\ConfirmOneTimeCodeAction;
 use RefactorCircus\Guardian\Domains\TwoFactor\Actions\ConfirmTotpAction;
+use RefactorCircus\Guardian\Domains\TwoFactor\Actions\StartOneTimeCodeEnrolmentAction;
 use RefactorCircus\Guardian\Domains\TwoFactor\Actions\StartTotpEnrolmentAction;
+use RefactorCircus\Guardian\Domains\TwoFactor\Contracts\OneTimeCodeChannel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Data\ConfirmedFactor;
+use RefactorCircus\Guardian\Domains\TwoFactor\Data\ConfirmOneTimeCodeData;
 use RefactorCircus\Guardian\Domains\TwoFactor\Data\ConfirmTotpData;
+use RefactorCircus\Guardian\Domains\TwoFactor\Data\StartOneTimeCodeEnrolmentData;
 use RefactorCircus\Guardian\Domains\TwoFactor\Data\StartTotpEnrolmentData;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Services\Totp;
+use RefactorCircus\Guardian\Tests\Fixtures\FakeOneTimeCodeChannel;
 use Workbench\App\Models\User;
 
 /**
@@ -39,4 +46,29 @@ function enrolTotp(User $user, string $label = 'Phone'): array
     $method = $confirmed->factor;
 
     return [$method->refresh(), $enrolment->secret, $confirmed->recoveryCodes];
+}
+
+/**
+ * Bind a fake channel (email and SMS unless told otherwise) and answer it.
+ *
+ * @param  list<string>  $types
+ */
+function fakeOneTimeCodeChannel(array $types = ['email', 'sms']): FakeOneTimeCodeChannel
+{
+    $channel = new FakeOneTimeCodeChannel($types);
+    app()->instance(OneTimeCodeChannel::class, $channel);
+
+    return $channel;
+}
+
+/**
+ * Enrol and confirm an email or SMS method through the fake channel.
+ */
+function enrolOneTimeCode(User $user, FakeOneTimeCodeChannel $channel, string $type = 'email', ?string $destination = null): TwoFactorMethodModel
+{
+    $method = app(StartOneTimeCodeEnrolmentAction::class)->execute($user, new StartOneTimeCodeEnrolmentData(type: $type, destination: $destination ?? ($type === 'email' ? 'ada@example.com' : '+447700900123')));
+    app(ConfirmOneTimeCodeAction::class)->execute($user, new ConfirmOneTimeCodeData(type: $type, code: $channel->lastCode()));
+    RateLimiter::clear('guardian-two-factor-send:'.$user->getKey());
+
+    return $method->refresh();
 }

@@ -94,6 +94,8 @@ function apiRoutes(): array
         'two-factor.show' => ['GET', 'guardian.two-factor.show', fn (): array => [], []],
         'two-factor.totp.store' => ['POST', 'guardian.two-factor.totp.store', fn (): array => [], []],
         'two-factor.totp.confirm' => ['POST', 'guardian.two-factor.totp.confirm', fn (): array => [], ['code' => '123456']],
+        'two-factor.one-time-codes.store' => ['POST', 'guardian.two-factor.one-time-codes.store', fn (): array => [], ['type' => 'email', 'destination' => 'me@example.com']],
+        'two-factor.one-time-codes.confirm' => ['POST', 'guardian.two-factor.one-time-codes.confirm', fn (): array => [], ['type' => 'email', 'code' => '123456']],
         'two-factor.recovery-codes.store' => ['POST', 'guardian.two-factor.recovery-codes.store', fn (): array => [], []],
         'two-factor.methods.destroy' => ['DELETE', 'guardian.two-factor.methods.destroy', fn (array $w): array => [$w['twoFactorMethod']->id], []],
         'users.two-factor.destroy' => ['DELETE', 'guardian.users.two-factor.destroy', $user, []],
@@ -110,6 +112,8 @@ const SELF_SERVICE_ROUTES = [
     'two-factor.show',
     'two-factor.totp.store',
     'two-factor.totp.confirm',
+    'two-factor.one-time-codes.store',
+    'two-factor.one-time-codes.confirm',
     'two-factor.recovery-codes.store',
     'two-factor.methods.destroy',
 ];

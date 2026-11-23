@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace RefactorCircus\Guardian\Domains\TwoFactor;
 
+use RefactorCircus\Guardian\Domains\TwoFactor\Channels\MailOneTimeCodeChannel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Contracts\OneTimeCodeChannel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Contracts\TwoFactorRequirement;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Services\PolicyTwoFactorRequirement;
@@ -22,6 +24,9 @@ class TwoFactorServiceProvider extends ServiceProvider
     {
         // A host binds its own to decide who must use two-factor.
         $this->app->bindIf(TwoFactorRequirement::class, PolicyTwoFactorRequirement::class);
+
+        // A host binds its own to send SMS codes, or email its own way.
+        $this->app->bindIf(OneTimeCodeChannel::class, MailOneTimeCodeChannel::class);
     }
 
     public function boot(): void

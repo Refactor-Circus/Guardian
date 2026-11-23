@@ -106,6 +106,10 @@ const PARITY_EXCEPTIONS = [
     'StartTotpEnrolmentAction' => ['mcp'],
     'ConfirmTotpAction' => ['mcp'],
     'RegenerateRecoveryCodesAction' => ['mcp'],
+    // Enrolling an email address or phone number sends a code an agent
+    // would then read back (D-021).
+    'StartOneTimeCodeEnrolmentAction' => ['mcp'],
+    'ConfirmOneTimeCodeAction' => ['mcp'],
 ];
 
 /**

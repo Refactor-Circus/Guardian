@@ -20,6 +20,7 @@ final class Factors
     public function __construct(
         private readonly Totp $totp,
         private readonly RecoveryCodes $recoveryCodes,
+        private readonly OneTimeCodes $oneTimeCodes,
     ) {}
 
     /**
@@ -29,7 +30,15 @@ final class Factors
      */
     public function available(): array
     {
-        return [TwoFactorMethodType::Totp->value];
+        $types = [TwoFactorMethodType::Totp->value];
+
+        foreach ([TwoFactorMethodType::Email, TwoFactorMethodType::Sms] as $type) {
+            if ($this->oneTimeCodes->supports($type->value)) {
+                $types[] = $type->value;
+            }
+        }
+
+        return $types;
     }
 
     /**
@@ -60,8 +69,9 @@ final class Factors
     }
 
     /**
-     * Which factor a code proves, other than the method named: `totp`, or
-     * `recovery` (the recovery code is then used up); null for none.
+     * Which factor a code proves, other than the method named: `totp`, a
+     * sent code's `email` or `sms`, or `recovery` (a recovery code or sent
+     * code is then used up); null for none.
      */
     public function verify(Authenticatable $user, #[SensitiveParameter] ?string $code, ?string $exceptMethod = null): ?string
     {
@@ -76,13 +86,12 @@ final class Factors
         }
 
         $methods = TwoFactorMethodModel::query()->ownedBy(UserKeys::of($user))->confirmed()
-            ->where('type', TwoFactorMethodType::Totp->value)
             ->when($exceptMethod !== null, fn (Builder $query): Builder => $query->whereKeyNot($exceptMethod))
             ->get();
 
         foreach ($methods as $method) {
-            if ($this->useTotp($method, $code)) {
-                return 'totp';
+            if ($method->type === TwoFactorMethodType::Totp ? $this->useTotp($method, $code) : $this->oneTimeCodes->verify($method, $code)) {
+                return $method->type->value;
             }
         }
 

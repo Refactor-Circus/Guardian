@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace RefactorCircus\Guardian\Domains\TwoFactor\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
+use RefactorCircus\Guardian\Domains\TwoFactor\Http\Requests\ConfirmOneTimeCodeRequest;
 use RefactorCircus\Guardian\Domains\TwoFactor\Http\Requests\ConfirmTotpRequest;
 use RefactorCircus\Guardian\Domains\TwoFactor\Http\Requests\DestroyTwoFactorMethodRequest;
 use RefactorCircus\Guardian\Domains\TwoFactor\Http\Requests\DestroyUserTwoFactorRequest;
 use RefactorCircus\Guardian\Domains\TwoFactor\Http\Requests\ShowTwoFactorRequest;
+use RefactorCircus\Guardian\Domains\TwoFactor\Http\Requests\StoreOneTimeCodeRequest;
 use RefactorCircus\Guardian\Domains\TwoFactor\Http\Requests\StoreRecoveryCodesRequest;
 use RefactorCircus\Guardian\Domains\TwoFactor\Http\Requests\StoreTotpRequest;
 
@@ -25,6 +27,16 @@ final class TwoFactorController
     }
 
     public function confirmTotp(ConfirmTotpRequest $request): JsonResponse
+    {
+        return $request->persist();
+    }
+
+    public function storeOneTimeCode(StoreOneTimeCodeRequest $request): JsonResponse
+    {
+        return $request->persist();
+    }
+
+    public function confirmOneTimeCode(ConfirmOneTimeCodeRequest $request): JsonResponse
     {
         return $request->persist();
     }

@@ -114,10 +114,10 @@ depends on: 10
 files: src/Domains/TwoFactor/Contracts/OneTimeCodeChannel.php, src/Domains/TwoFactor/Channels/MailOneTimeCodeChannel.php, src/Domains/TwoFactor/Notifications/OneTimeCodeNotification.php, src/Domains/TwoFactor/Models/OneTimeCodeModel.php, src/Domains/TwoFactor/Services/OneTimeCodes.php, src/Domains/TwoFactor/Actions/{StartOneTimeCodeEnrolmentAction,ConfirmOneTimeCodeAction}.php, src/Domains/TwoFactor/Http/**, src/Domains/TwoFactor/routes.php, src/Domains/TwoFactor/TwoFactorServiceProvider.php, tests/Fixtures/FakeOneTimeCodeChannel.php, tests/Feature/TwoFactor/OneTimeCodesTest.php
 criteria: 29
 
-- [ ] 11.1 Write tests with the fake channel: email enrolment sends and confirms; SMS answers 422 `method_unavailable` with the default channel and works with a fake supporting it; codes hashed, expire, 5 attempts, single use; resend limited to one per 60s; mail notification content without the destination in logs
-- [ ] 11.2 Add the contract, the mail channel and notification, the model and the service
-- [ ] 11.3 Add the enrolment actions and routes, and bind the default channel
-- [ ] 11.4 Run vendor/bin/pest; all green
+- [x] 11.1 Write tests with the fake channel: email enrolment sends and confirms; SMS answers 422 `method_unavailable` with the default channel and works with a fake supporting it; codes hashed, expire, 5 attempts, single use; resend limited to one per 60s; mail notification content without the destination in logs
+- [x] 11.2 Add the contract, the mail channel and notification, the model and the service
+- [x] 11.3 Add the enrolment actions and routes, and bind the default channel
+- [x] 11.4 Run vendor/bin/pest; all green
 
 ## Group 12: Passkeys (WebAuthn)
 depends on: 11

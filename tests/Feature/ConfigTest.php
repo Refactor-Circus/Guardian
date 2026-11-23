@@ -21,6 +21,7 @@ use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Guardian\Domains\Sso\Policies\SsoConnectionPolicy;
 use RefactorCircus\Guardian\Domains\Sso\Policies\SsoIdentityPolicy;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\OneTimeCodeModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\RecoveryCodeModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Policies\TwoFactorMethodPolicy;
@@ -175,6 +176,7 @@ it('maps every model to its policy and every table to its default name', functio
         SecurityEventModel::class => SecurityEventPolicy::class,
         TwoFactorMethodModel::class => TwoFactorMethodPolicy::class,
         RecoveryCodeModel::class => TwoFactorMethodPolicy::class,
+        OneTimeCodeModel::class => TwoFactorMethodPolicy::class,
     ])->and($config['tables'])->toBe([
         'sso_connections' => 'guardian_sso_connections',
         'sso_identities' => 'guardian_sso_identities',
@@ -223,6 +225,7 @@ it('has the two-factor defaults', function (): void {
     expect(shippedGuardianConfig()['two_factor'])->toBe([
         'required' => false,
         'issuer' => null,
+        'one_time_codes' => ['ttl_minutes' => 10],
     ]);
 });
 

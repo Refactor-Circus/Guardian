@@ -155,10 +155,10 @@ depends on: 14
 files: database/migrations/2026_11_24_000007_create_guardian_session_tables.php, src/Domains/Session/** (new: Models/{DeviceModel,SessionModel}.php, Services/{Devices,SessionKeys}.php, Listeners/TrackSignIn.php, Http/Middleware/TrackSession.php, Notifications/NewDeviceSignInNotification.php, Actions/{ListSessionsAction,RevokeSessionAction,RevokeOtherSessionsAction,ListUserSessionsAction,RevokeUserSessionsAction,ListDevicesAction,ForgetDeviceAction}.php, Data/*, Events/*, Policies/*, Resources/*, Http/**, Mcp/**, routes.php, SessionServiceProvider.php), src/Domains/DomainServiceProvider.php, src/GuardianServiceProvider.php, src/Mcp/GuardianServer.php, config/guardian.php, tests/Feature/Session/*, tests/Feature/Http/SessionsHttpTest.php, tests/Feature/Mcp/SessionToolsTest.php
 criteria: 35, 36, 37, 38
 
-- [ ] 15.1 Write tests: Tables; sign-in creates the device and session, and the record survives `session()->regenerate()`; touch throttling; a revoked session logs out with 401 `session_revoked`; the new-device notice: not for the first device, off by config, `device.new` recorded; own list with the current one flagged; revoke one; sign out others with and without `tokens` (a fake driver until group 17); the admin routes with `guardian.sessions.manage`; devices list and forget; MCP; events
-- [ ] 15.2 Add the migration, models and services, the `Login` listener and `TrackSession` (alias `guardian.session`)
-- [ ] 15.3 Add the actions, policies, resources, routes, MCP tools and notification, plus the `sessions` and `devices` config
-- [ ] 15.4 Run vendor/bin/pest; all green
+- [x] 15.1 Write tests: Tables; sign-in creates the device and session, and the record survives `session()->regenerate()`; touch throttling; a revoked session logs out with 401 `session_revoked`; the new-device notice: not for the first device, off by config, `device.new` recorded; own list with the current one flagged; revoke one; sign out others with and without `tokens` (a fake driver until group 17); the admin routes with `guardian.sessions.manage`; devices list and forget; MCP; events
+- [x] 15.2 Add the migration, models and services, the `Login` listener and `TrackSession` (alias `guardian.session`)
+- [x] 15.3 Add the actions, policies, resources, routes, MCP tools and notification, plus the `sessions` and `devices` config
+- [x] 15.4 Run vendor/bin/pest; all green
 
 ## Group 16: Password policy
 depends on: 15

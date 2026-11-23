@@ -17,6 +17,9 @@ use RefactorCircus\Guardian\Domains\Scim\Policies\ScimTokenPolicy;
 use RefactorCircus\Guardian\Domains\Scim\Policies\ScimUserPolicy;
 use RefactorCircus\Guardian\Domains\SecurityEvent\Models\SecurityEventModel;
 use RefactorCircus\Guardian\Domains\SecurityEvent\Policies\SecurityEventPolicy;
+use RefactorCircus\Guardian\Domains\Session\Models\DeviceModel;
+use RefactorCircus\Guardian\Domains\Session\Models\SessionModel;
+use RefactorCircus\Guardian\Domains\Session\Policies\SessionPolicy;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Guardian\Domains\Sso\Policies\SsoConnectionPolicy;
@@ -182,6 +185,8 @@ it('maps every model to its policy and every table to its default name', functio
         OneTimeCodeModel::class => TwoFactorMethodPolicy::class,
         PasskeyModel::class => TwoFactorMethodPolicy::class,
         TwoFactorPolicyModel::class => TwoFactorPolicyPolicy::class,
+        DeviceModel::class => SessionPolicy::class,
+        SessionModel::class => SessionPolicy::class,
     ])->and($config['tables'])->toBe([
         'sso_connections' => 'guardian_sso_connections',
         'sso_identities' => 'guardian_sso_identities',
@@ -198,6 +203,8 @@ it('maps every model to its policy and every table to its default name', functio
         'passkeys' => 'guardian_passkeys',
         'one_time_codes' => 'guardian_one_time_codes',
         'two_factor_policies' => 'guardian_two_factor_policies',
+        'devices' => 'guardian_devices',
+        'sessions' => 'guardian_sessions',
     ]);
 });
 
@@ -236,6 +243,11 @@ it('has the two-factor defaults', function (): void {
     ]);
 });
 
+it('has the session and device defaults', function (): void {
+    expect(shippedGuardianConfig()['sessions'])->toBe(['touch_seconds' => 60])
+        ->and(shippedGuardianConfig()['devices'])->toBe(['notify' => true, 'notify_via' => ['mail']]);
+});
+
 it('has the security log defaults', function (): void {
     expect(shippedGuardianConfig()['security_log'])->toBe([
         'enabled' => true,
@@ -248,7 +260,7 @@ it('has exactly the documented sections, each under a banner', function (): void
     $source = (string) file_get_contents(dirname(__DIR__, 2).'/config/guardian.php');
 
     expect(array_keys(shippedGuardianConfig()))->toBe([
-        'sso', 'scim', 'routes', 'authorization', 'super_admins', 'permission_cache', 'rate_limit', 'audit', 'users', 'roles', 'adopt', 'security_log', 'two_factor', 'policies', 'tables', 'mcp', 'cortex', 'migrations',
+        'sso', 'scim', 'routes', 'authorization', 'super_admins', 'permission_cache', 'rate_limit', 'audit', 'users', 'roles', 'adopt', 'security_log', 'two_factor', 'sessions', 'devices', 'policies', 'tables', 'mcp', 'cortex', 'migrations',
     ])->and(substr_count($source, '|--------------------------------------------------------------------------'))
         ->toBe(2 * count(shippedGuardianConfig()));
 });

@@ -29,6 +29,13 @@ use RefactorCircus\Guardian\Domains\Scim\Mcp\Tools\RevokeScimTokenTool;
 use RefactorCircus\Guardian\Domains\SecurityEvent\Mcp\Tools\ListMySecurityEventsTool;
 use RefactorCircus\Guardian\Domains\SecurityEvent\Mcp\Tools\ListSecurityEventsTool;
 use RefactorCircus\Guardian\Domains\SecurityEvent\Mcp\Tools\ShowSecurityEventTool;
+use RefactorCircus\Guardian\Domains\Session\Mcp\Tools\ForgetDeviceTool;
+use RefactorCircus\Guardian\Domains\Session\Mcp\Tools\ListDevicesTool;
+use RefactorCircus\Guardian\Domains\Session\Mcp\Tools\ListSessionsTool;
+use RefactorCircus\Guardian\Domains\Session\Mcp\Tools\ListUserSessionsTool;
+use RefactorCircus\Guardian\Domains\Session\Mcp\Tools\RevokeOtherSessionsTool;
+use RefactorCircus\Guardian\Domains\Session\Mcp\Tools\RevokeSessionTool;
+use RefactorCircus\Guardian\Domains\Session\Mcp\Tools\RevokeUserSessionsTool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\CreateSsoConnectionTool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\DeleteSsoConnectionTool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\ListSsoConnectionsTool;
@@ -51,11 +58,11 @@ use RefactorCircus\Keystone\Mcp\Server;
 #[Name('Guardian')]
 #[Version('1.0.0')]
 #[Instructions(
-    'Manage roles, permissions and who holds them, read the security log, see and reset two-factor and set who must use it, and manage the single sign-on connections, linked sign-in identities '.
+    'Manage roles, permissions and who holds them, read the security log, see and reset two-factor and set who must use it, see and revoke sessions and devices, and manage the single sign-on connections, linked sign-in identities '.
     'and SCIM provisioning tokens of Roster organizations. Every call acts as the signed-in user and needs the '.
     'matching guardian.* permission (guardian.roles.view, guardian.roles.manage, guardian.roles.assign, '.
-    'guardian.security.view, guardian.two-factor.manage, guardian.sso.view, guardian.sso.manage, guardian.scim.manage) in the scope it is '.
-    'about; everyone may read their own security events and two-factor status.',
+    'guardian.security.view, guardian.two-factor.manage, guardian.sessions.manage, guardian.sso.view, guardian.sso.manage, guardian.scim.manage) in the scope it is '.
+    'about; everyone may read their own security events and two-factor status and manage their own sessions and devices.',
 )]
 final class GuardianServer extends Server
 {
@@ -95,6 +102,14 @@ final class GuardianServer extends Server
         CreateTwoFactorPolicyTool::class,
         UpdateTwoFactorPolicyTool::class,
         DeleteTwoFactorPolicyTool::class,
+        // Sessions and devices
+        ListSessionsTool::class,
+        RevokeSessionTool::class,
+        RevokeOtherSessionsTool::class,
+        ListUserSessionsTool::class,
+        RevokeUserSessionsTool::class,
+        ListDevicesTool::class,
+        ForgetDeviceTool::class,
         // Single sign-on
         ListSsoConnectionsTool::class,
         ShowSsoConnectionTool::class,

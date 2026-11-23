@@ -9,6 +9,7 @@ use RefactorCircus\Guardian\Domains\Permission\PermissionServiceProvider;
 use RefactorCircus\Guardian\Domains\Role\RoleServiceProvider;
 use RefactorCircus\Guardian\Domains\Scim\ScimServiceProvider;
 use RefactorCircus\Guardian\Domains\SecurityEvent\SecurityEventServiceProvider;
+use RefactorCircus\Guardian\Domains\Session\SessionServiceProvider;
 use RefactorCircus\Guardian\Domains\Sso\SsoServiceProvider;
 use RefactorCircus\Guardian\Domains\TwoFactor\TwoFactorServiceProvider;
 use RefactorCircus\Guardian\Support\Integration;
@@ -31,6 +32,7 @@ final class DomainServiceProvider extends ServiceProvider
         PermissionServiceProvider::class,
         SecurityEventServiceProvider::class,
         TwoFactorServiceProvider::class,
+        SessionServiceProvider::class,
     ];
 
     public function register(): void

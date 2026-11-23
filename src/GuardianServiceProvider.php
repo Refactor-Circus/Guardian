@@ -19,6 +19,7 @@ use RefactorCircus\Guardian\Console\Commands\UpgradeFromRosterCommand;
 use RefactorCircus\Guardian\Domains\DomainServiceProvider;
 use RefactorCircus\Guardian\Domains\Permission\Services\GuardianPermissions;
 use RefactorCircus\Guardian\Domains\Role\Services\GuardianRoles;
+use RefactorCircus\Guardian\Domains\Session\Http\Middleware\TrackSession;
 use RefactorCircus\Guardian\Domains\TwoFactor\Http\Middleware\EnsureTwoFactor;
 use RefactorCircus\Guardian\Exceptions\StrandedTablesException;
 use RefactorCircus\Guardian\Mcp\GuardianServer;
@@ -175,6 +176,7 @@ class GuardianServiceProvider extends PackageServiceProvider
         $router = $this->app->make(Router::class);
 
         $router->aliasMiddleware('guardian.two-factor', EnsureTwoFactor::class);
+        $router->aliasMiddleware('guardian.session', TrackSession::class);
     }
 
     private function binds(): bool

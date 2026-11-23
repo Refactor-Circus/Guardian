@@ -8,6 +8,8 @@ use RefactorCircus\Guardian\Domains\Scim\Models\ScimTokenModel;
 use RefactorCircus\Guardian\Domains\SecurityEvent\Actions\RecordSecurityEventAction;
 use RefactorCircus\Guardian\Domains\SecurityEvent\Data\RecordSecurityEventData;
 use RefactorCircus\Guardian\Domains\SecurityEvent\Enums\SecurityEventType;
+use RefactorCircus\Guardian\Domains\Session\Models\DeviceModel;
+use RefactorCircus\Guardian\Domains\Session\Models\SessionModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Enums\TwoFactorMethodType;
@@ -48,9 +50,12 @@ function authorizationWorld(): array
 
     $twoFactorPolicy = TwoFactorPolicyModel::query()->create(['role' => 'editor', 'required' => false]);
 
+    $device = DeviceModel::query()->create(['user_id' => $target->getKey(), 'fingerprint_hash' => 'target-device', 'first_seen_at' => now(), 'last_seen_at' => now()]);
+    $session = SessionModel::query()->create(['user_id' => $target->getKey(), 'device_id' => $device->id, 'key_hash' => 'target-session', 'last_active_at' => now()]);
+
     $securityEvent = app(RecordSecurityEventAction::class)->execute(new RecordSecurityEventData(type: SecurityEventType::LoginSucceeded, user: (string) $target->getKey()));
 
-    return compact('acme', 'target', 'connection', 'identity', 'scimToken', 'role', 'assignment', 'securityEvent', 'twoFactorMethod', 'passkey', 'twoFactorPolicy');
+    return compact('acme', 'target', 'connection', 'identity', 'scimToken', 'role', 'assignment', 'securityEvent', 'twoFactorMethod', 'passkey', 'twoFactorPolicy', 'device', 'session');
 }
 
 /**
@@ -116,6 +121,13 @@ function apiRoutes(): array
         'two-factor-policies.store' => ['POST', 'guardian.two-factor-policies.store', fn (): array => [], []],
         'two-factor-policies.update' => ['PATCH', 'guardian.two-factor-policies.update', fn (array $w): array => [$w['twoFactorPolicy']->id], ['grace_days' => 3]],
         'two-factor-policies.destroy' => ['DELETE', 'guardian.two-factor-policies.destroy', fn (array $w): array => [$w['twoFactorPolicy']->id], []],
+        'sessions.index' => ['GET', 'guardian.sessions.index', fn (): array => [], []],
+        'sessions.others.destroy' => ['DELETE', 'guardian.sessions.others.destroy', fn (): array => [], []],
+        'sessions.destroy' => ['DELETE', 'guardian.sessions.destroy', fn (array $w): array => [$w['session']->id], []],
+        'devices.index' => ['GET', 'guardian.devices.index', fn (): array => [], []],
+        'devices.destroy' => ['DELETE', 'guardian.devices.destroy', fn (array $w): array => [$w['device']->id], []],
+        'users.sessions.index' => ['GET', 'guardian.users.sessions.index', $user, []],
+        'users.sessions.destroy' => ['DELETE', 'guardian.users.sessions.destroy', $user, []],
         'users.two-factor.destroy' => ['DELETE', 'guardian.users.two-factor.destroy', $user, []],
         'scim-tokens.destroy' => ['DELETE', 'guardian.scim-tokens.destroy', fn (array $w): array => [$w['scimToken']->id], []],
     ];
@@ -141,6 +153,11 @@ const SELF_SERVICE_ROUTES = [
     'two-factor.challenge.passkey-options',
     'two-factor.recovery-codes.store',
     'two-factor.methods.destroy',
+    'sessions.index',
+    'sessions.others.destroy',
+    'sessions.destroy',
+    'devices.index',
+    'devices.destroy',
 ];
 
 /**

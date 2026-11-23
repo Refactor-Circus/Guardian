@@ -16,6 +16,9 @@ use RefactorCircus\Guardian\Domains\Scim\Policies\ScimTokenPolicy;
 use RefactorCircus\Guardian\Domains\Scim\Policies\ScimUserPolicy;
 use RefactorCircus\Guardian\Domains\SecurityEvent\Models\SecurityEventModel;
 use RefactorCircus\Guardian\Domains\SecurityEvent\Policies\SecurityEventPolicy;
+use RefactorCircus\Guardian\Domains\Session\Models\DeviceModel;
+use RefactorCircus\Guardian\Domains\Session\Models\SessionModel;
+use RefactorCircus\Guardian\Domains\Session\Policies\SessionPolicy;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Guardian\Domains\Sso\Policies\SsoConnectionPolicy;
@@ -385,6 +388,48 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Sessions
+    |--------------------------------------------------------------------------
+    |
+    | Guardian records every signed-in session (on Laravel's `Login` event)
+    | so users can see where they are signed in and sign other sessions out
+    | through the `guardian.sessions.*` routes and tools. Put the
+    | `guardian.session` middleware on your authenticated routes: it keeps
+    | the record's activity current and signs a revoked session out with a
+    | 401 `session_revoked`. Works with every session driver; Guardian keeps
+    | a random key in the session and stores only its hash, never the
+    | session id.
+    |
+    | touch_seconds: How often, at most, a request updates the session's
+    |                last activity.
+    |
+    */
+
+    'sessions' => [
+        'touch_seconds' => 60,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Devices
+    |--------------------------------------------------------------------------
+    |
+    | The browsers a user signs in from, told apart by an HMAC of the user
+    | agent. The first sign-in from a new device, for a user who already
+    | has another, is recorded as `device.new` and the user is told.
+    |
+    | notify:     Send the new-device notice.
+    | notify_via: The notification channels it goes through.
+    |
+    */
+
+    'devices' => [
+        'notify' => true,
+        'notify_via' => ['mail'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Policies
     |--------------------------------------------------------------------------
     |
@@ -411,6 +456,8 @@ return [
         OneTimeCodeModel::class => TwoFactorMethodPolicy::class,
         PasskeyModel::class => TwoFactorMethodPolicy::class,
         TwoFactorPolicyModel::class => TwoFactorPolicyPolicy::class,
+        DeviceModel::class => SessionPolicy::class,
+        SessionModel::class => SessionPolicy::class,
     ],
 
     /*
@@ -440,6 +487,8 @@ return [
         'passkeys' => 'guardian_passkeys',
         'one_time_codes' => 'guardian_one_time_codes',
         'two_factor_policies' => 'guardian_two_factor_policies',
+        'devices' => 'guardian_devices',
+        'sessions' => 'guardian_sessions',
     ],
 
     /*

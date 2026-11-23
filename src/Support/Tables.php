@@ -37,5 +37,7 @@ final class Tables extends KeystoneTables
         'passkeys' => 'guardian_passkeys',
         'one_time_codes' => 'guardian_one_time_codes',
         'two_factor_policies' => 'guardian_two_factor_policies',
+        'devices' => 'guardian_devices',
+        'sessions' => 'guardian_sessions',
     ];
 }

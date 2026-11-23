@@ -63,6 +63,14 @@ return [
     'one_time_code_expiry' => 'It expires in :minutes minutes and works once.',
     'one_time_code_ignore' => 'If you did not ask for it, someone may know your password: change it.',
 
+    // Sessions and devices
+    'session_revoked' => 'This session was signed out. Sign in again.',
+    'new_device_subject' => 'New sign-in to your account',
+    'new_device_line' => 'Your account was just signed in to from a new device: :device.',
+    'new_device_where' => 'From :ip at :time.',
+    'new_device_ignore' => 'If this was you, there is nothing to do. If not, change your password and sign out your other sessions.',
+    'unknown_device' => 'an unknown device',
+
     // SCIM provisioning
     'scim_deprovisioned' => 'Deprovisioned from :organization by its identity provider.',
 

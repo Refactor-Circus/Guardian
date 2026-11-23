@@ -6,8 +6,14 @@ namespace RefactorCircus\Guardian\Domains\TwoFactor\Services;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
+use RefactorCircus\Guardian\Domains\SecurityEvent\Enums\SecurityEventType;
 use RefactorCircus\Guardian\Domains\TwoFactor\Enums\TwoFactorMethodType;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\PasskeyModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Passkeys\PasskeyCeremony;
+use RefactorCircus\Guardian\Domains\TwoFactor\Passkeys\PasskeyException;
+use RefactorCircus\Guardian\Domains\TwoFactor\Passkeys\PasskeysAvailable;
 use RefactorCircus\Guardian\Domains\TwoFactor\Support\UserKeys;
 use SensitiveParameter;
 
@@ -21,6 +27,9 @@ final class Factors
         private readonly Totp $totp,
         private readonly RecoveryCodes $recoveryCodes,
         private readonly OneTimeCodes $oneTimeCodes,
+        private readonly PasskeysAvailable $passkeys,
+        private readonly PasskeyCeremony $ceremony,
+        private readonly SecurityLog $log,
     ) {}
 
     /**
@@ -38,6 +47,10 @@ final class Factors
             }
         }
 
+        if ($this->passkeys->available()) {
+            $types[] = 'passkey';
+        }
+
         return $types;
     }
 
@@ -48,8 +61,9 @@ final class Factors
      */
     public function confirmedTypes(Authenticatable $user): array
     {
-        $types = TwoFactorMethodModel::query()->ownedBy(UserKeys::of($user))->confirmed()->get()
+        $types = TwoFactorMethodModel::query()->ownedBy(UserKeys::of($user))->confirmed()->get()->toBase()
             ->map(fn (TwoFactorMethodModel $method): string => $method->type->value)
+            ->when(PasskeyModel::query()->ownedBy(UserKeys::of($user))->exists(), fn (Collection $types): Collection => $types->push('passkey'))
             ->unique()
             ->sort()
             ->values()
@@ -59,13 +73,60 @@ final class Factors
     }
 
     /**
-     * Whether the user holds a confirmed factor, other than the one named.
+     * Whether the user holds a confirmed factor (a method or a passkey),
+     * other than the one named.
      */
-    public function has(Authenticatable $user, ?string $exceptMethod = null): bool
+    public function has(Authenticatable $user, ?string $except = null): bool
     {
         return TwoFactorMethodModel::query()->ownedBy(UserKeys::of($user))->confirmed()
-            ->when($exceptMethod !== null, fn (Builder $query): Builder => $query->whereKeyNot($exceptMethod))
-            ->exists();
+            ->when($except !== null, fn (Builder $query): Builder => $query->whereKeyNot($except))
+            ->exists()
+            || PasskeyModel::query()->ownedBy(UserKeys::of($user))
+                ->when($except !== null, fn (Builder $query): Builder => $query->whereKeyNot($except))
+                ->exists();
+    }
+
+    /**
+     * Whether an assertion proves one of the user's passkeys (other than the
+     * one named) against the assertion options kept for them: `passkey`, or
+     * null. The passkey's counter moves forward; one that did not is refused
+     * and recorded as `passkey.sign_count_mismatch`.
+     *
+     * @param  array<string, mixed>|null  $assertion
+     */
+    public function verifyAssertion(Authenticatable $user, ?array $assertion, ?string $except = null): ?string
+    {
+        if ($assertion === null || $assertion === [] || ! $this->passkeys->available()) {
+            return null;
+        }
+
+        $credentialId = $this->ceremony->credentialIdOf($assertion);
+        $passkey = $credentialId === null ? null : PasskeyModel::query()->ownedBy(UserKeys::of($user))
+            ->where('credential_id', $credentialId)
+            ->when($except !== null, fn (Builder $query): Builder => $query->whereKeyNot($except))
+            ->first();
+
+        if ($passkey === null) {
+            return null;
+        }
+
+        try {
+            $count = $this->ceremony->verifyAssertion($user, $passkey, $assertion);
+        } catch (PasskeyException $e) {
+            if ($e->signCountMismatch) {
+                $this->log->record(SecurityEventType::PasskeySignCountMismatch, $user, ['passkey_id' => $passkey->id]);
+            }
+
+            return null;
+        }
+
+        // Only a counter that moves forward (or a zero counter the
+        // authenticator does not keep) is recorded.
+        $updated = PasskeyModel::query()->whereKey($passkey->id)
+            ->where(fn (Builder $query): Builder => $query->where('sign_count', '<', $count)->orWhere(fn (Builder $zero): Builder => $zero->where('sign_count', 0)->where('sign_count', $count)))
+            ->update(['sign_count' => $count, 'last_used_at' => now()]);
+
+        return $updated === 1 ? 'passkey' : null;
     }
 
     /**

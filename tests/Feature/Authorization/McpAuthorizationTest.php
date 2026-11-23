@@ -5,6 +5,8 @@ declare(strict_types=1);
 require_once __DIR__.'/fixtures.php';
 
 use RefactorCircus\Guardian\Domains\SecurityEvent\Mcp\Tools\ListMySecurityEventsTool;
+use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\ListPasskeysTool;
+use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\RemovePasskeyTool;
 use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\RemoveTwoFactorMethodTool;
 use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\ShowTwoFactorTool;
 use RefactorCircus\Guardian\Mcp\GuardianServer;
@@ -12,7 +14,7 @@ use RefactorCircus\Guardian\Mcp\GuardianServer;
 /**
  * Tools every signed-in user may use on themselves.
  */
-const SELF_SERVICE_TOOLS = [ListMySecurityEventsTool::class, ShowTwoFactorTool::class, RemoveTwoFactorMethodTool::class];
+const SELF_SERVICE_TOOLS = [ListMySecurityEventsTool::class, ShowTwoFactorTool::class, RemoveTwoFactorMethodTool::class, ListPasskeysTool::class, RemovePasskeyTool::class];
 
 // The SSO and SCIM cases of Roster's tests/Authorization/McpAuthorizationTest.php at
 // the pinned SHA, against GuardianServer.
@@ -45,6 +47,7 @@ function toolArguments(): array
             'ShowSecurityEventTool' => fn (array $w): array => ['event' => $w['securityEvent']->id],
             'ResetTwoFactorTool' => fn (array $w): array => ['user' => (string) $w['target']->getKey()],
             'RemoveTwoFactorMethodTool' => fn (array $w): array => ['method' => $w['twoFactorMethod']->id, 'code' => '123456'],
+            'RemovePasskeyTool' => fn (array $w): array => ['passkey' => $w['passkey']->id, 'code' => '123456'],
             'RevokeScimTokenTool' => fn (array $w): array => ['token' => $w['scimToken']->id],
             default => fn (): array => [],
         }])

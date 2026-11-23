@@ -36,6 +36,8 @@ use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\ListSsoIdentitiesTool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\ShowSsoConnectionTool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\UnlinkSsoIdentityTool;
 use RefactorCircus\Guardian\Domains\Sso\Mcp\Tools\UpdateSsoConnectionTool;
+use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\ListPasskeysTool;
+use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\RemovePasskeyTool;
 use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\RemoveTwoFactorMethodTool;
 use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\ResetTwoFactorTool;
 use RefactorCircus\Guardian\Domains\TwoFactor\Mcp\Tools\ShowTwoFactorTool;
@@ -82,6 +84,8 @@ final class GuardianServer extends Server
         // Two-factor
         ShowTwoFactorTool::class,
         RemoveTwoFactorMethodTool::class,
+        ListPasskeysTool::class,
+        RemovePasskeyTool::class,
         ResetTwoFactorTool::class,
         // Single sign-on
         ListSsoConnectionsTool::class,

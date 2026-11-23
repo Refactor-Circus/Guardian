@@ -21,6 +21,7 @@ use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Guardian\Domains\Sso\Policies\SsoConnectionPolicy;
 use RefactorCircus\Guardian\Domains\Sso\Policies\SsoIdentityPolicy;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\OneTimeCodeModel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\PasskeyModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\RecoveryCodeModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Policies\TwoFactorMethodPolicy;
@@ -351,6 +352,11 @@ return [
     |           at most one is sent per minute per user. Email codes go out
     |           as a mail notification; bind your own `OneTimeCodeChannel`
     |           to send SMS.
+    | passkeys: Need web-auth/webauthn-lib (without it every passkey
+    |           endpoint answers 501). `rp_id` is the relying party id
+    |           (null: the host of `app.url`), `rp_name` the name shown
+    |           (null: `app.name`), and `origins` the origins a browser
+    |           may answer from (null: the origin of `app.url`).
     |
     | SECURITY: removing a factor needs a code from another one, or a
     | recovery code; an admin with `guardian.two-factor.manage` can reset a
@@ -363,6 +369,11 @@ return [
         'issuer' => null,
         'one_time_codes' => [
             'ttl_minutes' => 10,
+        ],
+        'passkeys' => [
+            'rp_id' => null,
+            'rp_name' => null,
+            'origins' => null,
         ],
     ],
 
@@ -392,6 +403,7 @@ return [
         TwoFactorMethodModel::class => TwoFactorMethodPolicy::class,
         RecoveryCodeModel::class => TwoFactorMethodPolicy::class,
         OneTimeCodeModel::class => TwoFactorMethodPolicy::class,
+        PasskeyModel::class => TwoFactorMethodPolicy::class,
     ],
 
     /*

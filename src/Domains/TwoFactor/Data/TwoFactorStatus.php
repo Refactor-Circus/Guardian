@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RefactorCircus\Guardian\Domains\TwoFactor\Data;
 
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\PasskeyModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
 
 /**
@@ -15,7 +15,7 @@ final readonly class TwoFactorStatus
 {
     /**
      * @param  Collection<int, TwoFactorMethodModel>  $methods
-     * @param  Collection<int, Model>  $passkeys
+     * @param  Collection<int, PasskeyModel>  $passkeys
      * @param  list<string>  $allowedMethods
      */
     public function __construct(

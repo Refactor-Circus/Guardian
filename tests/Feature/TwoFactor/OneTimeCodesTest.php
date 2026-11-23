@@ -42,7 +42,7 @@ it('binds the mail channel, which sends email and no SMS', function (): void {
     expect($channel)->toBeInstanceOf(MailOneTimeCodeChannel::class)
         ->and($channel->supports('email'))->toBeTrue()
         ->and($channel->supports('sms'))->toBeFalse()
-        ->and(app(Factors::class)->available())->toBe(['totp', 'email']);
+        ->and(app(Factors::class)->available())->toBe(['totp', 'email', 'passkey']);
 });
 
 it('enrols an email address, sends a six-digit code and confirms with it', function (): void {

@@ -8,6 +8,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\PasskeyModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Support\UserKeys;
 use RefactorCircus\Guardian\Support\Users;
@@ -48,6 +49,16 @@ trait NamesTwoFactor
         $id = $this->argument('method');
 
         return TwoFactorMethodModel::query()->ownedBy(UserKeys::of($this->signedIn()))->whereKey(is_scalar($id) ? (string) $id : '')->firstOrFail();
+    }
+
+    /**
+     * One of the signed-in user's passkeys, by the `passkey` argument.
+     */
+    protected function ownPasskey(): PasskeyModel
+    {
+        $id = $this->argument('passkey');
+
+        return PasskeyModel::query()->ownedBy(UserKeys::of($this->signedIn()))->whereKey(is_scalar($id) ? (string) $id : '')->firstOrFail();
     }
 
     /**

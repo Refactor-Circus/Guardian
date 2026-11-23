@@ -36,7 +36,7 @@ final class FactorRemoval
             throw TwoFactorException::required();
         }
 
-        $proof = $this->factors->verify($user, $data->code, $factorId);
+        $proof = $this->factors->verify($user, $data->code, $factorId) ?? $this->factors->verifyAssertion($user, $data->assertion, $factorId);
 
         if ($proof === null) {
             throw ValidationException::withMessages(['code' => __('guardian::guardian.two_factor_other_factor_needed')]);

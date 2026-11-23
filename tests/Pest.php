@@ -110,6 +110,10 @@ const PARITY_EXCEPTIONS = [
     // would then read back (D-021).
     'StartOneTimeCodeEnrolmentAction' => ['mcp'],
     'ConfirmOneTimeCodeAction' => ['mcp'],
+    // A passkey ceremony happens between the browser and its
+    // authenticator; there is nothing an agent could send (D-021).
+    'StartPasskeyRegistrationAction' => ['mcp'],
+    'RegisterPasskeyAction' => ['mcp'],
 ];
 
 /**

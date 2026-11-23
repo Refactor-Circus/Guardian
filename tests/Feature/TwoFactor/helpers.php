@@ -5,17 +5,23 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\RateLimiter;
 use RefactorCircus\Guardian\Domains\TwoFactor\Actions\ConfirmOneTimeCodeAction;
 use RefactorCircus\Guardian\Domains\TwoFactor\Actions\ConfirmTotpAction;
+use RefactorCircus\Guardian\Domains\TwoFactor\Actions\RegisterPasskeyAction;
 use RefactorCircus\Guardian\Domains\TwoFactor\Actions\StartOneTimeCodeEnrolmentAction;
+use RefactorCircus\Guardian\Domains\TwoFactor\Actions\StartPasskeyRegistrationAction;
 use RefactorCircus\Guardian\Domains\TwoFactor\Actions\StartTotpEnrolmentAction;
 use RefactorCircus\Guardian\Domains\TwoFactor\Contracts\OneTimeCodeChannel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Data\ConfirmedFactor;
 use RefactorCircus\Guardian\Domains\TwoFactor\Data\ConfirmOneTimeCodeData;
 use RefactorCircus\Guardian\Domains\TwoFactor\Data\ConfirmTotpData;
+use RefactorCircus\Guardian\Domains\TwoFactor\Data\RegisterPasskeyData;
 use RefactorCircus\Guardian\Domains\TwoFactor\Data\StartOneTimeCodeEnrolmentData;
 use RefactorCircus\Guardian\Domains\TwoFactor\Data\StartTotpEnrolmentData;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\PasskeyModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Passkeys\PasskeyCeremony;
 use RefactorCircus\Guardian\Domains\TwoFactor\Services\Totp;
 use RefactorCircus\Guardian\Tests\Fixtures\FakeOneTimeCodeChannel;
+use RefactorCircus\Guardian\Tests\Fixtures\webauthn\SoftAuthenticator;
 use Workbench\App\Models\User;
 
 /**
@@ -71,4 +77,32 @@ function enrolOneTimeCode(User $user, FakeOneTimeCodeChannel $channel, string $t
     RateLimiter::clear('guardian-two-factor-send:'.$user->getKey());
 
     return $method->refresh();
+}
+
+/**
+ * Register a passkey for a user through the API's actions, answered by a
+ * software authenticator; the authenticator is returned to assert with.
+ */
+function registerPasskey(User $user, ?SoftAuthenticator $authenticator = null, string $label = 'Laptop'): SoftAuthenticator
+{
+    $authenticator ??= new SoftAuthenticator;
+    $options = app(StartPasskeyRegistrationAction::class)->execute($user);
+
+    app(RegisterPasskeyAction::class)->execute($user, new RegisterPasskeyData(credential: $authenticator->register($options), label: $label));
+
+    return $authenticator;
+}
+
+/**
+ * An assertion by the authenticator against fresh assertion options issued
+ * to the user.
+ *
+ * @return array<string, mixed>
+ */
+function passkeyAssertion(User $user, SoftAuthenticator $authenticator, ?int $signCount = null): array
+{
+    $ceremony = app(PasskeyCeremony::class);
+    $options = $ceremony->assertionOptions($user, PasskeyModel::query()->where('user_id', $user->getKey())->get());
+
+    return $authenticator->assert($options, $ceremony->userHandle($user), $signCount);
 }

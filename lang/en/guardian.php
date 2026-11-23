@@ -49,6 +49,11 @@ return [
     'two_factor_other_factor_needed' => 'Enter a current code from another of your factors, or a recovery code.',
     'two_factor_not_enabled' => 'Two-factor authentication is not on for this account.',
 
+    'passkeys_unavailable' => 'Passkeys are not available: install web-auth/webauthn-lib to use them.',
+    'passkey_invalid' => 'This passkey response could not be verified.',
+    'passkey_no_challenge' => 'No passkey request is waiting, or it expired. Start again.',
+    'passkey_sign_count' => 'This passkey\'s signature counter did not move forward, so it may have been cloned.',
+    'passkey_taken' => 'This passkey is already registered.',
     'one_time_code_subject' => 'Your sign-in code',
     'one_time_code_line' => 'Your sign-in code is :code.',
     'one_time_code_expiry' => 'It expires in :minutes minutes and works once.',

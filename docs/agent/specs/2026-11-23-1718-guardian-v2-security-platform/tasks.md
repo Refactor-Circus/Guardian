@@ -124,10 +124,10 @@ depends on: 11
 files: composer.json (web-auth/webauthn-lib dev + suggest), src/Domains/TwoFactor/Passkeys/{PasskeyCeremony,PasskeyChallenges,PasskeysAvailable}.php, src/Domains/TwoFactor/Models/PasskeyModel.php, src/Domains/TwoFactor/Actions/{StartPasskeyRegistrationAction,RegisterPasskeyAction,ListPasskeysAction,RemovePasskeyAction}.php, src/Domains/TwoFactor/Resources/PasskeyResource.php, src/Domains/TwoFactor/Http/**, src/Domains/TwoFactor/Mcp/**, src/Domains/TwoFactor/routes.php, tests/Fixtures/webauthn/*, tests/Feature/TwoFactor/PasskeysTest.php, tests/Feature/TwoFactor/PasskeysUnavailableTest.php, tests/ArchTest.php
 criteria: 30
 
-- [ ] 12.1 Write tests: Registration options and a stored challenge bound to the user that expires; attestation verified from recorded fixture ceremonies (`none` attestation) and the credential stored; list and remove (remove needs another factor); a sign count that does not increase is refused and recorded; with the library hidden, every endpoint answers 501 and the status shows passkeys as unavailable; Arch: only `Passkeys\` uses `Webauthn\*`
-- [ ] 12.2 `composer require --dev web-auth/webauthn-lib` and add it to `suggest`. If no release installs, record a D-entry and keep the 501 path with the tests skipped.
-- [ ] 12.3 Implement `PasskeyCeremony` (registration and assertion), `PasskeyChallenges` (cache, 5 minutes) and the model, actions, resource, routes and MCP list/remove tools
-- [ ] 12.4 Run vendor/bin/pest; all green
+- [x] 12.1 Write tests: Registration options and a stored challenge bound to the user that expires; attestation verified from recorded fixture ceremonies (`none` attestation) and the credential stored; list and remove (remove needs another factor); a sign count that does not increase is refused and recorded; with the library hidden, every endpoint answers 501 and the status shows passkeys as unavailable; Arch: only `Passkeys\` uses `Webauthn\*`
+- [x] 12.2 `composer require --dev web-auth/webauthn-lib` and add it to `suggest`. If no release installs, record a D-entry and keep the 501 path with the tests skipped.
+- [x] 12.3 Implement `PasskeyCeremony` (registration and assertion), `PasskeyChallenges` (cache, 5 minutes) and the model, actions, resource, routes and MCP list/remove tools
+- [x] 12.4 Run vendor/bin/pest; all green
 
 ## Group 13: Two-factor challenge and middleware
 depends on: 12

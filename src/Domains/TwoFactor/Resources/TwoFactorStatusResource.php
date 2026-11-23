@@ -27,7 +27,7 @@ final class TwoFactorStatusResource extends JsonResource
         return [
             'enabled' => $schema->boolean()->description('Whether the user holds a confirmed factor.')->required(),
             'methods' => $schema->array()->items($schema->object(TwoFactorMethodResource::schema($schema)))->required(),
-            'passkeys' => $schema->array()->items($schema->object())->required(),
+            'passkeys' => $schema->array()->items($schema->object(PasskeyResource::schema($schema)))->required(),
             'passkeys_available' => $schema->boolean()->description('Whether this install can register passkeys.')->required(),
             'recovery_codes_remaining' => $schema->integer()->required(),
             'required' => $schema->boolean()->required(),
@@ -46,7 +46,7 @@ final class TwoFactorStatusResource extends JsonResource
         return [
             'enabled' => $status->enabled,
             'methods' => TwoFactorMethodResource::collection($status->methods)->resolve($request),
-            'passkeys' => [],
+            'passkeys' => PasskeyResource::collection($status->passkeys)->resolve($request),
             'passkeys_available' => $status->passkeysAvailable,
             'recovery_codes_remaining' => $status->recoveryCodesRemaining,
             'required' => $status->requirement->required,

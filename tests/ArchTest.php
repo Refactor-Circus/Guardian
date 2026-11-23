@@ -123,6 +123,13 @@ arch('the new domains use nothing in Roster')
     ])
     ->not->toUse('RefactorCircus\Roster');
 
+// Passkeys are optional (criterion 30, D-010): only the passkey ceremony
+// names web-auth/webauthn-lib, so nothing else breaks without it.
+arch('only Domains\\TwoFactor\\Passkeys uses WebAuthn')
+    ->expect('RefactorCircus\Guardian')
+    ->not->toUse('Webauthn')
+    ->ignoring('RefactorCircus\Guardian\Domains\TwoFactor\Passkeys');
+
 // v2 has no UI (criterion 2): nothing in Guardian names Atrium.
 arch('nothing uses Atrium')
     ->expect('RefactorCircus\Guardian')

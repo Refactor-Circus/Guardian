@@ -8,6 +8,7 @@ use RefactorCircus\Guardian\Domains\TwoFactor\Channels\MailOneTimeCodeChannel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Contracts\OneTimeCodeChannel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Contracts\TwoFactorRequirement;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Passkeys\PasskeysAvailable;
 use RefactorCircus\Guardian\Domains\TwoFactor\Services\PolicyTwoFactorRequirement;
 use RefactorCircus\Guardian\Support\Authorization;
 use RefactorCircus\Keystone\Audit\AuditHooks;
@@ -27,12 +28,15 @@ class TwoFactorServiceProvider extends ServiceProvider
 
         // A host binds its own to send SMS codes, or email its own way.
         $this->app->bindIf(OneTimeCodeChannel::class, MailOneTimeCodeChannel::class);
+
+        // Whether web-auth/webauthn-lib is installed; tests bind their own.
+        $this->app->singletonIf(PasskeysAvailable::class);
     }
 
     public function boot(): void
     {
         // An installed audit log keeps no secret, destination or code hash.
-        $this->app->make(AuditHooks::class)->redact('secret', 'destination', 'code_hash');
+        $this->app->make(AuditHooks::class)->redact('secret', 'destination', 'code_hash', 'public_key', 'credential_id');
 
         // The method policy (from `guardian.policies`) answers the
         // `guardian.two-factor.*` checks the API and MCP tools make.

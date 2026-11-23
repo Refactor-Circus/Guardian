@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace RefactorCircus\Guardian\Domains\TwoFactor\Actions;
 
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use RefactorCircus\Guardian\Domains\TwoFactor\Contracts\TwoFactorRequirement;
 use RefactorCircus\Guardian\Domains\TwoFactor\Data\TwoFactorStatus;
 use RefactorCircus\Guardian\Domains\TwoFactor\Events\TwoFactorShowingActionEvent;
 use RefactorCircus\Guardian\Domains\TwoFactor\Events\TwoFactorShownActionEvent;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\PasskeyModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Services\Factors;
 use RefactorCircus\Guardian\Domains\TwoFactor\Services\RecoveryCodes;
@@ -40,7 +40,7 @@ final class ShowTwoFactorAction extends Action
         $status = new TwoFactorStatus(
             enabled: $this->factors->has($user),
             methods: $methods,
-            passkeys: new Collection,
+            passkeys: PasskeyModel::query()->ownedBy(UserKeys::of($user))->oldest()->oldest('id')->get(),
             passkeysAvailable: in_array('passkey', $this->factors->available(), true),
             recoveryCodesRemaining: $this->recoveryCodes->remaining(UserKeys::of($user)),
             requirement: $requirement,

@@ -11,6 +11,7 @@ use RefactorCircus\Guardian\Domains\SecurityEvent\Enums\SecurityEventType;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Enums\TwoFactorMethodType;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\PasskeyModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
 use RefactorCircus\Roster\Domains\Organization\Actions\AddMemberAction;
 use RefactorCircus\Roster\Domains\Organization\Data\AddMemberData;
@@ -21,7 +22,7 @@ use RefactorCircus\Roster\Domains\Organization\Data\AddMemberData;
  * organization `acme` with a member `target`, a connection `acme-okta`, the
  * target's identity on it and a SCIM token; plus a shared role `editor`,
  * held by the target, a security event of the target's and their
- * confirmed authenticator.
+ * confirmed authenticator and passkey.
  *
  * @return array<string, mixed>
  */
@@ -41,9 +42,11 @@ function authorizationWorld(): array
 
     $twoFactorMethod = TwoFactorMethodModel::query()->create(['user_id' => $target->getKey(), 'type' => TwoFactorMethodType::Totp, 'secret' => 'JBSWY3DPEHPK3PXP', 'confirmed_at' => now()]);
 
+    $passkey = PasskeyModel::query()->create(['user_id' => $target->getKey(), 'credential_id' => 'target-credential', 'public_key' => 'x']);
+
     $securityEvent = app(RecordSecurityEventAction::class)->execute(new RecordSecurityEventData(type: SecurityEventType::LoginSucceeded, user: (string) $target->getKey()));
 
-    return compact('acme', 'target', 'connection', 'identity', 'scimToken', 'role', 'assignment', 'securityEvent', 'twoFactorMethod');
+    return compact('acme', 'target', 'connection', 'identity', 'scimToken', 'role', 'assignment', 'securityEvent', 'twoFactorMethod', 'passkey');
 }
 
 /**
@@ -96,6 +99,10 @@ function apiRoutes(): array
         'two-factor.totp.confirm' => ['POST', 'guardian.two-factor.totp.confirm', fn (): array => [], ['code' => '123456']],
         'two-factor.one-time-codes.store' => ['POST', 'guardian.two-factor.one-time-codes.store', fn (): array => [], ['type' => 'email', 'destination' => 'me@example.com']],
         'two-factor.one-time-codes.confirm' => ['POST', 'guardian.two-factor.one-time-codes.confirm', fn (): array => [], ['type' => 'email', 'code' => '123456']],
+        'two-factor.passkeys.options' => ['POST', 'guardian.two-factor.passkeys.options', fn (): array => [], []],
+        'two-factor.passkeys.index' => ['GET', 'guardian.two-factor.passkeys.index', fn (): array => [], []],
+        'two-factor.passkeys.store' => ['POST', 'guardian.two-factor.passkeys.store', fn (): array => [], []],
+        'two-factor.passkeys.destroy' => ['DELETE', 'guardian.two-factor.passkeys.destroy', fn (array $w): array => [$w['passkey']->id], []],
         'two-factor.recovery-codes.store' => ['POST', 'guardian.two-factor.recovery-codes.store', fn (): array => [], []],
         'two-factor.methods.destroy' => ['DELETE', 'guardian.two-factor.methods.destroy', fn (array $w): array => [$w['twoFactorMethod']->id], []],
         'users.two-factor.destroy' => ['DELETE', 'guardian.users.two-factor.destroy', $user, []],
@@ -114,6 +121,10 @@ const SELF_SERVICE_ROUTES = [
     'two-factor.totp.confirm',
     'two-factor.one-time-codes.store',
     'two-factor.one-time-codes.confirm',
+    'two-factor.passkeys.options',
+    'two-factor.passkeys.index',
+    'two-factor.passkeys.store',
+    'two-factor.passkeys.destroy',
     'two-factor.recovery-codes.store',
     'two-factor.methods.destroy',
 ];

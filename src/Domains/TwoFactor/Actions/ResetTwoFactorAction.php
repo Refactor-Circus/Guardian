@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use RefactorCircus\Guardian\Domains\SecurityEvent\Enums\SecurityEventType;
 use RefactorCircus\Guardian\Domains\TwoFactor\Events\TwoFactorResetActionEvent;
 use RefactorCircus\Guardian\Domains\TwoFactor\Events\TwoFactorResettingActionEvent;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\PasskeyModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
 use RefactorCircus\Guardian\Domains\TwoFactor\Services\RecoveryCodes;
 use RefactorCircus\Guardian\Domains\TwoFactor\Services\SecurityLog;
@@ -36,6 +37,7 @@ final class ResetTwoFactorAction extends Action
 
         DB::transaction(function () use ($user, $key, $actor): void {
             TwoFactorMethodModel::query()->ownedBy($key)->get()->each->delete();
+            PasskeyModel::query()->ownedBy($key)->get()->each->delete();
             $this->recoveryCodes->forget($key);
 
             $this->log->record(SecurityEventType::TwoFactorDisabled, $user, ['reset' => true, 'reset_by' => $actor?->getKey() === null ? null : (string) $actor->getKey()]);

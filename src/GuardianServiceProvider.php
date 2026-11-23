@@ -5,19 +5,26 @@ declare(strict_types=1);
 namespace RefactorCircus\Guardian;
 
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use RefactorCircus\Guardian\Console\Commands\UpgradeFromRosterCommand;
 use RefactorCircus\Guardian\Domains\DomainServiceProvider;
+use RefactorCircus\Guardian\Domains\Permission\Services\GuardianPermissions;
+use RefactorCircus\Guardian\Domains\Role\Services\GuardianRoles;
 use RefactorCircus\Guardian\Exceptions\StrandedTablesException;
 use RefactorCircus\Guardian\Mcp\GuardianServer;
 use RefactorCircus\Guardian\Support\Authorization;
 use RefactorCircus\Guardian\Support\Integration;
 use RefactorCircus\Guardian\Upgrade\Handover;
 use RefactorCircus\Guardian\Upgrade\RosterUpgrade;
+use RefactorCircus\Keystone\Authorization\Contracts\Permissions;
+use RefactorCircus\Keystone\Authorization\Contracts\Roles;
 use RefactorCircus\Keystone\Packages\Package;
 use RefactorCircus\Keystone\Support\PackageServiceProvider;
 use Throwable;
@@ -54,6 +61,8 @@ class GuardianServiceProvider extends PackageServiceProvider
 
         $this->app->singleton(Authorization::class);
 
+        $this->registerRoleStore();
+
         // Before any provider boots, so the domain providers boot with the
         // rest; DomainServiceProvider skips SSO and SCIM without Roster.
         $this->app->booting(function (): void {
@@ -63,6 +72,8 @@ class GuardianServiceProvider extends PackageServiceProvider
 
     public function boot(): void
     {
+        $this->registerGate();
+
         $this->registerRateLimiter();
         $this->registerAbout();
 
@@ -92,6 +103,64 @@ class GuardianServiceProvider extends PackageServiceProvider
         }
 
         $this->bootWithRoster();
+    }
+
+    /**
+     * Guardian's role store, per request (criterion 9, D-008). With
+     * `guardian.authorization.bind` on (the default) it answers Keystone's
+     * `Permissions` and `Roles` for every package; decorators other packages
+     * add with `extend()` (Roster's impersonation guard) still wrap it.
+     */
+    private function registerRoleStore(): void
+    {
+        $this->app->scoped(GuardianPermissions::class);
+        $this->app->scoped(GuardianRoles::class);
+
+        if (! $this->binds()) {
+            return;
+        }
+
+        $this->app->scoped(Permissions::class, fn (Application $app): Permissions => $app->make(GuardianPermissions::class));
+        $this->app->scoped(Roles::class, fn (Application $app): Roles => $app->make(GuardianRoles::class));
+    }
+
+    /**
+     * Guardian's place in Laravel's Gate while it is the bound role store
+     * (criterion 14): `true` for a super-admin, and for an ability Guardian
+     * has a permission row for when the user holds it (in the first model
+     * argument, or globally); otherwise `null`, so the app's own gates and
+     * policies still decide. Never `false`.
+     */
+    private function registerGate(): void
+    {
+        if (! $this->binds()) {
+            return;
+        }
+
+        Gate::before(function (mixed $user, string $ability, array $arguments): ?bool {
+            if (! $user instanceof Authenticatable) {
+                return null;
+            }
+
+            $permissions = $this->app->make(Permissions::class);
+
+            if ($permissions->isSuperAdmin($user)) {
+                return true;
+            }
+
+            if (! in_array($ability, $this->app->make(GuardianPermissions::class)->known(), true)) {
+                return null;
+            }
+
+            $scope = array_values(array_filter($arguments, fn (mixed $argument): bool => $argument instanceof Model))[0] ?? null;
+
+            return $permissions->allows($user, $ability, $scope) ? true : null;
+        });
+    }
+
+    private function binds(): bool
+    {
+        return $this->app->make(Repository::class)->get('guardian.authorization.bind', true) !== false;
     }
 
     /**

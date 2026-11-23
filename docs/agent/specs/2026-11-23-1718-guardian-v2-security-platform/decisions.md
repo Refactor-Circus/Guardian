@@ -185,3 +185,9 @@
 - Rationale: "Drops only empty tables" (spec Design, D-040 of the first spec) would make every fresh install unable to roll back, because the migration seeds built-ins. Treating seeded rows as not-data keeps the protection for what an admin made.
 - Date: 2026-11-23
 - Raised by: implement (group 3); conservative default, no user available
+
+## D-032: Details of Guardian's role store
+- Choice: (1) `allows()` checks, in order: guest (false), super-admin (true, for any ability), a `Scope` in the chain granting by itself (true), no permission row for the ability (false), then the grants. (2) `scopesWith()` returns the stored `scope_id` strings; a scope type given as a model class is turned into its morph class. (3) `abilities()` lists permission rows the user holds (what a scope grants by itself is not listed, as Keystone's fakes do). (4) `GuardianPermissions` and `GuardianRoles` are always bound `scoped()` under their own names, and `Permissions`/`Roles` resolve to those instances when `guardian.authorization.bind` is on, so Roster's `extend()` decorator wraps the same per-request instance. The switch is read in `register()`, as an app's config is; the test case sets it in `resolveApplicationConfiguration()` because Testbench registers providers before `defineEnvironment()`. (5) Model events forget: an assignment forgets its user (cache entry too), a role everyone's grants, a permission the names as well. `revoke()`/`revokeEverywhere()` delete through the models so these fire. (6) A scope's own role wins over a shared role with the same slug in `assign()`.
+- Rationale: Criteria 10 to 14 leave these open. Each choice keeps answers consistent with Keystone's `FakePermissions` and Roster v0.1, so packages see no change when Guardian replaces them.
+- Date: 2026-11-23
+- Raised by: implement (group 4); conservative default, no user available

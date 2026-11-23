@@ -40,11 +40,11 @@ depends on: 3
 files: src/Domains/Permission/Services/GuardianPermissions.php, src/Domains/Permission/Services/PermissionCache.php, src/Domains/Role/Services/GuardianRoles.php, src/Domains/Permission/PermissionServiceProvider.php, src/GuardianServiceProvider.php, config/guardian.php, tests/Feature/Permission/GuardianPermissionsTest.php, tests/Feature/Role/GuardianRolesTest.php, tests/Feature/Permission/GateTest.php, tests/Feature/Authorization/*
 criteria: 9, 10, 11, 12, 13, 14
 
-- [ ] 4.1 Write tests: `GuardianPermissionsTest` (criteria 10, 11, 13): guest; super role; configured super-admin, verified and unverified; global, scope and parent-scope grants with fixture `Scope` models; a non-`Scope` model; `grantsByItself`; an unknown ability; `scopesWith` null and lists; `abilities`; `forget`; the memo; the cache with a TTL and forgetting on writes; `GuardianRolesTest` (criterion 12): `exists` by scope kind and owner; idempotent `assign` and false for a role not assignable there; `revoke` in an exact scope; `revokeEverywhere`; `of`; `holders`; `GateTest` (criterion 14); Binding on and off (criterion 9)
-- [ ] 4.2 Implement `GuardianPermissions` (per-request grants, `ScopeChain`) and `PermissionCache` (ported from Roster's)
-- [ ] 4.3 Implement `GuardianRoles`
-- [ ] 4.4 Bind both with `scoped()` behind `guardian.authorization.bind`, and register the `Gate::before` and the cache-forgetting listeners. Add the `authorization`, `super_admins` and `permission_cache` config. Switch the SSO/SCIM authorization tests from Keystone's fakes to real Guardian roles.
-- [ ] 4.5 Run vendor/bin/pest; all green
+- [x] 4.1 Write tests: `GuardianPermissionsTest` (criteria 10, 11, 13): guest; super role; configured super-admin, verified and unverified; global, scope and parent-scope grants with fixture `Scope` models; a non-`Scope` model; `grantsByItself`; an unknown ability; `scopesWith` null and lists; `abilities`; `forget`; the memo; the cache with a TTL and forgetting on writes; `GuardianRolesTest` (criterion 12): `exists` by scope kind and owner; idempotent `assign` and false for a role not assignable there; `revoke` in an exact scope; `revokeEverywhere`; `of`; `holders`; `GateTest` (criterion 14); Binding on and off (criterion 9)
+- [x] 4.2 Implement `GuardianPermissions` (per-request grants, `ScopeChain`) and `PermissionCache` (ported from Roster's)
+- [x] 4.3 Implement `GuardianRoles`
+- [x] 4.4 Bind both with `scoped()` behind `guardian.authorization.bind`, and register the `Gate::before` and the cache-forgetting listeners. Add the `authorization`, `super_admins` and `permission_cache` config. Switch the SSO/SCIM authorization tests from Keystone's fakes to real Guardian roles.
+- [x] 4.5 Run vendor/bin/pest; all green
 
 ## Group 5: Roles API and MCP
 depends on: 4

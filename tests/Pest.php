@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\Eloquent\Model;
 use Laravel\Mcp\Server\Testing\TestResponse;
 use Laravel\Mcp\Server\Tool;
 use RefactorCircus\Guardian\Mcp\GuardianServer;
@@ -11,13 +12,11 @@ use RefactorCircus\Guardian\Tests\RenamedTablesTestCase;
 use RefactorCircus\Guardian\Tests\StandaloneTestCase;
 use RefactorCircus\Guardian\Tests\TestCase;
 use RefactorCircus\Keystone\Authorization\Contracts\Roles;
-use RefactorCircus\Keystone\Testing\FakeRoles;
 use RefactorCircus\Keystone\Testing\McpTools;
 use RefactorCircus\Keystone\Testing\Parity;
 use RefactorCircus\Roster\Domains\Organization\Actions\CreateOrganizationAction;
 use RefactorCircus\Roster\Domains\Organization\Data\CreateOrganizationData;
 use RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel;
-use RefactorCircus\Roster\Domains\Team\Models\TeamModel;
 use RefactorCircus\Standards\Pest\ArchPreset;
 use Workbench\App\Models\User;
 use Workbench\Database\Factories\UserFactory;
@@ -55,14 +54,11 @@ function user(array $attributes = []): User
 
 /**
  * Give a user a role by slug, globally, in an organization, or on a team,
- * through the role store TestCase binds (Keystone's FakeRoles).
+ * through Guardian's role store (bound as Keystone's Roles).
  */
-function grant(User $user, string $slug, ?OrganizationModel $organization = null, ?TeamModel $team = null): void
+function grant(User $user, string $slug, ?Model $organization = null, ?Model $team = null): void
 {
-    $roles = app(Roles::class);
-
-    expect($roles)->toBeInstanceOf(FakeRoles::class)
-        ->and($roles->assign($user, $slug, $team ?? $organization))->toBeTrue("No {$slug} role there");
+    expect(app(Roles::class)->assign($user, $slug, $team ?? $organization))->toBeTrue("No {$slug} role there");
 }
 
 /**

@@ -11,11 +11,15 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Mcp\Server\Transport\FakeTransporter;
 use RefactorCircus\Guardian\Domains\DomainServiceProvider;
+use RefactorCircus\Guardian\Domains\Permission\Services\GuardianPermissions;
+use RefactorCircus\Guardian\Domains\Role\Services\GuardianRoles;
 use RefactorCircus\Guardian\Domains\Scim\ScimServiceProvider;
 use RefactorCircus\Guardian\Domains\Sso\SsoServiceProvider;
 use RefactorCircus\Guardian\GuardianServiceProvider;
 use RefactorCircus\Guardian\Mcp\GuardianServer;
 use RefactorCircus\Guardian\Support\Integration;
+use RefactorCircus\Keystone\Authorization\Contracts\Permissions;
+use RefactorCircus\Keystone\Authorization\Contracts\Roles;
 use RefactorCircus\Keystone\Packages\PackageRegistry;
 
 /*
@@ -93,6 +97,11 @@ it('migrates without Roster: the role tables and built-in roles, but no SSO or S
         ->and(Schema::hasTable('guardian_sso_connections'))->toBeFalse()
         ->and(Schema::hasTable('guardian_scim_tokens'))->toBeFalse()
         ->and(array_keys(Artisan::all()))->toContain('guardian:sync-permissions');
+});
+
+it('is Keystone\'s role store without Roster', function (): void {
+    expect(app(Permissions::class))->toBeInstanceOf(GuardianPermissions::class)
+        ->and(app(Roles::class))->toBeInstanceOf(GuardianRoles::class);
 });
 
 it('boots its config, translations, package entry and rate limiter', function (): void {

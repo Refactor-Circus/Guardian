@@ -134,11 +134,53 @@ return [
     |          as suits an operator API or a trusted server-to-server
     |          integration. SECURITY: anyone the middleware lets in may then
     |          do anything.
+    | bind:    Guardian is the role store: it answers Keystone's
+    |          `Permissions` and `Roles` for every installed package from
+    |          its role tables, and Laravel's Gate for super-admins and the
+    |          abilities it knows. Set to false to keep Keystone's defaults
+    |          (the Gate decides, and no roles are stored).
     |
     */
 
     'authorization' => [
         'enabled' => true,
+        'bind' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Super Admins
+    |--------------------------------------------------------------------------
+    |
+    | Emails of users who may do anything, everywhere, without holding a
+    | super role: a way back in when nobody holds one. Each counts only once
+    | its email is verified.
+    |
+    | SECURITY: list only addresses you control, and keep the list short.
+    |
+    */
+
+    'super_admins' => [],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Permission Cache
+    |--------------------------------------------------------------------------
+    |
+    | Answers are remembered for the request. With a TTL, the permission
+    | names and each user's grants are kept in a cache store between
+    | requests too; Guardian forgets them whenever it changes a role,
+    | assignment or permission.
+    |
+    | ttl:   Seconds to keep them; 0 turns the cache off.
+    | store: The cache store; null uses the default store. Use a store every
+    |        server shares, or changes reach other servers only on expiry.
+    |
+    */
+
+    'permission_cache' => [
+        'ttl' => 0,
+        'store' => null,
     ],
 
     /*

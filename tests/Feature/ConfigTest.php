@@ -120,7 +120,9 @@ it('keeps the API routes off by default, behind Guardian\'s limiter', function (
 it('has the authorization, rate limit, audit and rollback defaults', function (): void {
     $config = shippedGuardianConfig();
 
-    expect($config['authorization'])->toBe(['enabled' => true])
+    expect($config['authorization'])->toBe(['enabled' => true, 'bind' => true])
+        ->and($config['super_admins'])->toBe([])
+        ->and($config['permission_cache'])->toBe(['ttl' => 0, 'store' => null])
         ->and($config['rate_limit'])->toBe(['per_minute' => 120])
         ->and($config['audit'])->toBe(['enabled' => true])
         ->and($config['migrations'])->toBe(['force_rollback' => false])
@@ -193,7 +195,7 @@ it('has exactly the documented sections, each under a banner', function (): void
     $source = (string) file_get_contents(dirname(__DIR__, 2).'/config/guardian.php');
 
     expect(array_keys(shippedGuardianConfig()))->toBe([
-        'sso', 'scim', 'routes', 'authorization', 'rate_limit', 'audit', 'users', 'roles', 'policies', 'tables', 'mcp', 'cortex', 'migrations',
+        'sso', 'scim', 'routes', 'authorization', 'super_admins', 'permission_cache', 'rate_limit', 'audit', 'users', 'roles', 'policies', 'tables', 'mcp', 'cortex', 'migrations',
     ])->and(substr_count($source, '|--------------------------------------------------------------------------'))
         ->toBe(2 * count(shippedGuardianConfig()));
 });

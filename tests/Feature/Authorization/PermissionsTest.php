@@ -13,12 +13,15 @@ use RefactorCircus\Guardian\Domains\Sso\Policies\SsoConnectionPolicy;
 use RefactorCircus\Guardian\Support\Authorization;
 use RefactorCircus\Keystone\Authorization\Abilities;
 use RefactorCircus\Keystone\Authorization\Contracts\Permissions;
+use RefactorCircus\Keystone\Authorization\Contracts\Roles;
 use RefactorCircus\Keystone\Testing\FakePermissions;
+use RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel;
 
 // Criterion 5: the SSO and SCIM abilities are defined in Keystone's
 // Abilities and checked through Keystone's bound Permissions, in the Roster
 // organization, where the organization's owner rule still applies through
-// Roster's Scope. Granted here with Keystone's fakes (TestCase, grant()).
+// Roster's Scope. Roles are Guardian's own (grant()); one test binds
+// Keystone's FakePermissions instead.
 
 const SSO_PERMISSIONS = [
     'guardian.sso.manage' => 'Configure single sign-on connections.',
@@ -67,15 +70,12 @@ it('answers guardian.scim.manage per organization', function (): void {
         ->and($authorization->check($ada, 'guardian.scim.manage', $globex))->toBeFalse();
 });
 
-it('answers through Keystone\'s bound Permissions, granted directly with FakePermissions', function (): void {
+it('answers through whatever Keystone\'s Permissions is bound to, here a FakePermissions', function (): void {
     $acme = organization(attributes: ['name' => 'Acme']);
     $globex = organization(attributes: ['name' => 'Globex']);
     $ada = user();
 
-    $permissions = app(Permissions::class);
-    expect($permissions)->toBeInstanceOf(FakePermissions::class);
-    assert($permissions instanceof FakePermissions);
-    $permissions->grant($ada, 'guardian.sso.view', $acme);
+    FakePermissions::install()->grant($ada, 'guardian.sso.view', $acme);
 
     $authorization = app(Authorization::class);
 
@@ -95,6 +95,15 @@ it('lets an organization\'s owner use the abilities there, through Roster\'s Sco
     expect($authorization->check($owner, 'guardian.sso.manage', $acme))->toBeTrue()
         ->and($authorization->check($owner, 'guardian.scim.manage', $acme))->toBeTrue()
         ->and($authorization->check($owner, 'guardian.sso.manage', $globex))->toBeFalse();
+});
+
+it('grants the SSO and SCIM abilities to Guardian\'s built-in admin role', function (): void {
+    $ada = user();
+    grant($ada, 'admin', organization(attributes: ['name' => 'Acme']));
+
+    expect(app(Roles::class)->of($ada, OrganizationModel::query()->where('name', 'Acme')->sole()))->toBe(['admin'])
+        ->and(app(Permissions::class)->abilities($ada, OrganizationModel::query()->where('name', 'Acme')->sole()))
+        ->toContain('guardian.sso.view', 'guardian.sso.manage', 'guardian.scim.manage');
 });
 
 it('answers guardian.sso.manage through the connection policy, per organization', function (): void {

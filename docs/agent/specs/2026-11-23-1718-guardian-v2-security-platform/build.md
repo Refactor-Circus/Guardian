@@ -28,3 +28,12 @@
 - `Domains\Role` (`RoleModel` with `GLOBAL`/`ANY` and an owner morph, `RoleAssignmentModel` with a scope morph, `BuiltInRoles`, `GuardianAbilities`, `RoleServiceProvider`) and `Domains\Permission` (`PermissionModel`, `guardian:sync-permissions`, `PermissionServiceProvider`), each model with its ten lifecycle events and a minimal policy.
 - Config: `users` and `roles` sections with banners, the four table keys, the three policies; README/SKILL now name `guardian:sync-permissions`.
 - Gates: pest 514 passed; `composer analyse` 0 errors; `composer lint:check` passed; type coverage 100%.
+
+## Group 4: Guardian as Keystone's role store
+
+- Tests first: `tests/Feature/Permission/GuardianPermissionsTest.php` (guest, super role, configured super-admin verified/unverified, global/scope/parent-scope grants on a Roster-free fixture `Scope` (`tests/Fixtures/Scopes/FolderScope.php`), a non-`Scope` model, `grantsByItself`, unknown ability, `scopesWith`, `abilities`, `forget`, the per-request memo, the cache with a TTL and its forgetting on writes), `tests/Feature/Role/GuardianRolesTest.php` (criterion 12), `GateTest.php` (criterion 14), `BindingTest.php` (criterion 9, on and off), and Standalone binds Guardian without Roster.
+- `Domains\Permission\Services\GuardianPermissions` (grants loaded once per request or from the cache, answered in memory over `ScopeChain`) and `PermissionCache` (ported from Roster v0.1, versioned keys under `guardian.permission_cache`); `Domains\Role\Services\GuardianRoles`.
+- `GuardianServiceProvider` binds both `scoped()` behind `guardian.authorization.bind` and registers the `Gate::before`; `PermissionServiceProvider` forgets on role, assignment and permission model events (D-032).
+- Config: `authorization.bind`, `super_admins`, `permission_cache` with banners.
+- Tests now run on Guardian's own roles: `TestCase` no longer binds Keystone's fakes, `grant()` assigns through the bound `Roles`; one authorization test still binds `FakePermissions` to prove the contract seam.
+- Gates: pest 545 passed (544 + the Standalone role-store check); `composer analyse` 0 errors; `composer lint:check` passed; type coverage 100%.

@@ -9,12 +9,6 @@ use Laravel\Mcp\Server\McpServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 use RefactorCircus\Guardian\GuardianServiceProvider;
 use RefactorCircus\Guardian\Upgrade\Handover;
-use RefactorCircus\Keystone\Authorization\Abilities;
-use RefactorCircus\Keystone\Authorization\Contracts\Permissions;
-use RefactorCircus\Keystone\Testing\FakePermissions;
-use RefactorCircus\Keystone\Testing\FakeRoles;
-use RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel;
-use RefactorCircus\Roster\Domains\Team\Models\TeamModel;
 use RefactorCircus\Roster\RosterServiceProvider;
 use Workbench\App\Models\User;
 
@@ -48,31 +42,11 @@ abstract class TestCase extends Orchestra
     public static bool $mcpServers = false;
 
     /**
-     * Roles and permissions come from Keystone's test fakes (criterion 5):
-     * `super-admin` (global), and `admin` and `member` in Roster's
-     * organizations and teams (and `admin` globally too), granting what
-     * Keystone's `Abilities` grant them, as a role store that creates them
-     * would. `grant()` in tests/Pest.php assigns them.
+     * Whether the next application boots with Guardian bound as Keystone's
+     * role store (`guardian.authorization.bind`, on as shipped). Roles are
+     * then Guardian's own: `grant()` in tests/Pest.php assigns them.
      */
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        FakePermissions::install();
-
-        $admin = array_keys(array_filter(
-            app(Abilities::class)->all(),
-            fn (array $ability): bool => in_array('admin', $ability['grantTo'], true),
-        ));
-
-        $roles = FakeRoles::install()
-            ->define('super-admin', [Permissions::SUPER_ADMIN])
-            ->define('admin', $admin);
-
-        foreach ([OrganizationModel::class, TeamModel::class] as $scope) {
-            $roles->define('admin', $admin, $scope)->define('member', [], $scope);
-        }
-    }
+    public static bool $bindAuthorization = true;
 
     /**
      * @return array<int, class-string>
@@ -84,6 +58,18 @@ abstract class TestCase extends Orchestra
             RosterServiceProvider::class,
             GuardianServiceProvider::class,
         ];
+    }
+
+    /**
+     * Guardian decides its bindings while providers register, which
+     * Testbench does before `defineEnvironment()`: set what it reads there
+     * first, as an app's config file would.
+     */
+    protected function resolveApplicationConfiguration($app): void
+    {
+        parent::resolveApplicationConfiguration($app);
+
+        $app['config']->set('guardian.authorization.bind', self::$bindAuthorization);
     }
 
     protected function defineEnvironment($app): void

@@ -2,11 +2,11 @@ import { t as e } from "./GuardianActionError-DKEMy_E4.js";
 import { c as t, i as n, o as r, r as i, s as a, u as o } from "./guardian-D9MeowUD.js";
 import { r as s, t as c } from "./webauthn-DJJMk2td.js";
 import { atriumStatus as l } from "@refactor-circus/atrium";
-import { Fragment as u, computed as d, createBlock as f, createCommentVNode as p, createElementBlock as m, createElementVNode as h, createTextVNode as g, createVNode as _, defineComponent as v, isRef as y, onBeforeUnmount as b, openBlock as x, ref as S, renderList as C, shallowRef as w, toDisplayString as T, unref as E, vModelSelect as D, watch as O, withCtx as k, withDirectives as A, withModifiers as j } from "vue";
-import { UAlert as M, UButton as N, UCard as P, UFormField as F, UInput as I } from "@refactor-circus/atrium/ui";
-import { useI18n as L } from "vue-i18n";
+import { Fragment as u, computed as d, createBlock as f, createCommentVNode as p, createElementBlock as m, createElementVNode as h, createTextVNode as g, createVNode as _, defineComponent as v, isRef as y, onBeforeUnmount as b, openBlock as x, ref as S, renderList as C, shallowRef as w, toDisplayString as T, unref as E, watch as D, withCtx as O, withModifiers as k } from "vue";
+import { UAlert as A, UButton as j, UCard as M, UFormField as N, UInput as P, USelect as F } from "@refactor-circus/atrium/ui";
+import { useI18n as I } from "vue-i18n";
 // src/components/two-factor/GuardianFactorRemoval.vue?vue&type=script&setup=true&lang.ts
-var R = ["data-testid"], z = /* @__PURE__ */ v({
+var L = ["data-testid"], R = /* @__PURE__ */ v({
 	__name: "GuardianFactorRemoval",
 	props: {
 		client: {},
@@ -16,7 +16,7 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 	},
 	emits: ["removed"],
 	setup(n, { emit: i }) {
-		let a = n, s = i, { t: c } = L(), l = o(), u = S(!1), p = S(""), h = d(() => l.code.value === "two_factor_required");
+		let a = n, s = i, { t: c } = I(), l = o(), u = S(!1), p = S(""), h = d(() => l.code.value === "two_factor_required");
 		function v(e) {
 			u.value = e;
 		}
@@ -33,12 +33,12 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 			p.value = "", n && (u.value = !1, s("removed"));
 		}
 		return (t, r) => {
-			let i = N, a = I, o = F, s = M;
+			let i = j, a = P, o = N, s = A;
 			return x(), m("div", { "data-testid": `guardian-remove-${n.id}` }, [E(u) ? (x(), m("form", {
 				key: 1,
 				class: "flex flex-wrap items-end gap-2",
 				"data-testid": "guardian-remove-form",
-				onSubmit: j(b, ["prevent"])
+				onSubmit: k(b, ["prevent"])
 			}, [
 				_(o, {
 					label: E(c)("guardian.two_factor.remove.proof", { name: n.name }),
@@ -46,7 +46,7 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 					error: E(l).error("code"),
 					required: ""
 				}, {
-					default: k(() => [_(a, {
+					default: O(() => [_(a, {
 						modelValue: E(p),
 						"onUpdate:modelValue": r[1] ||= (e) => y(p) ? p.value = e : null,
 						autocomplete: "one-time-code",
@@ -64,7 +64,7 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 					loading: E(l).busy.value,
 					"data-testid": "guardian-remove-submit"
 				}, {
-					default: k(() => [g(T(E(c)("guardian.two_factor.remove.confirm")), 1)]),
+					default: O(() => [g(T(E(c)("guardian.two_factor.remove.confirm")), 1)]),
 					_: 1
 				}, 8, ["loading"]),
 				_(i, {
@@ -72,7 +72,7 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 					variant: "ghost",
 					onClick: r[2] ||= (e) => v(!1)
 				}, {
-					default: k(() => [g(T(E(c)("guardian.two_factor.cancel")), 1)]),
+					default: O(() => [g(T(E(c)("guardian.two_factor.cancel")), 1)]),
 					_: 1
 				})
 			], 32)) : (x(), f(i, {
@@ -84,7 +84,7 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 				"data-testid": "guardian-remove-open",
 				onClick: r[0] ||= (e) => v(!0)
 			}, {
-				default: k(() => [g(T(E(c)("guardian.two_factor.remove.button")), 1)]),
+				default: O(() => [g(T(E(c)("guardian.two_factor.remove.button")), 1)]),
 				_: 1
 			})), E(h) ? (x(), f(s, {
 				key: 2,
@@ -96,13 +96,13 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 			}, null, 8, ["title", "description"])) : (x(), f(e, {
 				key: 3,
 				action: E(l)
-			}, null, 8, ["action"]))], 8, R);
+			}, null, 8, ["action"]))], 8, L);
 		};
 	}
-}), B = {
+}), z = {
 	class: "space-y-3",
 	"data-testid": "guardian-one-time"
-}, ee = { class: "font-medium" }, V = ["value"], H = /* @__PURE__ */ v({
+}, B = { class: "font-medium" }, V = /* @__PURE__ */ v({
 	__name: "GuardianOneTimeCodes",
 	props: {
 		client: {},
@@ -110,77 +110,79 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 	},
 	emits: ["confirmed"],
 	setup(t, { emit: n }) {
-		let i = t, a = n, { t: s } = L(), c = o(), l = o(), v = S([]), b = S(null), w = S(""), P = S(!1), R = S(""), z = S(null), H = d(() => i.types.filter((e) => !v.value.includes(e)));
-		O(H, (e) => {
+		let i = t, a = n, { t: s } = I(), c = o(), l = o(), v = S([]), b = S(null), C = S(""), w = S(!1), M = S(""), L = S(null), R = d(() => i.types.filter((e) => !v.value.includes(e))), V = d(() => R.value.map((e) => ({
+			label: s(`guardian.two_factor.types.${e}`),
+			value: e
+		})));
+		D(R, (e) => {
 			b.value !== null && e.includes(b.value) || (b.value = e[0] ?? null);
 		}, { immediate: !0 });
-		async function te() {
+		async function ee() {
 			let e = b.value;
-			e && (z.value = null, await c.run(async () => {
+			e && (L.value = null, await c.run(async () => {
 				r(await i.client.POST("/two-factor/one-time-codes", { body: {
 					type: e,
-					destination: w.value.trim()
+					destination: C.value.trim()
 				} }));
-			}) ? P.value = !0 : c.code.value === "method_unavailable" && (v.value = [...v.value, e], z.value = s("guardian.two_factor.one_time.unavailable", { type: s(`guardian.two_factor.types.${e}`) }), P.value = !1));
+			}) ? w.value = !0 : c.code.value === "method_unavailable" && (v.value = [...v.value, e], L.value = s("guardian.two_factor.one_time.unavailable", { type: s(`guardian.two_factor.types.${e}`) }), w.value = !1));
 		}
-		async function ne() {
+		async function te() {
 			let e = b.value;
 			if (!e) return;
 			let t = null, n = await l.run(async () => {
 				t = r(await i.client.POST("/two-factor/one-time-codes/confirm", { body: {
 					type: e,
-					code: R.value.trim()
+					code: M.value.trim()
 				} })).data.recovery_codes ?? null;
 			});
-			R.value = "", n && (P.value = !1, w.value = "", a("confirmed", t));
+			M.value = "", n && (w.value = !1, C.value = "", a("confirmed", t));
 		}
 		return (t, n) => {
-			let r = M, i = F, a = I, o = N;
-			return x(), m("div", B, [
-				h("h3", ee, T(E(s)("guardian.two_factor.one_time.title")), 1),
-				E(z) ? (x(), f(r, {
+			let r = A, i = F, a = N, o = P, d = j;
+			return x(), m("div", z, [
+				h("h3", B, T(E(s)("guardian.two_factor.one_time.title")), 1),
+				E(L) ? (x(), f(r, {
 					key: 0,
 					color: "neutral",
 					variant: "subtle",
-					title: E(z),
+					title: E(L),
 					"data-testid": "guardian-one-time-unavailable"
 				}, null, 8, ["title"])) : p("", !0),
-				E(H).length > 0 ? (x(), m(u, { key: 1 }, [
+				E(R).length > 0 ? (x(), m(u, { key: 1 }, [
 					h("form", {
 						class: "flex flex-wrap items-end gap-2",
 						"data-testid": "guardian-one-time-send",
-						onSubmit: j(te, ["prevent"])
+						onSubmit: k(ee, ["prevent"])
 					}, [
-						_(i, { label: E(s)("guardian.two_factor.fields.type") }, {
-							default: k(() => [A(h("select", {
-								"onUpdate:modelValue": n[0] ||= (e) => y(b) ? b.value = e : null,
-								class: "rounded border border-default bg-default px-2 py-1.5 text-sm",
-								"data-testid": "guardian-one-time-type"
-							}, [(x(!0), m(u, null, C(E(H), (e) => (x(), m("option", {
-								key: e,
-								value: e
-							}, T(E(s)(`guardian.two_factor.types.${e}`)), 9, V))), 128))], 512), [[D, E(b)]])]),
+						_(a, { label: E(s)("guardian.two_factor.fields.type") }, {
+							default: O(() => [_(i, {
+								"model-value": E(b) ?? void 0,
+								items: E(V),
+								class: "w-32",
+								"data-testid": "guardian-one-time-type",
+								"onUpdate:modelValue": n[0] ||= (e) => b.value = e
+							}, null, 8, ["model-value", "items"])]),
 							_: 1
 						}, 8, ["label"]),
-						_(i, {
+						_(a, {
 							label: E(s)(E(b) === "sms" ? "guardian.two_factor.fields.phone" : "guardian.two_factor.fields.email"),
 							error: E(c).error("destination"),
 							required: ""
 						}, {
-							default: k(() => [_(a, {
-								modelValue: E(w),
-								"onUpdate:modelValue": n[1] ||= (e) => y(w) ? w.value = e : null,
+							default: O(() => [_(o, {
+								modelValue: E(C),
+								"onUpdate:modelValue": n[1] ||= (e) => y(C) ? C.value = e : null,
 								type: E(b) === "sms" ? "tel" : "email",
 								"data-testid": "guardian-one-time-destination"
 							}, null, 8, ["modelValue", "type"])]),
 							_: 1
 						}, 8, ["label", "error"]),
-						_(o, {
+						_(d, {
 							type: "submit",
 							loading: E(c).busy.value,
 							"data-testid": "guardian-one-time-submit-send"
 						}, {
-							default: k(() => [g(T(E(P) ? E(s)("guardian.two_factor.one_time.resend") : E(s)("guardian.two_factor.one_time.send")), 1)]),
+							default: O(() => [g(T(E(w) ? E(s)("guardian.two_factor.one_time.resend") : E(s)("guardian.two_factor.one_time.send")), 1)]),
 							_: 1
 						}, 8, ["loading"])
 					], 32),
@@ -188,20 +190,20 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 						key: 0,
 						action: E(c)
 					}, null, 8, ["action"])),
-					E(P) ? (x(), m("form", {
+					E(w) ? (x(), m("form", {
 						key: 1,
 						class: "flex flex-wrap items-end gap-2",
 						"data-testid": "guardian-one-time-confirm",
-						onSubmit: j(ne, ["prevent"])
-					}, [_(i, {
+						onSubmit: k(te, ["prevent"])
+					}, [_(a, {
 						label: E(s)("guardian.two_factor.fields.code"),
 						hint: E(s)("guardian.two_factor.one_time.sent"),
 						error: E(l).error("code"),
 						required: ""
 					}, {
-						default: k(() => [_(a, {
-							modelValue: E(R),
-							"onUpdate:modelValue": n[2] ||= (e) => y(R) ? R.value = e : null,
+						default: O(() => [_(o, {
+							modelValue: E(M),
+							"onUpdate:modelValue": n[2] ||= (e) => y(M) ? M.value = e : null,
 							autocomplete: "one-time-code",
 							inputmode: "numeric",
 							"data-testid": "guardian-one-time-code"
@@ -211,12 +213,12 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 						"label",
 						"hint",
 						"error"
-					]), _(o, {
+					]), _(d, {
 						type: "submit",
 						loading: E(l).busy.value,
 						"data-testid": "guardian-one-time-submit"
 					}, {
-						default: k(() => [g(T(E(s)("guardian.two_factor.confirm")), 1)]),
+						default: O(() => [g(T(E(s)("guardian.two_factor.confirm")), 1)]),
 						_: 1
 					}, 8, ["loading"])], 32)) : p("", !0),
 					_(e, { action: E(l) }, null, 8, ["action"])
@@ -224,16 +226,16 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 			]);
 		};
 	}
-}), te = {
+}), ee = {
 	class: "space-y-3",
 	"data-testid": "guardian-passkeys"
-}, ne = { class: "font-medium" }, re = {
+}, te = { class: "font-medium" }, ne = {
 	key: 0,
 	class: "divide-y divide-default text-sm"
-}, ie = ["data-testid"], ae = { class: "text-muted" }, oe = {
+}, re = ["data-testid"], ie = { class: "text-muted" }, ae = {
 	key: 0,
 	class: "py-2 text-muted"
-}, se = /* @__PURE__ */ v({
+}, H = /* @__PURE__ */ v({
 	__name: "GuardianPasskeys",
 	props: {
 		client: {},
@@ -245,41 +247,41 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 	},
 	emits: ["confirmed", "changed"],
 	setup(i, { emit: a }) {
-		let v = i, b = a, { t: D } = L(), O = o(), A = w([]), P = S(!1), R = S(""), B = s(), ee = d(() => !v.available || P.value || !B);
-		async function V() {
+		let v = i, b = a, { t: D } = I(), M = o(), F = w([]), L = S(!1), z = S(""), B = s(), V = d(() => !v.available || L.value || !B);
+		async function H() {
 			if (v.manage && v.available && B) try {
-				A.value = r(await v.client.GET("/two-factor/passkeys")).data;
+				F.value = r(await v.client.GET("/two-factor/passkeys")).data;
 			} catch (e) {
-				P.value = l(e) === 501, A.value = [];
+				L.value = l(e) === 501, F.value = [];
 			}
 		}
-		async function H() {
-			let e = null, n = await O.run(async () => {
+		async function oe() {
+			let e = null, n = await M.run(async () => {
 				let n = r(await v.client.POST("/two-factor/passkeys/options")).data, i = await c(n);
 				e = r(await v.client.POST("/two-factor/passkeys", { body: t({
 					credential: i,
-					label: R.value.trim() || null
+					label: z.value.trim() || null
 				}) })).data.recovery_codes ?? null;
 			});
-			O.status.value === 501 && (P.value = !0), n && (R.value = "", await V(), b("confirmed", e));
+			M.status.value === 501 && (L.value = !0), n && (z.value = "", await H(), b("confirmed", e));
 		}
 		async function se() {
-			await V(), b("changed");
+			await H(), b("changed");
 		}
-		return V(), (t, r) => {
-			let a = M, o = I, s = F, c = N;
-			return x(), m("div", te, [h("h3", ne, T(E(D)("guardian.two_factor.passkeys.title")), 1), E(ee) ? (x(), f(a, {
+		return H(), (t, r) => {
+			let a = A, o = P, s = N, c = j;
+			return x(), m("div", ee, [h("h3", te, T(E(D)("guardian.two_factor.passkeys.title")), 1), E(V) ? (x(), f(a, {
 				key: 0,
 				color: "neutral",
 				variant: "subtle",
 				title: E(D)("guardian.two_factor.passkeys.unavailable"),
 				"data-testid": "guardian-passkeys-unavailable"
 			}, null, 8, ["title"])) : (x(), m(u, { key: 1 }, [
-				i.manage ? (x(), m("ul", re, [(x(!0), m(u, null, C(E(A), (e) => (x(), m("li", {
+				i.manage ? (x(), m("ul", ne, [(x(!0), m(u, null, C(E(F), (e) => (x(), m("li", {
 					key: e.id,
 					class: "flex flex-wrap items-center justify-between gap-2 py-2",
 					"data-testid": `guardian-passkey-${e.id}`
-				}, [h("span", null, [g(T(e.label ?? E(D)("guardian.two_factor.passkeys.unnamed")) + " ", 1), h("span", ae, T(E(n)(e.last_used_at) ?? E(D)("guardian.two_factor.never_used")), 1)]), _(z, {
+				}, [h("span", null, [g(T(e.label ?? E(D)("guardian.two_factor.passkeys.unnamed")) + " ", 1), h("span", ie, T(E(n)(e.last_used_at) ?? E(D)("guardian.two_factor.never_used")), 1)]), _(R, {
 					client: i.client,
 					kind: "passkey",
 					id: e.id,
@@ -289,40 +291,40 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 					"client",
 					"id",
 					"name"
-				])], 8, ie))), 128)), E(A).length === 0 ? (x(), m("li", oe, T(E(D)("guardian.two_factor.passkeys.none")), 1)) : p("", !0)])) : p("", !0),
-				_(e, { action: E(O) }, null, 8, ["action"]),
+				])], 8, re))), 128)), E(F).length === 0 ? (x(), m("li", ae, T(E(D)("guardian.two_factor.passkeys.none")), 1)) : p("", !0)])) : p("", !0),
+				_(e, { action: E(M) }, null, 8, ["action"]),
 				h("form", {
 					class: "flex flex-wrap items-end gap-2",
 					"data-testid": "guardian-passkey-register",
-					onSubmit: j(H, ["prevent"])
+					onSubmit: k(oe, ["prevent"])
 				}, [_(s, {
 					label: E(D)("guardian.two_factor.fields.label"),
-					error: E(O).error("label")
+					error: E(M).error("label")
 				}, {
-					default: k(() => [_(o, {
-						modelValue: E(R),
-						"onUpdate:modelValue": r[0] ||= (e) => y(R) ? R.value = e : null,
+					default: O(() => [_(o, {
+						modelValue: E(z),
+						"onUpdate:modelValue": r[0] ||= (e) => y(z) ? z.value = e : null,
 						"data-testid": "guardian-passkey-label"
 					}, null, 8, ["modelValue"])]),
 					_: 1
 				}, 8, ["label", "error"]), _(c, {
 					type: "submit",
 					icon: "i-lucide-key-round",
-					loading: E(O).busy.value,
+					loading: E(M).busy.value,
 					"data-testid": "guardian-passkey-submit"
 				}, {
-					default: k(() => [g(T(E(D)("guardian.two_factor.passkeys.add")), 1)]),
+					default: O(() => [g(T(E(D)("guardian.two_factor.passkeys.add")), 1)]),
 					_: 1
 				}, 8, ["loading"])], 32)
 			], 64))]);
 		};
 	}
-}), ce = { class: "font-medium" }, le = { class: "mb-3 text-sm text-muted" }, ue = { class: "mb-3 grid grid-cols-2 gap-1 font-mono text-sm" }, de = { class: "flex flex-wrap gap-2" }, fe = /* @__PURE__ */ v({
+}), oe = { class: "font-medium" }, se = { class: "mb-3 text-sm text-muted" }, ce = { class: "mb-3 grid grid-cols-2 gap-1 font-mono text-sm" }, le = { class: "flex flex-wrap gap-2" }, ue = /* @__PURE__ */ v({
 	__name: "GuardianRecoveryCodes",
 	props: { codes: {} },
 	emits: ["done"],
 	setup(e, { emit: t }) {
-		let n = e, r = t, { t: i } = L(), a = S(!1), o = d(() => `${n.codes.join("\n")}\n`);
+		let n = e, r = t, { t: i } = I(), a = S(!1), o = d(() => `${n.codes.join("\n")}\n`);
 		async function s() {
 			await navigator.clipboard?.writeText(o.value), a.value = !0;
 		}
@@ -331,16 +333,16 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 			t.href = e, t.download = "recovery-codes.txt", t.click(), URL.revokeObjectURL(e);
 		}
 		return (t, n) => {
-			let o = N, l = P;
+			let o = j, l = M;
 			return x(), f(l, { "data-testid": "guardian-recovery-codes" }, {
-				header: k(() => [h("h3", ce, T(E(i)("guardian.two_factor.recovery.title")), 1)]),
-				default: k(() => [
-					h("p", le, T(E(i)("guardian.two_factor.recovery.once")), 1),
-					h("ul", ue, [(x(!0), m(u, null, C(e.codes, (e) => (x(), m("li", {
+				header: O(() => [h("h3", oe, T(E(i)("guardian.two_factor.recovery.title")), 1)]),
+				default: O(() => [
+					h("p", se, T(E(i)("guardian.two_factor.recovery.once")), 1),
+					h("ul", ce, [(x(!0), m(u, null, C(e.codes, (e) => (x(), m("li", {
 						key: e,
 						"data-testid": "guardian-recovery-code"
 					}, T(e), 1))), 128))]),
-					h("div", de, [
+					h("div", le, [
 						_(o, {
 							icon: "i-lucide-copy",
 							color: "neutral",
@@ -348,7 +350,7 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 							"data-testid": "guardian-recovery-copy",
 							onClick: s
 						}, {
-							default: k(() => [g(T(E(a) ? E(i)("guardian.two_factor.recovery.copied") : E(i)("guardian.two_factor.recovery.copy")), 1)]),
+							default: O(() => [g(T(E(a) ? E(i)("guardian.two_factor.recovery.copied") : E(i)("guardian.two_factor.recovery.copy")), 1)]),
 							_: 1
 						}),
 						_(o, {
@@ -358,14 +360,14 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 							"data-testid": "guardian-recovery-download",
 							onClick: c
 						}, {
-							default: k(() => [g(T(E(i)("guardian.two_factor.recovery.download")), 1)]),
+							default: O(() => [g(T(E(i)("guardian.two_factor.recovery.download")), 1)]),
 							_: 1
 						}),
 						_(o, {
 							"data-testid": "guardian-recovery-done",
 							onClick: n[0] ||= (e) => r("done")
 						}, {
-							default: k(() => [g(T(E(i)("guardian.two_factor.recovery.done")), 1)]),
+							default: O(() => [g(T(E(i)("guardian.two_factor.recovery.done")), 1)]),
 							_: 1
 						})
 					])
@@ -374,12 +376,12 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 			});
 		};
 	}
-}), U = /* @__PURE__ */ ((e) => (e[e.Border = -1] = "Border", e[e.Data = 0] = "Data", e[e.Function = 1] = "Function", e[e.Position = 2] = "Position", e[e.Timing = 3] = "Timing", e[e.Alignment = 4] = "Alignment", e))(U || {}), pe = [0, 1], me = [1, 0], he = [2, 3], ge = [3, 2], _e = {
-	L: pe,
-	M: me,
-	Q: he,
-	H: ge
-}, ve = /^\d*$/, ye = /^[A-Z0-9 $%*+./:-]*$/, W = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:", G = 1, K = 40, be = 3, xe = 3, q = 40, Se = 10, Ce = [
+}), U = /* @__PURE__ */ ((e) => (e[e.Border = -1] = "Border", e[e.Data = 0] = "Data", e[e.Function = 1] = "Function", e[e.Position = 2] = "Position", e[e.Timing = 3] = "Timing", e[e.Alignment = 4] = "Alignment", e))(U || {}), de = [0, 1], fe = [1, 0], pe = [2, 3], me = [3, 2], he = {
+	L: de,
+	M: fe,
+	Q: pe,
+	H: me
+}, ge = /^\d*$/, _e = /^[A-Z0-9 $%*+./:-]*$/, W = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:", G = 1, K = 40, ve = 3, ye = 3, q = 40, be = 10, xe = [
 	[
 		-1,
 		7,
@@ -552,7 +554,7 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 		30,
 		30
 	]
-], we = [
+], Se = [
 	[
 		-1,
 		1,
@@ -725,7 +727,7 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 		77,
 		81
 	]
-], Te = class {
+], Ce = class {
 	constructor(e, t, n, r) {
 		if (this.version = e, this.ecc = t, e < G || e > K) throw RangeError("Version value out of range");
 		if (r < -1 || r > 7) throw RangeError("Mask value out of range");
@@ -794,11 +796,11 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 	addEccAndInterleave(e) {
 		let t = this.version, n = this.ecc;
 		if (e.length !== Q(t, n)) throw RangeError("Invalid argument");
-		let r = we[n[0]][t], i = Ce[n[0]][t], a = Math.floor(Z(t) / 8), o = r - a % r, s = Math.floor(a / r), c = [], l = Re(i);
+		let r = Se[n[0]][t], i = xe[n[0]][t], a = Math.floor(Z(t) / 8), o = r - a % r, s = Math.floor(a / r), c = [], l = Ie(i);
 		for (let t = 0, n = 0; t < r; t++) {
 			let r = e.slice(n, n + s - i + (t < o ? 0 : 1));
 			n += r.length;
-			let a = ze(r, l);
+			let a = Le(r, l);
 			t < o && r.push(0), c.push(r.concat(a));
 		}
 		let u = [];
@@ -864,7 +866,7 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 				0,
 				0
 			];
-			for (let a = 0; a < this.size; a++) this.modules[t][a] === n ? (r++, r === 5 ? e += be : r > 5 && e++) : (this.finderPenaltyAddHistory(r, i), n || (e += this.finderPenaltyCountPatterns(i) * q), n = this.modules[t][a], r = 1);
+			for (let a = 0; a < this.size; a++) this.modules[t][a] === n ? (r++, r === 5 ? e += ve : r > 5 && e++) : (this.finderPenaltyAddHistory(r, i), n || (e += this.finderPenaltyCountPatterns(i) * q), n = this.modules[t][a], r = 1);
 			e += this.finderPenaltyTerminateAndCount(n, r, i) * q;
 		}
 		for (let t = 0; t < this.size; t++) {
@@ -877,17 +879,17 @@ var R = ["data-testid"], z = /* @__PURE__ */ v({
 				0,
 				0
 			];
-			for (let a = 0; a < this.size; a++) this.modules[a][t] === n ? (r++, r === 5 ? e += be : r > 5 && e++) : (this.finderPenaltyAddHistory(r, i), n || (e += this.finderPenaltyCountPatterns(i) * q), n = this.modules[a][t], r = 1);
+			for (let a = 0; a < this.size; a++) this.modules[a][t] === n ? (r++, r === 5 ? e += ve : r > 5 && e++) : (this.finderPenaltyAddHistory(r, i), n || (e += this.finderPenaltyCountPatterns(i) * q), n = this.modules[a][t], r = 1);
 			e += this.finderPenaltyTerminateAndCount(n, r, i) * q;
 		}
 		for (let t = 0; t < this.size - 1; t++) for (let n = 0; n < this.size - 1; n++) {
 			let r = this.modules[t][n];
-			r === this.modules[t][n + 1] && r === this.modules[t + 1][n] && r === this.modules[t + 1][n + 1] && (e += xe);
+			r === this.modules[t][n + 1] && r === this.modules[t + 1][n] && r === this.modules[t + 1][n + 1] && (e += ye);
 		}
 		let t = 0;
 		for (let e of this.modules) t = e.reduce((e, t) => e + +!!t, t);
 		let n = this.size * this.size, r = Math.ceil(Math.abs(t * 20 - n * 10) / n) - 1;
-		return e += r * Se, e;
+		return e += r * be, e;
 	}
 	getAlignmentPatternPositions() {
 		if (this.version === 1) return [];
@@ -923,67 +925,67 @@ var X = class {
 	getData() {
 		return this.bitData.slice();
 	}
-}, Ee = [
+}, we = [
 	1,
 	10,
 	12,
 	14
-], De = [
+], Te = [
 	2,
 	9,
 	11,
 	13
-], Oe = [
+], Ee = [
 	4,
 	8,
 	16,
 	16
 ];
-function ke(e, t) {
+function De(e, t) {
 	return e[Math.floor((t + 7) / 17) + 1];
 }
-function Ae(e) {
+function Oe(e) {
 	let t = [];
 	for (let n of e) J(n, 8, t);
-	return new X(Oe, e.length, t);
+	return new X(Ee, e.length, t);
 }
-function je(e) {
-	if (!Pe(e)) throw RangeError("String contains non-numeric characters");
+function ke(e) {
+	if (!Me(e)) throw RangeError("String contains non-numeric characters");
 	let t = [];
 	for (let n = 0; n < e.length;) {
 		let r = Math.min(e.length - n, 3);
 		J(Number.parseInt(e.substring(n, n + r), 10), r * 3 + 1, t), n += r;
 	}
-	return new X(Ee, e.length, t);
+	return new X(we, e.length, t);
 }
-function Me(e) {
-	if (!Fe(e)) throw RangeError("String contains unencodable characters in alphanumeric mode");
+function Ae(e) {
+	if (!Ne(e)) throw RangeError("String contains unencodable characters in alphanumeric mode");
 	let t = [], n = 0;
 	for (; n + 2 <= e.length; n += 2) {
 		let r = W.indexOf(e.charAt(n)) * 45;
 		r += W.indexOf(e.charAt(n + 1)), J(r, 11, t);
 	}
-	return n < e.length && J(W.indexOf(e.charAt(n)), 6, t), new X(De, e.length, t);
+	return n < e.length && J(W.indexOf(e.charAt(n)), 6, t), new X(Te, e.length, t);
+}
+function je(e) {
+	return e === "" ? [] : Me(e) ? [ke(e)] : Ne(e) ? [Ae(e)] : [Oe(Fe(e))];
+}
+function Me(e) {
+	return ge.test(e);
 }
 function Ne(e) {
-	return e === "" ? [] : Pe(e) ? [je(e)] : Fe(e) ? [Me(e)] : [Ae(Le(e))];
+	return _e.test(e);
 }
-function Pe(e) {
-	return ve.test(e);
-}
-function Fe(e) {
-	return ye.test(e);
-}
-function Ie(e, t) {
+function Pe(e, t) {
 	let n = 0;
 	for (let r of e) {
-		let e = ke(r.mode, t);
+		let e = De(r.mode, t);
 		if (r.numChars >= 1 << e) return Infinity;
 		n += 4 + e + r.bitData.length;
 	}
 	return n;
 }
-function Le(e) {
+function Fe(e) {
 	e = encodeURI(e);
 	let t = [];
 	for (let n = 0; n < e.length; n++) e.charAt(n) === "%" ? (t.push(Number.parseInt(e.substring(n + 1, n + 3), 16)), n += 2) : t.push(e.charCodeAt(n));
@@ -999,9 +1001,9 @@ function Z(e) {
 	return t;
 }
 function Q(e, t) {
-	return Math.floor(Z(e) / 8) - Ce[t[0]][e] * we[t[0]][e];
+	return Math.floor(Z(e) / 8) - xe[t[0]][e] * Se[t[0]][e];
 }
-function Re(e) {
+function Ie(e) {
 	if (e < 1 || e > 255) throw RangeError("Degree out of range");
 	let t = [];
 	for (let n = 0; n < e - 1; n++) t.push(0);
@@ -1013,7 +1015,7 @@ function Re(e) {
 	}
 	return t;
 }
-function ze(e, t) {
+function Le(e, t) {
 	let n = t.map((e) => 0);
 	for (let r of e) {
 		let e = r ^ n.shift();
@@ -1027,11 +1029,11 @@ function $(e, t) {
 	for (let r = 7; r >= 0; r--) n = n << 1 ^ (n >>> 7) * 285, n ^= (t >>> r & 1) * e;
 	return n;
 }
-function Be(e, t, n = 1, r = 40, i = -1, a = !0) {
+function Re(e, t, n = 1, r = 40, i = -1, a = !0) {
 	if (!(G <= n && n <= r && r <= K) || i < -1 || i > 7) throw RangeError("Invalid value");
 	let o, s;
 	for (o = n;; o++) {
-		let n = Q(o, t) * 8, i = Ie(e, o);
+		let n = Q(o, t) * 8, i = Pe(e, o);
 		if (i <= n) {
 			s = i;
 			break;
@@ -1039,25 +1041,25 @@ function Be(e, t, n = 1, r = 40, i = -1, a = !0) {
 		if (o >= r) throw RangeError("Data too long");
 	}
 	for (let e of [
-		me,
-		he,
-		ge
+		fe,
+		pe,
+		me
 	]) a && s <= Q(o, e) * 8 && (t = e);
 	let c = [];
 	for (let t of e) {
-		J(t.mode[0], 4, c), J(t.numChars, ke(t.mode, o), c);
+		J(t.mode[0], 4, c), J(t.numChars, De(t.mode, o), c);
 		for (let e of t.getData()) c.push(e);
 	}
 	let l = Q(o, t) * 8;
 	J(0, Math.min(4, l - c.length), c), J(0, (8 - c.length % 8) % 8, c);
 	for (let e = 236; c.length < l; e ^= 253) J(e, 8, c);
 	let u = Array.from({ length: Math.ceil(c.length / 8) }, () => 0);
-	return c.forEach((e, t) => u[t >>> 3] |= e << 7 - (t & 7)), new Te(o, t, u, i);
+	return c.forEach((e, t) => u[t >>> 3] |= e << 7 - (t & 7)), new Ce(o, t, u, i);
 }
-function Ve(e, t) {
-	let { ecc: n = "L", boostEcc: r = !1, minVersion: i = 1, maxVersion: a = 40, maskPattern: o = -1, border: s = 1 } = t || {}, c = typeof e == "string" ? Ne(e) : Array.isArray(e) ? [Ae(e)] : void 0;
+function ze(e, t) {
+	let { ecc: n = "L", boostEcc: r = !1, minVersion: i = 1, maxVersion: a = 40, maskPattern: o = -1, border: s = 1 } = t || {}, c = typeof e == "string" ? je(e) : Array.isArray(e) ? [Oe(e)] : void 0;
 	if (!c) throw Error(`uqr only supports encoding string and binary data, but got: ${typeof e}`);
-	let l = Be(c, _e[n], i, a, o, r), u = He({
+	let l = Re(c, he[n], i, a, o, r), u = Be({
 		version: l.version,
 		maskPattern: l.mask,
 		size: l.size,
@@ -1066,7 +1068,7 @@ function Ve(e, t) {
 	}, s);
 	return t?.invert && (u.data = u.data.map((e) => e.map((e) => !e))), t?.onEncoded?.(u), u;
 }
-function He(e, t = 1) {
+function Be(e, t = 1) {
 	if (!t) return e;
 	let { size: n } = e, r = n + t * 2;
 	e.size = r, e.data.forEach((e) => {
@@ -1080,49 +1082,49 @@ function He(e, t = 1) {
 	for (let n = 0; n < t; n++) e.types.unshift(Array.from({ length: r }, (e) => i)), e.types.push(Array.from({ length: r }, (e) => i));
 	return e;
 }
-function Ue(e) {
+function Ve(e) {
 	return e.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
-function We(e, t = {}) {
-	let n = Ve(e, t), { pixelSize: r = 10, whiteColor: i = "white", blackColor: a = "black" } = t, o = n.size * r, s = n.size * r, c = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s} ${o}">`, l = [];
+function He(e, t = {}) {
+	let n = ze(e, t), { pixelSize: r = 10, whiteColor: i = "white", blackColor: a = "black" } = t, o = n.size * r, s = n.size * r, c = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s} ${o}">`, l = [];
 	for (let e = 0; e < n.size; e++) for (let t = 0; t < n.size; t++) {
 		let i = t * r, a = e * r;
 		n.data[e][t] && l.push(`M${i},${a}h${r}v${r}h-${r}z`);
 	}
-	return c += `<rect fill="${Ue(i)}" width="${s}" height="${o}"/>`, c += `<path fill="${Ue(a)}" d="${l.join("")}"/>`, c += "</svg>", c;
+	return c += `<rect fill="${Ve(i)}" width="${s}" height="${o}"/>`, c += `<path fill="${Ve(a)}" d="${l.join("")}"/>`, c += "</svg>", c;
 }
 // src/components/two-factor/GuardianQrCode.vue?vue&type=script&setup=true&lang.ts
-var Ge = ["aria-label", "innerHTML"], Ke = /* @__PURE__ */ v({
+var Ue = ["aria-label", "innerHTML"], We = /* @__PURE__ */ v({
 	__name: "GuardianQrCode",
 	props: {
 		value: {},
 		label: {}
 	},
 	setup(e) {
-		let t = e, n = d(() => We(t.value, { border: 2 }));
+		let t = e, n = d(() => He(t.value, { border: 2 }));
 		return (t, r) => (x(), m("div", {
 			class: "size-48 rounded bg-white p-1",
 			role: "img",
 			"aria-label": e.label,
 			"data-testid": "guardian-qr",
 			innerHTML: E(n)
-		}, null, 8, Ge));
+		}, null, 8, Ue));
 	}
-}), qe = {
+}), Ge = {
 	class: "space-y-3",
 	"data-testid": "guardian-totp"
-}, Je = { class: "font-medium" }, Ye = {
+}, Ke = { class: "font-medium" }, qe = {
 	key: 1,
 	class: "space-y-3"
-}, Xe = { class: "text-sm text-muted" }, Ze = { class: "text-sm" }, Qe = {
+}, Je = { class: "text-sm text-muted" }, Ye = { class: "text-sm" }, Xe = {
 	class: "break-all font-mono",
 	"data-testid": "guardian-totp-secret"
-}, $e = /* @__PURE__ */ v({
+}, Ze = /* @__PURE__ */ v({
 	__name: "GuardianTotpEnrol",
 	props: { client: {} },
 	emits: ["confirmed"],
 	setup(t, { emit: n }) {
-		let i = t, a = n, { t: s } = L(), c = o(), l = o(), u = S(""), d = S(""), f = S(null), p = S(null);
+		let i = t, a = n, { t: s } = I(), c = o(), l = o(), u = S(""), d = S(""), f = S(null), p = S(null);
 		function v() {
 			f.value = null, p.value = null, d.value = "";
 		}
@@ -1139,28 +1141,28 @@ var Ge = ["aria-label", "innerHTML"], Ke = /* @__PURE__ */ v({
 			d.value = "", t && (v(), a("confirmed", e));
 		}
 		return b(v), (t, n) => {
-			let r = I, i = F, a = N;
-			return x(), m("div", qe, [
-				h("h3", Je, T(E(s)("guardian.two_factor.totp.title")), 1),
+			let r = P, i = N, a = j;
+			return x(), m("div", Ge, [
+				h("h3", Ke, T(E(s)("guardian.two_factor.totp.title")), 1),
 				_(e, { action: E(c) }, null, 8, ["action"]),
-				E(p) ? (x(), m("div", Ye, [
-					h("p", Xe, T(E(s)("guardian.two_factor.totp.scan")), 1),
-					_(Ke, {
+				E(p) ? (x(), m("div", qe, [
+					h("p", Je, T(E(s)("guardian.two_factor.totp.scan")), 1),
+					_(We, {
 						value: E(p),
 						label: E(s)("guardian.two_factor.totp.qr_label")
 					}, null, 8, ["value", "label"]),
-					h("p", Ze, [g(T(E(s)("guardian.two_factor.totp.manual")) + " ", 1), h("code", Qe, T(E(f)), 1)]),
+					h("p", Ye, [g(T(E(s)("guardian.two_factor.totp.manual")) + " ", 1), h("code", Xe, T(E(f)), 1)]),
 					_(e, { action: E(l) }, null, 8, ["action"]),
 					h("form", {
 						class: "flex flex-wrap items-end gap-2",
 						"data-testid": "guardian-totp-confirm",
-						onSubmit: j(w, ["prevent"])
+						onSubmit: k(w, ["prevent"])
 					}, [_(i, {
 						label: E(s)("guardian.two_factor.fields.code"),
 						error: E(l).error("code"),
 						required: ""
 					}, {
-						default: k(() => [_(r, {
+						default: O(() => [_(r, {
 							modelValue: E(d),
 							"onUpdate:modelValue": n[1] ||= (e) => y(d) ? d.value = e : null,
 							autocomplete: "one-time-code",
@@ -1173,19 +1175,19 @@ var Ge = ["aria-label", "innerHTML"], Ke = /* @__PURE__ */ v({
 						loading: E(l).busy.value,
 						"data-testid": "guardian-totp-submit"
 					}, {
-						default: k(() => [g(T(E(s)("guardian.two_factor.confirm")), 1)]),
+						default: O(() => [g(T(E(s)("guardian.two_factor.confirm")), 1)]),
 						_: 1
 					}, 8, ["loading"])], 32)
 				])) : (x(), m("form", {
 					key: 0,
 					class: "flex flex-wrap items-end gap-2",
 					"data-testid": "guardian-totp-start",
-					onSubmit: j(C, ["prevent"])
+					onSubmit: k(C, ["prevent"])
 				}, [_(i, {
 					label: E(s)("guardian.two_factor.fields.label"),
 					error: E(c).error("label")
 				}, {
-					default: k(() => [_(r, {
+					default: O(() => [_(r, {
 						modelValue: E(u),
 						"onUpdate:modelValue": n[0] ||= (e) => y(u) ? u.value = e : null,
 						"data-testid": "guardian-totp-label"
@@ -1196,29 +1198,29 @@ var Ge = ["aria-label", "innerHTML"], Ke = /* @__PURE__ */ v({
 					loading: E(c).busy.value,
 					"data-testid": "guardian-totp-begin"
 				}, {
-					default: k(() => [g(T(E(s)("guardian.two_factor.totp.begin")), 1)]),
+					default: O(() => [g(T(E(s)("guardian.two_factor.totp.begin")), 1)]),
 					_: 1
 				}, 8, ["loading"])], 32))
 			]);
 		};
 	}
-}), et = {
+}), Qe = {
 	class: "space-y-4",
 	"data-testid": "guardian-two-factor-methods"
-}, tt = {
+}, $e = {
 	key: 1,
 	class: "space-y-2"
-}, nt = { class: "font-medium" }, rt = { class: "divide-y divide-default text-sm" }, it = ["data-testid"], at = { class: "text-muted" }, ot = {
+}, et = { class: "font-medium" }, tt = { class: "divide-y divide-default text-sm" }, nt = ["data-testid"], rt = { class: "text-muted" }, it = {
 	key: 0,
 	class: "py-2 text-muted"
-}, st = {
+}, at = {
 	key: 5,
 	class: "space-y-2",
 	"data-testid": "guardian-recovery"
-}, ct = { class: "font-medium" }, lt = {
+}, ot = { class: "font-medium" }, st = {
 	class: "text-sm",
 	"data-testid": "guardian-recovery-remaining"
-}, ut = /* @__PURE__ */ v({
+}, ct = /* @__PURE__ */ v({
 	__name: "GuardianTwoFactorMethods",
 	props: {
 		client: {},
@@ -1230,11 +1232,11 @@ var Ge = ["aria-label", "innerHTML"], Ke = /* @__PURE__ */ v({
 	},
 	emits: ["changed", "confirmed"],
 	setup(t, { emit: s }) {
-		let c = t, l = s, { t: v } = L(), y = o(), w = S(null), D = d(() => a(c.status)), O = d(() => D.value.filter((e) => e === "email" || e === "sms")), A = d(() => i(c.status));
-		function j(e) {
+		let c = t, l = s, { t: v } = I(), y = o(), w = S(null), D = d(() => a(c.status)), k = d(() => D.value.filter((e) => e === "email" || e === "sms")), A = d(() => i(c.status));
+		function M(e) {
 			c.setup ? l("confirmed", e) : (w.value = e && e.length > 0 ? e : null, l("changed"));
 		}
-		async function M() {
+		async function N() {
 			window.confirm(v("guardian.two_factor.recovery.confirm_regenerate")) && (await y.run(async () => {
 				w.value = r(await c.client.POST("/two-factor/recovery-codes")).data.recovery_codes;
 			}), l("changed"));
@@ -1242,22 +1244,22 @@ var Ge = ["aria-label", "innerHTML"], Ke = /* @__PURE__ */ v({
 		return b(() => {
 			w.value = null;
 		}), (r, i) => {
-			let a = N;
-			return x(), m("div", et, [
-				E(w) ? (x(), f(fe, {
+			let a = j;
+			return x(), m("div", Qe, [
+				E(w) ? (x(), f(ue, {
 					key: 0,
 					codes: E(w),
 					onDone: i[0] ||= (e) => w.value = null
 				}, null, 8, ["codes"])) : p("", !0),
-				t.setup ? p("", !0) : (x(), m("section", tt, [h("h3", nt, T(E(v)("guardian.two_factor.methods.title")), 1), h("ul", rt, [(x(!0), m(u, null, C(E(A), (e) => (x(), m("li", {
+				t.setup ? p("", !0) : (x(), m("section", $e, [h("h3", et, T(E(v)("guardian.two_factor.methods.title")), 1), h("ul", tt, [(x(!0), m(u, null, C(E(A), (e) => (x(), m("li", {
 					key: e.id,
 					class: "flex flex-wrap items-center justify-between gap-2 py-2",
 					"data-testid": `guardian-method-${e.id}`
 				}, [h("span", null, [
 					h("strong", null, T(E(v)(`guardian.two_factor.types.${e.type}`)), 1),
 					g(" " + T(e.label ?? e.destination ?? "") + " ", 1),
-					h("span", at, T(E(n)(e.last_used_at) ?? E(v)("guardian.two_factor.never_used")), 1)
-				]), _(z, {
+					h("span", rt, T(E(n)(e.last_used_at) ?? E(v)("guardian.two_factor.never_used")), 1)
+				]), _(R, {
 					client: t.client,
 					kind: "method",
 					id: e.id,
@@ -1267,33 +1269,33 @@ var Ge = ["aria-label", "innerHTML"], Ke = /* @__PURE__ */ v({
 					"client",
 					"id",
 					"name"
-				])], 8, it))), 128)), E(A).length === 0 ? (x(), m("li", ot, T(E(v)("guardian.two_factor.methods.none")), 1)) : p("", !0)])])),
-				E(D).includes("totp") ? (x(), f($e, {
+				])], 8, nt))), 128)), E(A).length === 0 ? (x(), m("li", it, T(E(v)("guardian.two_factor.methods.none")), 1)) : p("", !0)])])),
+				E(D).includes("totp") ? (x(), f(Ze, {
 					key: 2,
 					client: t.client,
-					onConfirmed: j
+					onConfirmed: M
 				}, null, 8, ["client"])) : p("", !0),
-				E(O).length > 0 ? (x(), f(H, {
+				E(k).length > 0 ? (x(), f(V, {
 					key: 3,
 					client: t.client,
-					types: E(O),
-					onConfirmed: j
+					types: E(k),
+					onConfirmed: M
 				}, null, 8, ["client", "types"])) : p("", !0),
-				E(D).includes("passkey") ? (x(), f(se, {
+				E(D).includes("passkey") ? (x(), f(H, {
 					key: 4,
 					client: t.client,
 					available: t.status.passkeys_available,
 					manage: !t.setup,
-					onConfirmed: j,
+					onConfirmed: M,
 					onChanged: i[2] ||= (e) => l("changed")
 				}, null, 8, [
 					"client",
 					"available",
 					"manage"
 				])) : p("", !0),
-				!t.setup && t.status.enabled ? (x(), m("section", st, [
-					h("h3", ct, T(E(v)("guardian.two_factor.recovery.title")), 1),
-					h("p", lt, T(E(v)("guardian.two_factor.recovery.remaining", { count: t.status.recovery_codes_remaining })), 1),
+				!t.setup && t.status.enabled ? (x(), m("section", at, [
+					h("h3", ot, T(E(v)("guardian.two_factor.recovery.title")), 1),
+					h("p", st, T(E(v)("guardian.two_factor.recovery.remaining", { count: t.status.recovery_codes_remaining })), 1),
 					_(e, { action: E(y) }, null, 8, ["action"]),
 					_(a, {
 						color: "neutral",
@@ -1301,9 +1303,9 @@ var Ge = ["aria-label", "innerHTML"], Ke = /* @__PURE__ */ v({
 						icon: "i-lucide-refresh-cw",
 						loading: E(y).busy.value,
 						"data-testid": "guardian-recovery-regenerate",
-						onClick: M
+						onClick: N
 					}, {
-						default: k(() => [g(T(E(v)("guardian.two_factor.recovery.regenerate")), 1)]),
+						default: O(() => [g(T(E(v)("guardian.two_factor.recovery.regenerate")), 1)]),
 						_: 1
 					}, 8, ["loading"])
 				])) : p("", !0)
@@ -1311,4 +1313,4 @@ var Ge = ["aria-label", "innerHTML"], Ke = /* @__PURE__ */ v({
 		};
 	}
 });
-export { fe as n, ut as t };
+export { ue as n, ct as t };

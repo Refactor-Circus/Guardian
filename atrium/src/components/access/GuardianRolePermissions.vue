@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { toggled } from '../ui'
 import type { GuardianPermission } from './access'
 
 /**
@@ -17,10 +18,15 @@ const { t } = useI18n()
     <legend class="mb-1 text-sm font-medium">{{ t('guardian.access.roles.fields.permissions') }}</legend>
     <p v-if="props.permissions.length === 0" class="text-sm text-muted">{{ t('guardian.access.roles.no_permissions') }}</p>
     <div v-else class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-      <label v-for="permission in props.permissions" :key="permission.name" class="flex items-center gap-2 text-sm">
-        <input v-model="model" type="checkbox" class="accent-(--ui-primary)" :value="permission.name" :data-testid="`${props.idPrefix}-permission-${permission.name}`">
-        <code>{{ permission.name }}</code>
-      </label>
+      <UCheckbox
+        v-for="permission in props.permissions"
+        :key="permission.name"
+        :model-value="model.includes(permission.name)"
+        :data-testid="`${props.idPrefix}-permission-${permission.name}`"
+        @update:model-value="model = toggled(model, permission.name, $event)"
+      >
+        <template #label><code>{{ permission.name }}</code></template>
+      </UCheckbox>
     </div>
     <p v-if="props.error" class="text-sm text-error">{{ props.error }}</p>
   </fieldset>

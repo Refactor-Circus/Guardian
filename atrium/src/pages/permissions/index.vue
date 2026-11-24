@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { TableColumn } from '@nuxt/ui'
 import GuardianErrors from '../../components/access/GuardianErrors.vue'
 import GuardianPager from '../../components/access/GuardianPager.vue'
 import { blankToNull, pageOf, type GuardianPermission } from '../../components/access/access'
@@ -30,6 +31,11 @@ const { client, data, pending, failed, status, reload } = useGuardianLoad(async 
 
 const rows = computed(() => data.value?.data ?? [])
 const paging = computed(() => pageOf(data.value))
+const columns = computed<TableColumn<GuardianPermission>[]>(() => [
+  { id: 'name', header: t('guardian.access.permissions.fields.name') },
+  { id: 'description', header: t('guardian.access.permissions.fields.description') },
+  { id: 'actions', meta: { class: { td: 'text-right whitespace-nowrap' } } }
+])
 const edits = reactive<Record<string, { name: string, description: string }>>({})
 const form = reactive({ name: '', description: '' })
 
@@ -106,33 +112,24 @@ async function destroy(permission: GuardianPermission): Promise<void> {
             <div class="space-y-4">
               <GuardianErrors :action="update" testid="guardian-permission-update" />
               <GuardianErrors :action="remove" testid="guardian-permission-delete" />
-              <p v-if="rows.length === 0" class="atrium-empty" data-testid="guardian-permissions-empty">{{ t('guardian.access.permissions.empty') }}</p>
-              <table v-else class="w-full text-left text-sm" data-testid="guardian-permissions-table">
-                <thead class="text-muted">
-                  <tr>
-                    <th class="py-2 pr-3 font-medium">{{ t('guardian.access.permissions.fields.name') }}</th>
-                    <th class="py-2 pr-3 font-medium">{{ t('guardian.access.permissions.fields.description') }}</th>
-                    <th class="py-2" />
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-default">
-                  <tr v-for="permission in rows" :key="permission.name" :data-testid="`guardian-permission-${permission.name}`">
-                    <td class="py-2 pr-3">
-                      <div class="flex items-center gap-2">
-                        <UInput v-if="edits[permission.name]" v-model="edits[permission.name]!.name" :disabled="permission.system" class="w-56" data-testid="guardian-permission-name" />
-                        <UBadge v-if="permission.system" color="neutral" variant="subtle">{{ t('guardian.access.permissions.built_in') }}</UBadge>
-                      </div>
-                    </td>
-                    <td class="py-2 pr-3">
-                      <UInput v-if="edits[permission.name]" v-model="edits[permission.name]!.description" class="w-full" data-testid="guardian-permission-description" />
-                    </td>
-                    <td class="py-2 text-right whitespace-nowrap">
-                      <UButton size="xs" variant="soft" data-testid="guardian-permission-save" @click="save(permission)">{{ t('guardian.access.save') }}</UButton>
-                      <UButton size="xs" color="error" variant="ghost" :disabled="permission.system" data-testid="guardian-permission-delete" @click="destroy(permission)">{{ t('guardian.access.permissions.delete') }}</UButton>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <UTable :data="rows" :columns="columns" data-testid="guardian-permissions-table">
+                <template #name-cell="{ row }">
+                  <div class="flex items-center gap-2" :data-testid="`guardian-permission-${row.original.name}`">
+                    <UInput v-if="edits[row.original.name]" v-model="edits[row.original.name]!.name" :disabled="row.original.system" class="w-56" data-testid="guardian-permission-name" />
+                    <UBadge v-if="row.original.system" color="neutral" variant="subtle">{{ t('guardian.access.permissions.built_in') }}</UBadge>
+                  </div>
+                </template>
+                <template #description-cell="{ row }">
+                  <UInput v-if="edits[row.original.name]" v-model="edits[row.original.name]!.description" class="w-full" data-testid="guardian-permission-description" />
+                </template>
+                <template #actions-cell="{ row }">
+                  <UButton size="xs" variant="soft" data-testid="guardian-permission-save" @click="save(row.original)">{{ t('guardian.access.save') }}</UButton>
+                  <UButton size="xs" color="error" variant="ghost" :disabled="row.original.system" data-testid="guardian-permission-delete" @click="destroy(row.original)">{{ t('guardian.access.permissions.delete') }}</UButton>
+                </template>
+                <template #empty>
+                  <AtriumState compact :title="t('guardian.access.permissions.empty')" data-testid="guardian-permissions-empty" />
+                </template>
+              </UTable>
 
               <GuardianPager :current="paging.current" :last="paging.last" testid="guardian-permissions" @go="go" />
 

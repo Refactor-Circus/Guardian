@@ -5,6 +5,7 @@ import { mockPackageApi, reply, resetPackageApis, type PackageRoutes } from '@re
 import { confirmWith, guardianCalls, guardianScreensApi, mountGuardianPage, page, resetGuardianPages } from '../support'
 import { postsEdit, rolesView } from './support'
 import { clearAtriumData, mockAtriumApi, useRouter } from '@refactor-circus/atrium/testing'
+import { rowOf } from '../ui'
 
 /*
  * `guardian.permissions` (AC 89): list and search; create, update and
@@ -76,7 +77,7 @@ describe('guardian.permissions', () => {
     mockPackageApi('guardian', routes({ 'PATCH /permissions/{permission}': { data: postsEdit } }))
 
     const wrapper = await mountGuardianPage(Page, '/guardian/permissions')
-    const row = wrapper.find('[data-testid="guardian-permission-posts.edit"]')
+    const row = rowOf(wrapper, 'guardian-permission-posts.edit')
     await row.find('[data-testid="guardian-permission-name"]').setValue('posts.update')
     await row.find('[data-testid="guardian-permission-description"]').setValue('Update posts.')
     await row.find('[data-testid="guardian-permission-save"]').trigger('click')
@@ -91,7 +92,7 @@ describe('guardian.permissions', () => {
     mockPackageApi('guardian', routes({ 'PATCH /permissions/{permission}': { data: rolesView } }))
 
     const wrapper = await mountGuardianPage(Page, '/guardian/permissions')
-    const row = wrapper.find('[data-testid="guardian-permission-guardian.roles.view"]')
+    const row = rowOf(wrapper, 'guardian-permission-guardian.roles.view')
 
     expect(row.find('[data-testid="guardian-permission-name"]').attributes('disabled')).toBeDefined()
     expect(row.find('[data-testid="guardian-permission-delete"]').attributes('disabled')).toBeDefined()
@@ -108,7 +109,7 @@ describe('guardian.permissions', () => {
     mockPackageApi('guardian', routes({ 'DELETE /permissions/{permission}': reply(204) }))
 
     const wrapper = await mountGuardianPage(Page, '/guardian/permissions')
-    await wrapper.find('[data-testid="guardian-permission-posts.edit"] [data-testid="guardian-permission-delete"]').trigger('click')
+    await rowOf(wrapper, 'guardian-permission-posts.edit').find('[data-testid="guardian-permission-delete"]').trigger('click')
     await settle()
 
     expect(confirm.mock.calls[0]?.[0]).toContain('posts.edit')

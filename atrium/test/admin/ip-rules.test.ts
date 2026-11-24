@@ -5,6 +5,7 @@ import { mockPackageApi, reply, resetPackageApis, type PackageRoutes } from '@re
 import { confirmWith, guardianCalls, guardianScreensApi, mountGuardianPage, page, resetGuardianPages, screenOptions } from '../support'
 import { allowRule, denyRule } from './support'
 import { clearAtriumData, mockAtriumApi, useRouter } from '@refactor-circus/atrium/testing'
+import { choose, rowOf } from '../ui'
 
 /*
  * `guardian.ip-rules` (AC 93): list; create, with a 422 for an invalid
@@ -45,8 +46,8 @@ describe('guardian.ip-rules', () => {
     const wrapper = await mountGuardianPage(Page, '/guardian/ip-rules')
 
     expect(guardianCalls('GET', '/ip-rules')[0]?.query).toEqual({ per_page: '25' })
-    expect(wrapper.find('[data-testid="guardian-ip-rule-rule-1"]').text()).toContain('198.51.100.0/24')
-    expect(wrapper.find('[data-testid="guardian-ip-rule-rule-2"]').text()).toContain('Office')
+    expect(rowOf(wrapper, 'guardian-ip-rule-rule-1').text()).toContain('198.51.100.0/24')
+    expect(rowOf(wrapper, 'guardian-ip-rule-rule-2').text()).toContain('Office')
     expect(wrapper.find('[data-testid="guardian-ip-rules-mode"]').text()).toContain('denylist')
     expect(wrapper.find('[data-testid="guardian-ip-rules-allowlist"]').exists()).toBe(false)
   })
@@ -56,7 +57,7 @@ describe('guardian.ip-rules', () => {
 
     const wrapper = await mountGuardianPage(Page, '/guardian/ip-rules')
     await wrapper.find('[data-testid="guardian-ip-rule-cidr"]').setValue(' 203.0.113.0/24 ')
-    await wrapper.find('[data-testid="guardian-ip-rule-action"]').setValue('allow')
+    await choose(wrapper, 'guardian-ip-rule-action', 'allow')
     await wrapper.find('[data-testid="guardian-ip-rule-description"]').setValue('Office')
     await wrapper.find('[data-testid="guardian-ip-rule-expires"]').setValue('2026-12-31')
     await wrapper.find('[data-testid="guardian-ip-rule-form"]').trigger('submit')

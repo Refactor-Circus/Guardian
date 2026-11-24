@@ -140,18 +140,9 @@ async function destroy(): Promise<void> {
                 </UFormField>
                 <SsoConnectionFields :protocol="connection.protocol" :values="settings" :action="save" editing testid="guardian-sso" />
                 <div class="flex flex-wrap gap-4 text-sm">
-                  <label class="flex items-center gap-1">
-                    <input v-model="form.jit" type="checkbox" data-testid="guardian-sso-jit">
-                    {{ t('guardian.sso.fields.jit') }}
-                  </label>
-                  <label class="flex items-center gap-1">
-                    <input v-model="form.enforced" type="checkbox" data-testid="guardian-sso-enforced">
-                    {{ t('guardian.sso.fields.enforced') }}
-                  </label>
-                  <label class="flex items-center gap-1">
-                    <input v-model="form.enabled" type="checkbox" data-testid="guardian-sso-enabled">
-                    {{ t('guardian.sso.fields.enabled') }}
-                  </label>
+                  <USwitch v-model="form.jit" :label="t('guardian.sso.fields.jit')" data-testid="guardian-sso-jit" />
+                  <USwitch v-model="form.enforced" :label="t('guardian.sso.fields.enforced')" data-testid="guardian-sso-enforced" />
+                  <USwitch v-model="form.enabled" :label="t('guardian.sso.fields.enabled')" data-testid="guardian-sso-enabled" />
                 </div>
                 <GuardianErrors v-if="Object.keys(save.errors.value).length === 0" :action="save" testid="guardian-sso-save" />
                 <div class="flex items-center gap-3">

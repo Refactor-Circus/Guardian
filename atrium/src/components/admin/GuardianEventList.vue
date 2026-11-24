@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { TableColumn } from '@nuxt/ui'
 import GuardianState from '../two-factor/GuardianState.vue'
 import { formatDate, guardianData, useGuardianLoad, type GuardianCursorPage } from '../two-factor/guardian'
 import type { GuardianSecurityEvent } from '../security/security'
@@ -34,6 +35,13 @@ const { data: page, pending, failed, status } = useGuardianLoad(async guardian =
 
 const events = computed(() => page.value?.data ?? [])
 
+const columns = computed<TableColumn<GuardianSecurityEvent>[]>(() => [
+  { accessorKey: 'type', header: t('guardian.admin.events.fields.type') },
+  { accessorKey: 'user_id', header: t('guardian.admin.events.fields.user') },
+  { accessorKey: 'ip', header: t('guardian.admin.events.fields.ip'), meta: { class: { td: 'text-muted' } } },
+  { accessorKey: 'occurred_at', header: t('guardian.admin.events.fields.occurred_at'), meta: { class: { td: 'text-muted' } } }
+])
+
 function older(): void {
   const next = page.value?.meta?.next_cursor
 
@@ -52,27 +60,19 @@ function newer(): void {
 <template>
   <GuardianState :ready="!pending && page !== null" :failed="failed" :status="status">
     <div class="space-y-3" :data-testid="testid">
-      <p v-if="events.length === 0" class="text-sm text-muted" :data-testid="`${testid}-empty`">{{ t('guardian.admin.events.empty') }}</p>
-      <table v-else class="w-full text-left text-sm">
-        <thead class="text-muted">
-          <tr>
-            <th class="py-2 pr-3 font-medium">{{ t('guardian.admin.events.fields.type') }}</th>
-            <th class="py-2 pr-3 font-medium">{{ t('guardian.admin.events.fields.user') }}</th>
-            <th class="py-2 pr-3 font-medium">{{ t('guardian.admin.events.fields.ip') }}</th>
-            <th class="py-2 font-medium">{{ t('guardian.admin.events.fields.occurred_at') }}</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-default">
-          <tr v-for="event in events" :key="event.id" :data-testid="`guardian-event-${event.id}`">
-            <td class="py-2 pr-3">
-              <RouterLink :to="eventPath(event.id)" class="font-mono hover:underline" data-testid="guardian-event-link">{{ event.type }}</RouterLink>
-            </td>
-            <td class="py-2 pr-3">{{ event.user_id ?? '—' }}</td>
-            <td class="py-2 pr-3 text-muted">{{ event.ip ?? '—' }}</td>
-            <td class="py-2 text-muted">{{ formatDate(event.occurred_at) }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <UTable :data="events" :columns="columns">
+        <template #type-cell="{ row }">
+          <div :data-testid="`guardian-event-${row.original.id}`">
+            <ULink :to="eventPath(row.original.id)" class="font-mono hover:underline" data-testid="guardian-event-link">{{ row.original.type }}</ULink>
+          </div>
+        </template>
+        <template #user_id-cell="{ row }">{{ row.original.user_id ?? '—' }}</template>
+        <template #ip-cell="{ row }">{{ row.original.ip ?? '—' }}</template>
+        <template #occurred_at-cell="{ row }">{{ formatDate(row.original.occurred_at) }}</template>
+        <template #empty>
+          <AtriumState compact :title="t('guardian.admin.events.empty')" :data-testid="`${testid}-empty`" />
+        </template>
+      </UTable>
       <div class="flex gap-2">
         <UButton v-if="previous.length > 0" size="xs" color="neutral" variant="soft" :data-testid="`${testid}-newer`" @click="newer">{{ t('guardian.admin.events.newer') }}</UButton>
         <UButton v-if="page?.meta?.next_cursor" size="xs" color="neutral" variant="soft" :data-testid="`${testid}-older`" @click="older">{{ t('guardian.admin.events.older') }}</UButton>

@@ -25,6 +25,7 @@ import {
   totpMethod,
   unstubWebAuthn
 } from './support'
+import { choices, choose } from '../ui'
 
 /*
  * The shared two-factor components (AC 87): each request's method, path and
@@ -302,14 +303,14 @@ describe('the two-factor components', () => {
       guardianWith({ 'POST /two-factor/one-time-codes': reply(422, { message: 'SMS codes are not available.', code: 'method_unavailable' }) })
 
       const wrapper = await mount(GuardianOneTimeCodes, { types: ['email', 'sms'] })
-      await wrapper.find('[data-testid="guardian-one-time-type"]').setValue('sms')
+      await choose(wrapper, 'guardian-one-time-type', 'sms')
       await wrapper.find('[data-testid="guardian-one-time-destination"]').setValue('+15551234567')
       await wrapper.find('[data-testid="guardian-one-time-send"]').trigger('submit')
       await settle()
 
       expect(guardianCalls('POST', '/two-factor/one-time-codes')[0]?.body).toEqual({ type: 'sms', destination: '+15551234567' })
       expect(wrapper.find('[data-testid="guardian-one-time-unavailable"]').text()).toContain('not available on this site')
-      expect(wrapper.findAll('[data-testid="guardian-one-time-type"] option').map(option => option.attributes('value'))).toEqual(['email'])
+      expect(choices(wrapper, 'guardian-one-time-type')).toEqual(['email'])
     })
 
     it('shows the wait of a 429 on a resend', async () => {
@@ -394,7 +395,7 @@ describe('the two-factor components', () => {
 
       expect(wrapper.find('[data-testid="guardian-totp"]').exists()).toBe(false)
       expect(wrapper.find('[data-testid="guardian-passkeys"]').exists()).toBe(false)
-      expect(wrapper.findAll('[data-testid="guardian-one-time-type"] option').map(option => option.attributes('value'))).toEqual(['email'])
+      expect(choices(wrapper, 'guardian-one-time-type')).toEqual(['email'])
     })
   })
 

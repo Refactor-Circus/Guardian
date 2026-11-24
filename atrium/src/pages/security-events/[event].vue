@@ -42,7 +42,7 @@ useHead({ title: () => event.value?.type ?? t('guardian.admin.event.title') })
                 <dd class="font-mono" data-testid="guardian-event-type">{{ event.type }}</dd>
                 <dt class="text-muted">{{ t('guardian.admin.events.fields.user') }}</dt>
                 <dd data-testid="guardian-event-user">
-                  <RouterLink v-if="event.user_id" :to="userPath(event.user_id)" class="hover:underline">{{ event.user_id }}</RouterLink>
+                  <ULink v-if="event.user_id" :to="userPath(event.user_id)" class="hover:underline">{{ event.user_id }}</ULink>
                   <span v-else>—</span>
                 </dd>
                 <dt class="text-muted">{{ t('guardian.admin.events.fields.ip') }}</dt>
@@ -59,7 +59,7 @@ useHead({ title: () => event.value?.type ?? t('guardian.admin.event.title') })
               <template #header>
                 <h2 class="font-semibold">{{ t('guardian.admin.event.context') }}</h2>
               </template>
-              <p v-if="context.length === 0" class="atrium-empty" data-testid="guardian-event-context-empty">{{ t('guardian.admin.event.no_context') }}</p>
+              <AtriumState v-if="context.length === 0" compact :title="t('guardian.admin.event.no_context')" data-testid="guardian-event-context-empty" />
               <dl v-else class="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[12rem_1fr]" data-testid="guardian-event-context">
                 <template v-for="[key, value] in context" :key="key">
                   <dt class="font-mono text-muted">{{ key }}</dt>

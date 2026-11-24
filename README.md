@@ -265,6 +265,8 @@ pnpm typecheck && pnpm test && pnpm build
 
 then commit `dist/atrium/`. `composer test` fails, without Node, when the build is older than its sources (`atrium/src`, which holds the manifest, `client/src`, `package.json`, `vite.config.ts`, `pnpm-lock.yaml`).
 
+The module's components compose Nuxt UI (`UTable`, `USelect`, `UCheckbox`, `UButton`, ...) and the SDK's `Atrium*` components, never raw `<button>`, `<input>`, `<select>`, `<textarea>`, `<table>`, `<details>` or `<a href>`; `atrium/test/nuxt-ui-guard.test.ts` enforces it.
+
 ## MCP
 
 `GuardianServer` offers 51 tools, one per action that suits an agent: roles, assignments, user abilities and permissions; the security log; two-factor status, removal, reset and policies; sessions and devices; the password policy; listing and revoking API tokens; lockouts and IP rules; SSO connections and identities; SCIM tokens. Enrolment, challenges, token issuing and the password check stay HTTP-only. Clients find tools through `search_tools`. Turn on the web endpoint (`mcp.web`, at `mcp/guardian`) or the local server (`mcp.local`, `php artisan mcp:start guardian`) in config; both are off as shipped. Each tool checks the same permissions as the API. With refactor-circus/cortex installed, Cortex agents see them too.

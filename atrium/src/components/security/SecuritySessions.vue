@@ -69,10 +69,7 @@ async function revokeOthers(): Promise<void> {
           </li>
         </ul>
         <div class="flex flex-wrap items-center gap-3">
-          <label class="flex items-center gap-2 text-sm">
-            <input v-model="alsoTokens" type="checkbox" class="accent-(--ui-primary)" data-testid="guardian-sessions-also-tokens">
-            {{ t('guardian.security.sessions.also_tokens') }}
-          </label>
+          <UCheckbox v-model="alsoTokens" :label="t('guardian.security.sessions.also_tokens')" data-testid="guardian-sessions-also-tokens" />
           <UButton color="error" variant="soft" icon="i-lucide-log-out" :loading="action.busy.value" data-testid="guardian-sessions-others" @click="revokeOthers">
             {{ t('guardian.security.sessions.others') }}
           </UButton>

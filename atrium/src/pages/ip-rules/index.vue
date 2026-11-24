@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { TableColumn } from '@nuxt/ui'
 import GuardianErrors from '../../components/access/GuardianErrors.vue'
 import GuardianPager from '../../components/access/GuardianPager.vue'
 import { blankToNull, pageOf } from '../../components/access/access'
@@ -33,6 +34,14 @@ const { client, data, pending, failed, status, reload } = useGuardianLoad(async 
 
 const rows = computed(() => data.value?.data ?? [])
 const paging = computed(() => pageOf(data.value))
+const columns = computed<TableColumn<GuardianIpRule>[]>(() => [
+  { id: 'cidr', header: t('guardian.admin.ip_rules.fields.cidr'), meta: { class: { td: 'font-mono' } } },
+  { id: 'action', header: t('guardian.admin.ip_rules.fields.action') },
+  { id: 'description', header: t('guardian.admin.ip_rules.fields.description') },
+  { id: 'expires_at', header: t('guardian.admin.ip_rules.fields.expires_at'), meta: { class: { td: 'text-muted' } } },
+  { id: 'actions', meta: { class: { td: 'text-right' } } }
+])
+const actions = computed(() => (['allow', 'deny'] as const).map(value => ({ label: t(`guardian.admin.ip_rules.actions.${value}`), value })))
 const form = reactive({ cidr: '', action: 'deny' as 'allow' | 'deny', description: '', expires: '' })
 
 async function add(): Promise<void> {
@@ -93,31 +102,22 @@ function go(next: number): void {
           <GuardianState :ready="!pending && data !== null" :failed="failed" :status="status">
             <div class="space-y-4">
               <GuardianErrors :action="remove" testid="guardian-ip-rule-delete" />
-              <p v-if="rows.length === 0" class="atrium-empty" data-testid="guardian-ip-rules-empty">{{ t('guardian.admin.ip_rules.empty') }}</p>
-              <table v-else class="w-full text-left text-sm" data-testid="guardian-ip-rules-table">
-                <thead class="text-muted">
-                  <tr>
-                    <th class="py-2 pr-3 font-medium">{{ t('guardian.admin.ip_rules.fields.cidr') }}</th>
-                    <th class="py-2 pr-3 font-medium">{{ t('guardian.admin.ip_rules.fields.action') }}</th>
-                    <th class="py-2 pr-3 font-medium">{{ t('guardian.admin.ip_rules.fields.description') }}</th>
-                    <th class="py-2 pr-3 font-medium">{{ t('guardian.admin.ip_rules.fields.expires_at') }}</th>
-                    <th class="py-2" />
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-default">
-                  <tr v-for="rule in rows" :key="rule.id" :data-testid="`guardian-ip-rule-${rule.id}`">
-                    <td class="py-2 pr-3 font-mono">{{ rule.cidr }}</td>
-                    <td class="py-2 pr-3">
-                      <UBadge :color="rule.action === 'allow' ? 'success' : 'error'" variant="subtle">{{ t(`guardian.admin.ip_rules.actions.${rule.action === 'allow' ? 'allow' : 'deny'}`) }}</UBadge>
-                    </td>
-                    <td class="py-2 pr-3">{{ rule.description ?? '—' }}</td>
-                    <td class="py-2 pr-3 text-muted">{{ formatDate(rule.expires_at) ?? t('guardian.admin.never') }}</td>
-                    <td class="py-2 text-right">
-                      <UButton size="xs" color="error" variant="ghost" icon="i-lucide-trash" :data-testid="`guardian-ip-rule-delete-${rule.id}`" @click="destroy(rule)">{{ t('guardian.admin.delete') }}</UButton>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <UTable :data="rows" :columns="columns" data-testid="guardian-ip-rules-table">
+                <template #cidr-cell="{ row }">
+                  <span :data-testid="`guardian-ip-rule-${row.original.id}`">{{ row.original.cidr }}</span>
+                </template>
+                <template #action-cell="{ row }">
+                  <UBadge :color="row.original.action === 'allow' ? 'success' : 'error'" variant="subtle">{{ t(`guardian.admin.ip_rules.actions.${row.original.action === 'allow' ? 'allow' : 'deny'}`) }}</UBadge>
+                </template>
+                <template #description-cell="{ row }">{{ row.original.description ?? '—' }}</template>
+                <template #expires_at-cell="{ row }">{{ formatDate(row.original.expires_at) ?? t('guardian.admin.never') }}</template>
+                <template #actions-cell="{ row }">
+                  <UButton size="xs" color="error" variant="ghost" icon="i-lucide-trash" :data-testid="`guardian-ip-rule-delete-${row.original.id}`" @click="destroy(row.original)">{{ t('guardian.admin.delete') }}</UButton>
+                </template>
+                <template #empty>
+                  <AtriumState compact :title="t('guardian.admin.ip_rules.empty')" data-testid="guardian-ip-rules-empty" />
+                </template>
+              </UTable>
 
               <GuardianPager :current="paging.current" :last="paging.last" testid="guardian-ip-rules" @go="go" />
 
@@ -130,16 +130,13 @@ function go(next: number): void {
                     <UInput v-model="form.cidr" class="w-48 font-mono" data-testid="guardian-ip-rule-cidr" />
                   </UFormField>
                   <UFormField :label="t('guardian.admin.ip_rules.fields.action')" :error="create.error('action')" required>
-                    <select v-model="form.action" class="w-32 rounded-md border border-default bg-default px-2.5 py-1.5 text-sm" data-testid="guardian-ip-rule-action">
-                      <option value="allow">{{ t('guardian.admin.ip_rules.actions.allow') }}</option>
-                      <option value="deny">{{ t('guardian.admin.ip_rules.actions.deny') }}</option>
-                    </select>
+                    <USelect v-model="form.action" :items="actions" class="w-32" data-testid="guardian-ip-rule-action" />
                   </UFormField>
                   <UFormField :label="t('guardian.admin.ip_rules.fields.description')" :error="create.error('description')">
                     <UInput v-model="form.description" class="w-64" data-testid="guardian-ip-rule-description" />
                   </UFormField>
                   <UFormField :label="t('guardian.admin.ip_rules.fields.expires_at')" :error="create.error('expires_at')">
-                    <input v-model="form.expires" type="date" class="rounded-md border border-default bg-default px-2.5 py-1.5 text-sm" data-testid="guardian-ip-rule-expires">
+                    <UInput v-model="form.expires" type="date" data-testid="guardian-ip-rule-expires" />
                   </UFormField>
                   <UButton type="submit" icon="i-lucide-plus" :loading="create.busy.value" data-testid="guardian-ip-rule-submit">{{ t('guardian.admin.ip_rules.create') }}</UButton>
                 </form>

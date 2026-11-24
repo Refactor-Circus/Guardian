@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import type { TableColumn } from '@nuxt/ui'
 import GuardianErrors from '../../components/access/GuardianErrors.vue'
 import GuardianPager from '../../components/access/GuardianPager.vue'
 import { blankToNull, pageOf, scopeKeyOf, scopeTypesOf, useRoleCatalogue } from '../../components/access/access'
 import { ADMIN_PAGE_SIZE, POLICY_METHODS, type GuardianPolicyMethod, type GuardianTwoFactorPolicy } from '../../components/admin/admin'
 import GuardianState from '../../components/two-factor/GuardianState.vue'
+import { choice, NONE, toggled, unchoice, type Choice } from '../../components/ui'
 import { guardianData, useGuardianAction, useGuardianLoad, type GuardianPage } from '../../components/two-factor/guardian'
 
 /**
@@ -34,6 +36,23 @@ const { client, data, pending, failed, status, reload } = useGuardianLoad(async 
 const roles = useRoleCatalogue(client)
 const rows = computed(() => data.value?.data ?? [])
 const paging = computed(() => pageOf(data.value))
+
+const columns = computed<TableColumn<GuardianTwoFactorPolicy>[]>(() => [
+  { id: 'scope', header: t('guardian.admin.policies.fields.scope') },
+  { id: 'role', header: t('guardian.admin.policies.fields.role') },
+  { id: 'required', header: t('guardian.admin.policies.fields.required') },
+  { id: 'methods', header: t('guardian.admin.policies.fields.methods') },
+  { id: 'grace_days', header: t('guardian.admin.policies.fields.grace_days'), meta: { class: { th: 'text-right', td: 'text-right' } } },
+  { id: 'actions', meta: { class: { td: 'text-right whitespace-nowrap' } } }
+])
+const scopeChoices = computed<Choice[]>(() => [
+  { label: t('guardian.admin.policies.everyone'), value: NONE },
+  ...scopeTypes.value.map(scope => ({ label: scope.key, value: scope.type }))
+])
+const roleChoices = computed<Choice[]>(() => [
+  { label: t('guardian.admin.policies.any_role'), value: NONE },
+  ...roles.value.map(role => ({ label: role.name, value: role.slug }))
+])
 
 interface PolicyEdit {
   required: boolean
@@ -132,45 +151,37 @@ function go(next: number): void {
             <div class="space-y-4">
               <GuardianErrors :action="update" testid="guardian-policy-update" />
               <GuardianErrors :action="remove" testid="guardian-policy-delete" />
-              <p v-if="rows.length === 0" class="atrium-empty" data-testid="guardian-policies-empty">{{ t('guardian.admin.policies.empty') }}</p>
-              <table v-else class="w-full text-left text-sm" data-testid="guardian-policies-table">
-                <thead class="text-muted">
-                  <tr>
-                    <th class="py-2 pr-3 font-medium">{{ t('guardian.admin.policies.fields.scope') }}</th>
-                    <th class="py-2 pr-3 font-medium">{{ t('guardian.admin.policies.fields.role') }}</th>
-                    <th class="py-2 pr-3 font-medium">{{ t('guardian.admin.policies.fields.required') }}</th>
-                    <th class="py-2 pr-3 font-medium">{{ t('guardian.admin.policies.fields.methods') }}</th>
-                    <th class="py-2 pr-3 font-medium">{{ t('guardian.admin.policies.fields.grace_days') }}</th>
-                    <th class="py-2" />
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-default">
-                  <tr v-for="policy in rows" :key="policy.id" :data-testid="`guardian-policy-${policy.id}`">
-                    <td class="py-2 pr-3">{{ scopeOf(policy) }}</td>
-                    <td class="py-2 pr-3">{{ policy.role ?? t('guardian.admin.policies.any_role') }}</td>
-                    <template v-if="edits[policy.id]">
-                      <td class="py-2 pr-3">
-                        <input v-model="edits[policy.id]!.required" type="checkbox" data-testid="guardian-policy-required">
-                      </td>
-                      <td class="py-2 pr-3">
-                        <div class="flex flex-wrap gap-2">
-                          <label v-for="method in POLICY_METHODS" :key="method" class="flex items-center gap-1">
-                            <input v-model="edits[policy.id]!.methods" type="checkbox" :value="method" :data-testid="`guardian-policy-method-${method}`">
-                            {{ t(`guardian.admin.policies.methods.${method}`) }}
-                          </label>
-                        </div>
-                      </td>
-                      <td class="py-2 pr-3">
-                        <UInput v-model.number="edits[policy.id]!.grace_days" type="number" min="0" max="3650" class="w-20" data-testid="guardian-policy-grace" />
-                      </td>
-                    </template>
-                    <td class="py-2 text-right whitespace-nowrap">
-                      <UButton size="xs" variant="soft" data-testid="guardian-policy-save" @click="save(policy)">{{ t('guardian.admin.save') }}</UButton>
-                      <UButton size="xs" color="error" variant="ghost" data-testid="guardian-policy-delete" @click="destroy(policy)">{{ t('guardian.admin.delete') }}</UButton>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <UTable :data="rows" :columns="columns" data-testid="guardian-policies-table">
+                <template #scope-cell="{ row }">
+                  <span :data-testid="`guardian-policy-${row.original.id}`">{{ scopeOf(row.original) }}</span>
+                </template>
+                <template #role-cell="{ row }">{{ row.original.role ?? t('guardian.admin.policies.any_role') }}</template>
+                <template #required-cell="{ row }">
+                  <UCheckbox v-if="edits[row.original.id]" v-model="edits[row.original.id]!.required" :aria-label="t('guardian.admin.policies.fields.required')" data-testid="guardian-policy-required" />
+                </template>
+                <template #methods-cell="{ row }">
+                  <div v-if="edits[row.original.id]" class="flex flex-wrap gap-2">
+                    <UCheckbox
+                      v-for="method in POLICY_METHODS"
+                      :key="method"
+                      :model-value="edits[row.original.id]!.methods.includes(method)"
+                      :label="t(`guardian.admin.policies.methods.${method}`)"
+                      :data-testid="`guardian-policy-method-${method}`"
+                      @update:model-value="edits[row.original.id]!.methods = toggled(edits[row.original.id]!.methods, method, $event)"
+                    />
+                  </div>
+                </template>
+                <template #grace_days-cell="{ row }">
+                  <UInput v-if="edits[row.original.id]" v-model.number="edits[row.original.id]!.grace_days" type="number" min="0" max="3650" class="w-20" data-testid="guardian-policy-grace" />
+                </template>
+                <template #actions-cell="{ row }">
+                  <UButton size="xs" variant="soft" data-testid="guardian-policy-save" @click="save(row.original)">{{ t('guardian.admin.save') }}</UButton>
+                  <UButton size="xs" color="error" variant="ghost" data-testid="guardian-policy-delete" @click="destroy(row.original)">{{ t('guardian.admin.delete') }}</UButton>
+                </template>
+                <template #empty>
+                  <AtriumState compact :title="t('guardian.admin.policies.empty')" data-testid="guardian-policies-empty" />
+                </template>
+              </UTable>
 
               <GuardianPager :current="paging.current" :last="paging.last" testid="guardian-policies" @go="go" />
 
@@ -181,34 +192,29 @@ function go(next: number): void {
                 <form class="space-y-3" data-testid="guardian-policy-form" @submit.prevent="add">
                   <div class="flex flex-wrap items-end gap-3">
                     <UFormField :label="t('guardian.admin.policies.fields.scope_type')">
-                      <select v-model="form.scope_type" class="w-44 rounded-md border border-default bg-default px-2.5 py-1.5 text-sm" data-testid="guardian-policy-new-scope-type">
-                        <option value="">{{ t('guardian.admin.policies.everyone') }}</option>
-                        <option v-for="scope in scopeTypes" :key="scope.key" :value="scope.type">{{ scope.key }}</option>
-                      </select>
+                      <USelect :model-value="choice(form.scope_type)" :items="scopeChoices" class="w-44" data-testid="guardian-policy-new-scope-type" @update:model-value="form.scope_type = unchoice($event)" />
                     </UFormField>
                     <UFormField v-if="form.scope_type" :label="t('guardian.admin.policies.fields.scope_id')" required>
                       <UInput v-model="form.scope_id" class="w-32" data-testid="guardian-policy-new-scope-id" />
                     </UFormField>
                     <UFormField :label="t('guardian.admin.policies.fields.role')">
-                      <select v-model="form.role" class="w-48 rounded-md border border-default bg-default px-2.5 py-1.5 text-sm" data-testid="guardian-policy-new-role">
-                        <option value="">{{ t('guardian.admin.policies.any_role') }}</option>
-                        <option v-for="role in roles" :key="role.slug" :value="role.slug">{{ role.name }}</option>
-                      </select>
+                      <USelect :model-value="choice(form.role)" :items="roleChoices" class="w-48" data-testid="guardian-policy-new-role" @update:model-value="form.role = unchoice($event)" />
                     </UFormField>
                     <UFormField :label="t('guardian.admin.policies.fields.grace_days')">
                       <UInput v-model.number="form.grace_days" type="number" min="0" max="3650" class="w-24" data-testid="guardian-policy-new-grace" />
                     </UFormField>
                   </div>
                   <div class="flex flex-wrap items-center gap-4 text-sm">
-                    <label class="flex items-center gap-1">
-                      <input v-model="form.required" type="checkbox" data-testid="guardian-policy-new-required">
-                      {{ t('guardian.admin.policies.fields.required') }}
-                    </label>
+                    <UCheckbox v-model="form.required" :label="t('guardian.admin.policies.fields.required')" data-testid="guardian-policy-new-required" />
                     <span class="text-muted">{{ t('guardian.admin.policies.fields.methods') }}:</span>
-                    <label v-for="method in POLICY_METHODS" :key="method" class="flex items-center gap-1">
-                      <input v-model="form.methods" type="checkbox" :value="method" :data-testid="`guardian-policy-new-method-${method}`">
-                      {{ t(`guardian.admin.policies.methods.${method}`) }}
-                    </label>
+                    <UCheckbox
+                      v-for="method in POLICY_METHODS"
+                      :key="method"
+                      :model-value="form.methods.includes(method)"
+                      :label="t(`guardian.admin.policies.methods.${method}`)"
+                      :data-testid="`guardian-policy-new-method-${method}`"
+                      @update:model-value="form.methods = toggled(form.methods, method, $event)"
+                    />
                   </div>
                   <p class="text-xs text-muted">{{ t('guardian.admin.policies.methods_hint') }}</p>
                   <GuardianErrors :action="create" testid="guardian-policy-create" />

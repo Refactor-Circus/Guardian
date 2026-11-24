@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import type { TableColumn } from '@nuxt/ui'
 import GuardianState from '../two-factor/GuardianState.vue'
+import { choice, NONE, unchoice, type Choice } from '../ui'
 import { formatDate, guardianData, useGuardianAction, useGuardianLoad, type GuardianClient, type GuardianPage } from '../two-factor/guardian'
 import GuardianErrors from './GuardianErrors.vue'
 import GuardianPager from './GuardianPager.vue'
@@ -67,6 +69,19 @@ const roles = useRoleCatalogue(client)
 const rows = computed(() => data.value?.data ?? [])
 const paging = computed(() => pageOf(data.value))
 
+const columns = computed<TableColumn<GuardianAssignment>[]>(() => [
+  ...(props.user === null ? [{ id: 'user', header: t('guardian.access.assignments.fields.user') }] : []),
+  { id: 'role', header: t('guardian.access.assignments.fields.role') },
+  { id: 'scope', header: t('guardian.access.assignments.fields.scope') },
+  { id: 'assigned_at', header: t('guardian.access.assignments.fields.assigned_at'), meta: { class: { td: 'text-muted' } } },
+  { id: 'actions', meta: { class: { td: 'text-right' } } }
+])
+
+const scopeChoices = computed<Choice[]>(() => props.scopeTypes.map(scope => ({ label: scope.key, value: scope.type })))
+const filterScopes = computed<Choice[]>(() => [{ label: t('guardian.access.assignments.any_scope'), value: NONE }, ...scopeChoices.value])
+const formScopes = computed<Choice[]>(() => [{ label: t('guardian.access.scopes.global'), value: NONE }, ...scopeChoices.value])
+const roleChoices = computed<Choice[]>(() => roles.value.map(role => ({ label: role.name, value: role.slug })))
+
 function applyFilters(): void {
   page.value = 1
   applied.value = { ...filter }
@@ -127,7 +142,7 @@ function go(next: number): void {
 
 <template>
   <div class="space-y-4" data-testid="guardian-assignments">
-    <form v-if="filters" class="atrium-querybar" data-testid="guardian-assignments-filters" @submit.prevent="applyFilters">
+    <form v-if="filters" class="flex flex-wrap items-end gap-3" data-testid="guardian-assignments-filters" @submit.prevent="applyFilters">
       <UFormField v-if="user === null" :label="t('guardian.access.assignments.fields.user')">
         <UInput v-model="filter.user" class="w-40" data-testid="guardian-assignments-filter-user" />
       </UFormField>
@@ -136,10 +151,7 @@ function go(next: number): void {
       </UFormField>
       <template v-if="!scoped">
         <UFormField :label="t('guardian.access.assignments.fields.scope_type')">
-          <select v-model="filter.scope_type" class="w-44 rounded-md border border-default bg-default px-2.5 py-1.5 text-sm" data-testid="guardian-assignments-filter-scope-type">
-            <option value="">{{ t('guardian.access.assignments.any_scope') }}</option>
-            <option v-for="scope in scopeTypes" :key="scope.key" :value="scope.type">{{ scope.key }}</option>
-          </select>
+          <USelect :model-value="choice(filter.scope_type)" :items="filterScopes" class="w-44" data-testid="guardian-assignments-filter-scope-type" @update:model-value="filter.scope_type = unchoice($event)" />
         </UFormField>
         <UFormField :label="t('guardian.access.assignments.fields.scope_id')">
           <UInput v-model="filter.scope_id" class="w-32" data-testid="guardian-assignments-filter-scope-id" />
@@ -152,36 +164,27 @@ function go(next: number): void {
     <GuardianState :ready="!pending && data !== null" :failed="failed" :status="status" :compact="!filters">
       <div class="space-y-4">
         <GuardianErrors :action="revoking" testid="guardian-revoke" />
-        <p v-if="rows.length === 0" class="atrium-empty" data-testid="guardian-assignments-empty">{{ t('guardian.access.assignments.empty') }}</p>
-        <table v-else class="w-full text-left text-sm" data-testid="guardian-assignments-table">
-          <thead class="text-muted">
-            <tr>
-              <th v-if="user === null" class="py-2 pr-3 font-medium">{{ t('guardian.access.assignments.fields.user') }}</th>
-              <th class="py-2 pr-3 font-medium">{{ t('guardian.access.assignments.fields.role') }}</th>
-              <th class="py-2 pr-3 font-medium">{{ t('guardian.access.assignments.fields.scope') }}</th>
-              <th class="py-2 pr-3 font-medium">{{ t('guardian.access.assignments.fields.assigned_at') }}</th>
-              <th class="py-2" />
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-default">
-            <tr v-for="assignment in rows" :key="assignment.id" :data-testid="`guardian-assignment-${assignment.id}`">
-              <td v-if="user === null" class="py-2 pr-3">
-                <RouterLink :to="userPath(assignment.user_id)" class="hover:underline" data-testid="guardian-assignment-user">{{ assignment.user_id }}</RouterLink>
-              </td>
-              <td class="py-2 pr-3">
-                <RouterLink v-if="assignment.role" :to="rolePath(assignment.role.slug)" class="font-medium hover:underline" data-testid="guardian-assignment-role">{{ assignment.role.name }}</RouterLink>
-                <span v-else class="text-muted">—</span>
-              </td>
-              <td class="py-2 pr-3">{{ scopeOf(assignment) }}</td>
-              <td class="py-2 pr-3 text-muted">{{ formatDate(assignment.assigned_at) ?? '—' }}</td>
-              <td class="py-2 text-right">
-                <UButton size="xs" color="error" variant="ghost" icon="i-lucide-x" :data-testid="`guardian-assignment-revoke-${assignment.id}`" @click="revoke(assignment)">
-                  {{ t('guardian.access.assignments.revoke') }}
-                </UButton>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <UTable :data="rows" :columns="columns" data-testid="guardian-assignments-table">
+          <template #user-cell="{ row }">
+            <ULink :to="userPath(row.original.user_id)" class="hover:underline" data-testid="guardian-assignment-user">{{ row.original.user_id }}</ULink>
+          </template>
+          <template #role-cell="{ row }">
+            <div :data-testid="`guardian-assignment-${row.original.id}`">
+              <ULink v-if="row.original.role" :to="rolePath(row.original.role.slug)" class="font-medium hover:underline" data-testid="guardian-assignment-role">{{ row.original.role.name }}</ULink>
+              <span v-else class="text-muted">—</span>
+            </div>
+          </template>
+          <template #scope-cell="{ row }">{{ scopeOf(row.original) }}</template>
+          <template #assigned_at-cell="{ row }">{{ formatDate(row.original.assigned_at) ?? '—' }}</template>
+          <template #actions-cell="{ row }">
+            <UButton size="xs" color="error" variant="ghost" icon="i-lucide-x" :data-testid="`guardian-assignment-revoke-${row.original.id}`" @click="revoke(row.original)">
+              {{ t('guardian.access.assignments.revoke') }}
+            </UButton>
+          </template>
+          <template #empty>
+            <AtriumState compact :title="t('guardian.access.assignments.empty')" data-testid="guardian-assignments-empty" />
+          </template>
+        </UTable>
 
         <GuardianPager :current="paging.current" :last="paging.last" testid="guardian-assignments" @go="go" />
 
@@ -190,17 +193,11 @@ function go(next: number): void {
             <UInput v-model="form.user" class="w-40" data-testid="guardian-assign-user" />
           </UFormField>
           <UFormField :label="t('guardian.access.assignments.fields.role')" required>
-            <select v-model="form.role" class="w-48 rounded-md border border-default bg-default px-2.5 py-1.5 text-sm" data-testid="guardian-assign-role">
-              <option value="" disabled>{{ t('guardian.access.assignments.pick_role') }}</option>
-              <option v-for="role in roles" :key="role.slug" :value="role.slug">{{ role.name }}</option>
-            </select>
+            <USelect v-model="form.role" :items="roleChoices" :placeholder="t('guardian.access.assignments.pick_role')" class="w-48" data-testid="guardian-assign-role" />
           </UFormField>
           <template v-if="!scoped">
             <UFormField :label="t('guardian.access.assignments.fields.scope_type')">
-              <select v-model="form.scope_type" class="w-44 rounded-md border border-default bg-default px-2.5 py-1.5 text-sm" data-testid="guardian-assign-scope-type">
-                <option value="">{{ t('guardian.access.scopes.global') }}</option>
-                <option v-for="scope in scopeTypes" :key="scope.key" :value="scope.type">{{ scope.key }}</option>
-              </select>
+              <USelect :model-value="choice(form.scope_type)" :items="formScopes" class="w-44" data-testid="guardian-assign-scope-type" @update:model-value="form.scope_type = unchoice($event)" />
             </UFormField>
             <UFormField v-if="form.scope_type" :label="t('guardian.access.assignments.fields.scope_id')" required>
               <UInput v-model="form.scope_id" class="w-32" data-testid="guardian-assign-scope-id" />

@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import type { TableColumn } from '@nuxt/ui'
 import GuardianErrors from '../access/GuardianErrors.vue'
 import GuardianPager from '../access/GuardianPager.vue'
 import { pageOf } from '../access/access'
 import GuardianState from '../two-factor/GuardianState.vue'
 import { formatDate, guardianData, useGuardianAction, useGuardianLoad, type GuardianClient, type GuardianPage } from '../two-factor/guardian'
 import { useAtriumIntegration } from '@refactor-circus/atrium'
+import { choice, NONE, unchoice, type Choice } from '../ui'
 import { CONNECTION_CHOICES, scimBaseUrl, SSO_PAGE_SIZE, type GuardianScimToken, type GuardianSsoConnection } from './sso'
 
 /**
@@ -43,6 +45,17 @@ if (client) {
 }
 
 const rows = computed(() => data.value?.data ?? [])
+const columns = computed<TableColumn<GuardianScimToken>[]>(() => [
+  { id: 'name', header: t('guardian.sso.fields.name') },
+  { id: 'connection', header: t('guardian.sso.scim.connection') },
+  { id: 'last_used', header: t('guardian.sso.scim.last_used'), meta: { class: { td: 'text-muted' } } },
+  { id: 'expires', header: t('guardian.sso.scim.expires'), meta: { class: { td: 'text-muted' } } },
+  { id: 'actions', meta: { class: { td: 'text-right' } } }
+])
+const connectionChoices = computed<Choice[]>(() => [
+  { label: t('guardian.sso.scim.no_connection'), value: NONE },
+  ...connections.value.map(connection => ({ label: connection.name, value: connection.slug }))
+])
 const paging = computed(() => pageOf(data.value))
 const form = reactive({ name: '', expires_in_days: '' as string | number, sso_connection: '' })
 const plain = ref<string | null>(null)
@@ -124,35 +137,24 @@ function go(next: number): void {
     <GuardianState :ready="!pending && data !== null" :failed="failed" :status="status" compact>
       <div class="space-y-4">
         <GuardianErrors :action="revoking" testid="guardian-scim-revoke" />
-        <p v-if="rows.length === 0" class="atrium-empty" data-testid="guardian-scim-empty">{{ t('guardian.sso.scim.empty') }}</p>
-        <table v-else class="w-full text-left text-sm">
-          <thead class="text-muted">
-            <tr>
-              <th class="py-2 pr-3 font-medium">{{ t('guardian.sso.fields.name') }}</th>
-              <th class="py-2 pr-3 font-medium">{{ t('guardian.sso.scim.connection') }}</th>
-              <th class="py-2 pr-3 font-medium">{{ t('guardian.sso.scim.last_used') }}</th>
-              <th class="py-2 pr-3 font-medium">{{ t('guardian.sso.scim.expires') }}</th>
-              <th class="py-2" />
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-default">
-            <tr v-for="token in rows" :key="token.id" :data-testid="`guardian-scim-token-${token.id}`">
-              <td class="py-2 pr-3">
-                <div class="flex flex-wrap items-center gap-2">
-                  {{ token.name }}
-                  <UBadge v-if="token.revoked_at" color="neutral" variant="subtle">{{ t('guardian.sso.scim.revoked') }}</UBadge>
-                  <UBadge v-else-if="!token.usable" color="neutral" variant="subtle">{{ t('guardian.sso.scim.expired') }}</UBadge>
-                </div>
-              </td>
-              <td class="py-2 pr-3">{{ token.sso_connection ?? '—' }}</td>
-              <td class="py-2 pr-3 text-muted">{{ formatDate(token.last_used_at) ?? t('guardian.sso.never') }}</td>
-              <td class="py-2 pr-3 text-muted">{{ formatDate(token.expires_at) ?? t('guardian.sso.never') }}</td>
-              <td class="py-2 text-right">
-                <UButton v-if="!token.revoked_at" size="xs" color="error" variant="ghost" icon="i-lucide-ban" :data-testid="`guardian-scim-revoke-${token.id}`" @click="revoke(token)">{{ t('guardian.sso.scim.revoke') }}</UButton>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <UTable :data="rows" :columns="columns">
+          <template #name-cell="{ row }">
+            <div class="flex flex-wrap items-center gap-2" :data-testid="`guardian-scim-token-${row.original.id}`">
+              {{ row.original.name }}
+              <UBadge v-if="row.original.revoked_at" color="neutral" variant="subtle">{{ t('guardian.sso.scim.revoked') }}</UBadge>
+              <UBadge v-else-if="!row.original.usable" color="neutral" variant="subtle">{{ t('guardian.sso.scim.expired') }}</UBadge>
+            </div>
+          </template>
+          <template #connection-cell="{ row }">{{ row.original.sso_connection ?? '—' }}</template>
+          <template #last_used-cell="{ row }">{{ formatDate(row.original.last_used_at) ?? t('guardian.sso.never') }}</template>
+          <template #expires-cell="{ row }">{{ formatDate(row.original.expires_at) ?? t('guardian.sso.never') }}</template>
+          <template #actions-cell="{ row }">
+            <UButton v-if="!row.original.revoked_at" size="xs" color="error" variant="ghost" icon="i-lucide-ban" :data-testid="`guardian-scim-revoke-${row.original.id}`" @click="revoke(row.original)">{{ t('guardian.sso.scim.revoke') }}</UButton>
+          </template>
+          <template #empty>
+            <AtriumState compact :title="t('guardian.sso.scim.empty')" data-testid="guardian-scim-empty" />
+          </template>
+        </UTable>
 
         <GuardianPager :current="paging.current" :last="paging.last" testid="guardian-scim-tokens" @go="go" />
 
@@ -168,10 +170,7 @@ function go(next: number): void {
               <UInput v-model="form.expires_in_days" type="number" min="1" max="3650" class="w-32" data-testid="guardian-scim-expires" />
             </UFormField>
             <UFormField :label="t('guardian.sso.scim.link_connection')" :error="issue.error('sso_connection')">
-              <select v-model="form.sso_connection" class="w-56 rounded-md border border-default bg-default px-2.5 py-1.5 text-sm" data-testid="guardian-scim-connection">
-                <option value="">{{ t('guardian.sso.scim.no_connection') }}</option>
-                <option v-for="connection in connections" :key="connection.slug" :value="connection.slug">{{ connection.name }}</option>
-              </select>
+              <USelect :model-value="choice(form.sso_connection)" :items="connectionChoices" class="w-56" data-testid="guardian-scim-connection" @update:model-value="form.sso_connection = unchoice($event)" />
             </UFormField>
             <UButton type="submit" icon="i-lucide-plus" :loading="issue.busy.value" data-testid="guardian-scim-submit">{{ t('guardian.sso.scim.create') }}</UButton>
           </form>

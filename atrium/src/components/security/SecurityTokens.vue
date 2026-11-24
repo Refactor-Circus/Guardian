@@ -2,6 +2,7 @@
 import GuardianActionError from '../two-factor/GuardianActionError.vue'
 import GuardianState from '../two-factor/GuardianState.vue'
 import { formatDate, guardianData, untypedBody, useGuardianAction, useGuardianLoad } from '../two-factor/guardian'
+import { toggled } from '../ui'
 import { expiryOf, latestExpiry, type GuardianToken } from './security'
 
 /**
@@ -31,8 +32,8 @@ const { client, data: tokens, pending, failed, status, reload } = useGuardianLoa
 
 const disabled = computed(() => failed.value && status.value === 501)
 
-function toggleAbility(ability: string, on: boolean): void {
-  form.abilities = on ? [...new Set([...form.abilities, ability])] : form.abilities.filter(candidate => candidate !== ability)
+function toggleAbility(ability: string, on: boolean | 'indeterminate'): void {
+  form.abilities = toggled(form.abilities, ability, on)
 }
 
 async function submit(): Promise<void> {
@@ -132,10 +133,14 @@ onBeforeUnmount(hidePlain)
           </UFormField>
           <UFormField :label="t('guardian.security.tokens.abilities')" :error="issue.error('abilities')">
             <div class="flex flex-wrap gap-3">
-              <label v-for="ability in abilities" :key="ability" class="flex items-center gap-2 text-sm">
-                <input type="checkbox" class="accent-(--ui-primary)" :value="ability" :checked="form.abilities.includes(ability)" :data-testid="`guardian-token-ability-${ability}`" @change="toggleAbility(ability, ($event.target as HTMLInputElement).checked)">
-                {{ ability === '*' ? t('guardian.security.tokens.every_ability') : ability }}
-              </label>
+              <UCheckbox
+                v-for="ability in abilities"
+                :key="ability"
+                :model-value="form.abilities.includes(ability)"
+                :label="ability === '*' ? t('guardian.security.tokens.every_ability') : ability"
+                :data-testid="`guardian-token-ability-${ability}`"
+                @update:model-value="toggleAbility(ability, $event)"
+              />
             </div>
           </UFormField>
           <UFormField :label="t('guardian.security.tokens.expires_at')" :hint="latest ? t('guardian.security.tokens.expiry_hint', { date: latest }) : undefined" :error="expiryError ?? issue.error('expires_at')">

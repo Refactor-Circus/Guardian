@@ -2,6 +2,7 @@
 import GuardianEventList from '../../components/admin/GuardianEventList.vue'
 import { endOfDay, SECURITY_EVENT_TYPES, startOfDay } from '../../components/admin/admin'
 import { blankToNull } from '../../components/access/access'
+import { choice, NONE, unchoice } from '../../components/ui'
 
 /**
  * `guardian.security-events`: Guardian's security log
@@ -14,6 +15,7 @@ const { t } = useI18n()
 
 useHead({ title: () => t('guardian.admin.events.title') })
 
+const types = computed(() => [{ label: t('guardian.admin.events.any_type'), value: NONE }, ...SECURITY_EVENT_TYPES.map(type => ({ label: type, value: type as string }))])
 const form = reactive({ type: '', user: '', from: '', to: '' })
 const applied = ref<Record<string, string | null>>({})
 
@@ -40,21 +42,18 @@ function clear(): void {
     <template #body>
       <AtriumIntegrationScreen screen-key="guardian.security-events">
         <div class="space-y-4" data-testid="guardian-security-events">
-          <form class="atrium-querybar" data-testid="guardian-events-filters" @submit.prevent="apply">
+          <form class="flex flex-wrap items-end gap-3" data-testid="guardian-events-filters" @submit.prevent="apply">
             <UFormField :label="t('guardian.admin.events.fields.type')">
-              <select v-model="form.type" class="w-64 rounded-md border border-default bg-default px-2.5 py-1.5 text-sm" data-testid="guardian-events-filter-type">
-                <option value="">{{ t('guardian.admin.events.any_type') }}</option>
-                <option v-for="type in SECURITY_EVENT_TYPES" :key="type" :value="type">{{ type }}</option>
-              </select>
+              <USelect :model-value="choice(form.type)" :items="types" class="w-64" data-testid="guardian-events-filter-type" @update:model-value="form.type = unchoice($event)" />
             </UFormField>
             <UFormField :label="t('guardian.admin.events.fields.user')">
               <UInput v-model="form.user" class="w-40" data-testid="guardian-events-filter-user" />
             </UFormField>
             <UFormField :label="t('guardian.admin.events.from')">
-              <input v-model="form.from" type="date" class="rounded-md border border-default bg-default px-2.5 py-1.5 text-sm" data-testid="guardian-events-filter-from">
+              <UInput v-model="form.from" type="date" data-testid="guardian-events-filter-from" />
             </UFormField>
             <UFormField :label="t('guardian.admin.events.to')">
-              <input v-model="form.to" type="date" class="rounded-md border border-default bg-default px-2.5 py-1.5 text-sm" data-testid="guardian-events-filter-to">
+              <UInput v-model="form.to" type="date" data-testid="guardian-events-filter-to" />
             </UFormField>
             <UButton type="submit" icon="i-lucide-filter" data-testid="guardian-events-filter">{{ t('guardian.admin.filter') }}</UButton>
             <UButton variant="ghost" icon="i-lucide-x" data-testid="guardian-events-clear" @click="clear">{{ t('guardian.admin.clear') }}</UButton>

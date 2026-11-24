@@ -5,6 +5,7 @@ import { mockPackageApi, reply, resetPackageApis, type PackageRoutes } from '@re
 import { confirmWith, guardianCalls, guardianScreensApi, mountGuardianPage, page, resetGuardianPages, screenOptions } from '../support'
 import { assignment, editor, ESCALATION, globalAssignment, SCOPE_TYPES } from './support'
 import { clearAtriumData, mockAtriumApi, useRouter } from '@refactor-circus/atrium/testing'
+import { choose, rowOf } from '../ui'
 
 /*
  * `guardian.role-assignments` (AC 89): the filters `user`, `role`,
@@ -44,13 +45,13 @@ describe('guardian.role-assignments', () => {
     mockPackageApi('guardian', routes())
 
     const wrapper = await mountGuardianPage(Page, '/guardian/role-assignments')
-    const row = wrapper.find('[data-testid="guardian-assignment-asg-1"]')
+    const row = rowOf(wrapper, 'guardian-assignment-asg-1')
 
     expect(guardianCalls('GET', '/role-assignments')[0]?.query).toEqual({ per_page: '25' })
     expect(row.find('[data-testid="guardian-assignment-user"]').attributes('href')).toBe('/guardian/users/7')
     expect(row.find('[data-testid="guardian-assignment-role"]').attributes('href')).toBe('/guardian/roles/editor')
     expect(row.text()).toContain('organization acme')
-    expect(wrapper.find('[data-testid="guardian-assignment-asg-2"]').text()).toContain('Global')
+    expect(rowOf(wrapper, 'guardian-assignment-asg-2').text()).toContain('Global')
   })
 
   it('filters by user, role, scope type and scope id', async () => {
@@ -59,7 +60,7 @@ describe('guardian.role-assignments', () => {
     const wrapper = await mountGuardianPage(Page, '/guardian/role-assignments')
     await wrapper.find('[data-testid="guardian-assignments-filter-user"]').setValue('7')
     await wrapper.find('[data-testid="guardian-assignments-filter-role"]').setValue('editor')
-    await wrapper.find('[data-testid="guardian-assignments-filter-scope-type"]').setValue('org')
+    await choose(wrapper, 'guardian-assignments-filter-scope-type', 'org')
     await wrapper.find('[data-testid="guardian-assignments-filter-scope-id"]').setValue('acme')
     await wrapper.find('[data-testid="guardian-assignments-filters"]').trigger('submit')
     await settle()
@@ -90,8 +91,8 @@ describe('guardian.role-assignments', () => {
 
     const wrapper = await mountGuardianPage(Page, '/guardian/role-assignments')
     await wrapper.find('[data-testid="guardian-assign-user"]').setValue('7')
-    await wrapper.find('[data-testid="guardian-assign-role"]').setValue('editor')
-    await wrapper.find('[data-testid="guardian-assign-scope-type"]').setValue('org')
+    await choose(wrapper, 'guardian-assign-role', 'editor')
+    await choose(wrapper, 'guardian-assign-scope-type', 'org')
     await settle()
     await wrapper.find('[data-testid="guardian-assign-scope-id"]').setValue('acme')
     await wrapper.find('[data-testid="guardian-assign-form"]').trigger('submit')
@@ -107,7 +108,7 @@ describe('guardian.role-assignments', () => {
 
     const wrapper = await mountGuardianPage(Page, '/guardian/role-assignments')
     await wrapper.find('[data-testid="guardian-assign-user"]').setValue('7')
-    await wrapper.find('[data-testid="guardian-assign-role"]').setValue('editor')
+    await choose(wrapper, 'guardian-assign-role', 'editor')
     await wrapper.find('[data-testid="guardian-assign-form"]').trigger('submit')
     await settle()
 
@@ -119,7 +120,7 @@ describe('guardian.role-assignments', () => {
 
     const wrapper = await mountGuardianPage(Page, '/guardian/role-assignments')
     await wrapper.find('[data-testid="guardian-assign-user"]').setValue('7')
-    await wrapper.find('[data-testid="guardian-assign-role"]').setValue('editor')
+    await choose(wrapper, 'guardian-assign-role', 'editor')
     await wrapper.find('[data-testid="guardian-assign-form"]').trigger('submit')
     await settle()
 

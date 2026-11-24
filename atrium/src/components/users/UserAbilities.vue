@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import GuardianState from '../two-factor/GuardianState.vue'
 import { guardianData, useGuardianLoad } from '../two-factor/guardian'
+import { choice, NONE, unchoice, type Choice } from '../ui'
 import { blankToNull, type GuardianScopeType, type GuardianUserAbilities } from '../access/access'
 
 /**
@@ -23,6 +24,11 @@ const { data, pending, failed, status } = useGuardianLoad(async guardian =>
     }
   })).data, query)
 
+const scopes = computed<Choice[]>(() => [
+  { label: t('guardian.access.scopes.global'), value: NONE },
+  ...props.scopeTypes.map(scope => ({ label: scope.key, value: scope.type }))
+])
+
 function apply(): void {
   const scopeType = blankToNull(form.scope_type)
 
@@ -38,10 +44,7 @@ function apply(): void {
     <div class="space-y-3">
       <form class="flex flex-wrap items-end gap-3" data-testid="guardian-abilities-scope" @submit.prevent="apply">
         <UFormField :label="t('guardian.access.assignments.fields.scope_type')">
-          <select v-model="form.scope_type" class="w-44 rounded-md border border-default bg-default px-2.5 py-1.5 text-sm" data-testid="guardian-abilities-scope-type">
-            <option value="">{{ t('guardian.access.scopes.global') }}</option>
-            <option v-for="scope in scopeTypes" :key="scope.key" :value="scope.type">{{ scope.key }}</option>
-          </select>
+          <USelect :model-value="choice(form.scope_type)" :items="scopes" class="w-44" data-testid="guardian-abilities-scope-type" @update:model-value="form.scope_type = unchoice($event)" />
         </UFormField>
         <UFormField v-if="form.scope_type" :label="t('guardian.access.assignments.fields.scope_id')">
           <UInput v-model="form.scope_id" class="w-32" data-testid="guardian-abilities-scope-id" />

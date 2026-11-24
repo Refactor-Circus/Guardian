@@ -20,7 +20,7 @@ const { data: page, pending, failed, status } = useGuardianLoad(async guardian =
     <GuardianState :ready="!pending && page !== null" :failed="failed" :status="status" compact>
       <ul class="divide-y divide-default text-sm">
         <li v-for="event in page?.data ?? []" :key="event.id" class="flex flex-wrap justify-between gap-2 py-2" :data-testid="`guardian-user-event-${event.id}`">
-          <RouterLink :to="`/guardian/security-events/${encodeURIComponent(event.id)}`" class="font-mono hover:underline">{{ event.type }}</RouterLink>
+          <ULink :to="`/guardian/security-events/${encodeURIComponent(event.id)}`" class="font-mono hover:underline">{{ event.type }}</ULink>
           <span class="text-muted">{{ event.ip ?? '—' }} · {{ formatDate(event.occurred_at) }}</span>
         </li>
         <li v-if="(page?.data ?? []).length === 0" class="py-2 text-muted">{{ t('guardian.access.user.no_events') }}</li>

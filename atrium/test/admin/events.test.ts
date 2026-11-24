@@ -8,6 +8,7 @@ import { mockPackageApi, reply, resetPackageApis, type PackageRoutes } from '@re
 import { cursorPage, guardianCalls, guardianScreensApi, mountGuardianPage, resetGuardianPages } from '../support'
 import { failedLogin, lockedOut } from './support'
 import { clearAtriumData, mockAtriumApi, useRouter } from '@refactor-circus/atrium/testing'
+import { choices, choose, rowOf } from '../ui'
 
 /*
  * `guardian.security-events` and `guardian.security-event` (AC 91): the
@@ -53,9 +54,9 @@ describe('guardian.security-events', () => {
     const wrapper = await mountGuardianPage(Page, '/guardian/security-events')
 
     expect(guardianCalls('GET', '/security-events')[0]?.query).toEqual({ per_page: '50' })
-    expect(wrapper.find('[data-testid="guardian-event-evt-1"]').text()).toContain('login.failed')
+    expect(rowOf(wrapper, 'guardian-event-evt-1').text()).toContain('login.failed')
     expect(wrapper.find('[data-testid="guardian-event-evt-1"] a').attributes('href')).toBe('/guardian/security-events/evt-1')
-    expect(wrapper.findAll('[data-testid="guardian-events-filter-type"] option').map(option => option.attributes('value')))
+    expect(choices(wrapper, 'guardian-events-filter-type'))
       .toEqual(['', ...SECURITY_EVENT_TYPES])
   })
 
@@ -63,7 +64,7 @@ describe('guardian.security-events', () => {
     mockPackageApi('guardian', routes())
 
     const wrapper = await mountGuardianPage(Page, '/guardian/security-events')
-    await wrapper.find('[data-testid="guardian-events-filter-type"]').setValue('login.locked_out')
+    await choose(wrapper, 'guardian-events-filter-type', 'login.locked_out')
     await wrapper.find('[data-testid="guardian-events-filter-user"]').setValue('7')
     await wrapper.find('[data-testid="guardian-events-filter-from"]').setValue('2026-11-01')
     await wrapper.find('[data-testid="guardian-events-filter-to"]').setValue('2026-11-02')

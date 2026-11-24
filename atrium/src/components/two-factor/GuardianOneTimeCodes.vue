@@ -32,6 +32,7 @@ const code = ref('')
 const notice = ref<string | null>(null)
 
 const offered = computed(() => props.types.filter(candidate => !unavailable.value.includes(candidate)))
+const typeChoices = computed(() => offered.value.map(candidate => ({ label: t(`guardian.two_factor.types.${candidate}`), value: candidate })))
 
 watch(offered, (types) => {
   if (type.value === null || !types.includes(type.value)) {
@@ -94,9 +95,7 @@ async function submit(): Promise<void> {
     <template v-if="offered.length > 0">
       <form class="flex flex-wrap items-end gap-2" data-testid="guardian-one-time-send" @submit.prevent="sendCode">
         <UFormField :label="t('guardian.two_factor.fields.type')">
-          <select v-model="type" class="rounded border border-default bg-default px-2 py-1.5 text-sm" data-testid="guardian-one-time-type">
-            <option v-for="candidate in offered" :key="candidate" :value="candidate">{{ t(`guardian.two_factor.types.${candidate}`) }}</option>
-          </select>
+          <USelect :model-value="type ?? undefined" :items="typeChoices" class="w-32" data-testid="guardian-one-time-type" @update:model-value="type = $event" />
         </UFormField>
         <UFormField :label="t(type === 'sms' ? 'guardian.two_factor.fields.phone' : 'guardian.two_factor.fields.email')" :error="send.error('destination')" required>
           <UInput v-model="destination" :type="type === 'sms' ? 'tel' : 'email'" data-testid="guardian-one-time-destination" />

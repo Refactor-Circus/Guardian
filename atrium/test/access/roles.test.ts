@@ -6,6 +6,7 @@ import { mockPackageApi, reply, resetPackageApis, type PackageRoutes } from '@re
 import { confirmWith, guardianCalls, guardianScreensApi, mountGuardianPage, page, resetGuardianPages, screenOptions } from '../support'
 import { editor, ESCALATION, postsEdit, rolesView, SCOPE_TYPES, superAdmin } from './support'
 import { clearAtriumData, mockAtriumApi, useRouter } from '@refactor-circus/atrium/testing'
+import { check, choices, choose, isChecked, rowOf } from '../ui'
 
 /*
  * `guardian.roles` and `guardian.role` (AC 89): list; create with name,
@@ -50,8 +51,8 @@ describe('guardian.roles', () => {
     const wrapper = await mountGuardianPage(RolesPage, '/guardian/roles')
 
     expect(guardianCalls('GET', '/roles')[0]?.query).toEqual({ per_page: '25' })
-    expect(wrapper.find('[data-testid="guardian-role-row-editor"]').text()).toContain('Any scope')
-    expect(wrapper.find('[data-testid="guardian-role-row-super-admin"]').text()).toContain('Everything')
+    expect(rowOf(wrapper, 'guardian-role-row-editor').text()).toContain('Any scope')
+    expect(rowOf(wrapper, 'guardian-role-row-super-admin').text()).toContain('Everything')
     expect(wrapper.find('[data-testid="guardian-role-row-editor"] a').attributes('href')).toBe('/guardian/roles/editor')
   })
 
@@ -60,13 +61,13 @@ describe('guardian.roles', () => {
 
     const wrapper = await mountGuardianPage(RolesPage, '/guardian/roles')
 
-    expect(wrapper.findAll('[data-testid="guardian-role-new-scope"] option').map(option => option.attributes('value'))).toEqual(['global', 'any', 'org', 'team'])
+    expect(choices(wrapper, 'guardian-role-new-scope')).toEqual(['global', 'any', 'org', 'team'])
 
     await wrapper.find('[data-testid="guardian-role-new-name"]').setValue('Reviewer')
     await wrapper.find('[data-testid="guardian-role-new-slug"]').setValue('reviewer')
-    await wrapper.find('[data-testid="guardian-role-new-scope"]').setValue('org')
+    await choose(wrapper, 'guardian-role-new-scope', 'org')
     await wrapper.find('[data-testid="guardian-role-new-description"]').setValue('Reviews posts.')
-    await wrapper.find('[data-testid="guardian-role-new-permission-posts.edit"]').setValue(true)
+    await check(wrapper, 'guardian-role-new-permission-posts.edit', true)
     await wrapper.find('[data-testid="guardian-role-new-form"]').trigger('submit')
     await settle()
 
@@ -130,7 +131,7 @@ describe('guardian.role', () => {
     expect(api).toHaveBeenCalledWith('/screens/guardian.role', { query: { record: 'editor', tab: undefined } })
     expect(wrapper.find('[data-testid="guardian-role-slug"]').text()).toBe('editor')
     expect((wrapper.find('[data-testid="guardian-role-name"]').element as HTMLInputElement).value).toBe('Editor')
-    expect((wrapper.find('[data-testid="guardian-role-permission-posts.edit"]').element as HTMLInputElement).checked).toBe(true)
+    expect(isChecked(wrapper, 'guardian-role-permission-posts.edit')).toBe(true)
   })
 
   it('updates its name, description and permissions through the picker', async () => {
@@ -138,7 +139,7 @@ describe('guardian.role', () => {
 
     const wrapper = await mountGuardianPage(RolePage, '/guardian/roles/editor')
     await wrapper.find('[data-testid="guardian-role-name"]').setValue('Senior editor')
-    await wrapper.find('[data-testid="guardian-role-permission-guardian.roles.view"]').setValue(true)
+    await check(wrapper, 'guardian-role-permission-guardian.roles.view', true)
     await wrapper.find('[data-testid="guardian-role-form"]').trigger('submit')
     await settle()
 

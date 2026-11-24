@@ -5,6 +5,7 @@ import { mockPackageApi, reply, resetPackageApis, type PackageRoutes } from '@re
 import { confirmWith, guardianCalls, guardianScreensApi, resetGuardianPages } from '../support'
 import { asResource, mountSso, oidc, saml, unmountSso } from './support'
 import { clearAtriumData, mockAtriumApi, mockNavigateTo, useRouter } from '@refactor-circus/atrium/testing'
+import { check, isChecked } from '../ui'
 
 /*
  * `guardian.sso-connection` (AC 96): show; update with the name, the
@@ -61,8 +62,8 @@ describe('guardian.sso-connection', () => {
     expect((wrapper.find('[data-testid="guardian-sso-name"]').element as HTMLInputElement).value).toBe('Acme Okta')
     expect((wrapper.find('[data-testid="guardian-sso-issuer"]').element as HTMLInputElement).value).toBe('https://acme.okta.test')
     expect((wrapper.find('[data-testid="guardian-sso-client_secret"]').element as HTMLInputElement).value).toBe('')
-    expect((wrapper.find('[data-testid="guardian-sso-jit"]').element as HTMLInputElement).checked).toBe(true)
-    expect((wrapper.find('[data-testid="guardian-sso-enforced"]').element as HTMLInputElement).checked).toBe(false)
+    expect(isChecked(wrapper, 'guardian-sso-jit')).toBe(true)
+    expect(isChecked(wrapper, 'guardian-sso-enforced')).toBe(false)
   })
 
   it('updates the name, flags and settings, keeping a blank secret', async () => {
@@ -70,9 +71,9 @@ describe('guardian.sso-connection', () => {
 
     await wrapper.find('[data-testid="guardian-sso-name"]').setValue('Acme Okta SSO')
     await wrapper.find('[data-testid="guardian-sso-issuer"]').setValue('https://login.acme.test')
-    await wrapper.find('[data-testid="guardian-sso-enforced"]').setValue(true)
-    await wrapper.find('[data-testid="guardian-sso-jit"]').setValue(false)
-    await wrapper.find('[data-testid="guardian-sso-enabled"]').setValue(false)
+    await check(wrapper, 'guardian-sso-enforced', true)
+    await check(wrapper, 'guardian-sso-jit', false)
+    await check(wrapper, 'guardian-sso-enabled', false)
     await wrapper.find('[data-testid="guardian-sso-form"]').trigger('submit')
     await settle()
 

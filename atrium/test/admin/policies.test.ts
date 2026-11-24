@@ -7,6 +7,7 @@ import { editor, SCOPE_TYPES } from '../access/support'
 import { confirmWith, guardianCalls, guardianScreensApi, mountGuardianPage, page, resetGuardianPages, screenOptions } from '../support'
 import { orgPolicy, passwordPolicy } from './support'
 import { clearAtriumData, mockAtriumApi, useRouter } from '@refactor-circus/atrium/testing'
+import { check, choices, choose, isChecked, rowOf } from '../ui'
 
 /*
  * `guardian.password-policy` (AC 94), read-only, and
@@ -99,14 +100,14 @@ describe('guardian.two-factor-policies', () => {
     mockPackageApi('guardian', routes())
 
     const wrapper = await mountGuardianPage(Page, '/guardian/two-factor-policies')
-    const row = wrapper.find('[data-testid="guardian-policy-pol-1"]')
+    const row = rowOf(wrapper, 'guardian-policy-pol-1')
 
     expect(guardianCalls('GET', '/two-factor-policies')[0]?.query).toEqual({ per_page: '25' })
     expect(row.text()).toContain('organization acme')
     expect(row.text()).toContain('editor')
-    expect((row.find('[data-testid="guardian-policy-required"]').element as HTMLInputElement).checked).toBe(true)
-    expect((row.find('[data-testid="guardian-policy-method-totp"]').element as HTMLInputElement).checked).toBe(true)
-    expect((row.find('[data-testid="guardian-policy-method-email"]').element as HTMLInputElement).checked).toBe(false)
+    expect(isChecked(row, 'guardian-policy-required')).toBe(true)
+    expect(isChecked(row, 'guardian-policy-method-totp')).toBe(true)
+    expect(isChecked(row, 'guardian-policy-method-email')).toBe(false)
     expect((row.find('[data-testid="guardian-policy-grace"]').element as HTMLInputElement).value).toBe('7')
   })
 
@@ -115,14 +116,14 @@ describe('guardian.two-factor-policies', () => {
 
     const wrapper = await mountGuardianPage(Page, '/guardian/two-factor-policies')
 
-    expect(wrapper.findAll('[data-testid="guardian-policy-new-scope-type"] option').map(option => option.attributes('value'))).toEqual(['', 'org', 'team'])
+    expect(choices(wrapper, 'guardian-policy-new-scope-type')).toEqual(['', 'org', 'team'])
 
-    await wrapper.find('[data-testid="guardian-policy-new-scope-type"]').setValue('org')
+    await choose(wrapper, 'guardian-policy-new-scope-type', 'org')
     await wrapper.find('[data-testid="guardian-policy-new-scope-id"]').setValue('acme')
-    await wrapper.find('[data-testid="guardian-policy-new-role"]').setValue('editor')
-    await wrapper.find('[data-testid="guardian-policy-new-required"]').setValue(false)
-    await wrapper.find('[data-testid="guardian-policy-new-method-passkey"]').setValue(true)
-    await wrapper.find('[data-testid="guardian-policy-new-method-totp"]').setValue(true)
+    await choose(wrapper, 'guardian-policy-new-role', 'editor')
+    await check(wrapper, 'guardian-policy-new-required', false)
+    await check(wrapper, 'guardian-policy-new-method-passkey', true)
+    await check(wrapper, 'guardian-policy-new-method-totp', true)
     await wrapper.find('[data-testid="guardian-policy-new-grace"]').setValue('14')
     await wrapper.find('[data-testid="guardian-policy-form"]').trigger('submit')
     await settle()
@@ -159,7 +160,7 @@ describe('guardian.two-factor-policies', () => {
     mockPackageApi('guardian', routes({ 'POST /two-factor-policies': reply(422, { message: 'Invalid.', errors: { scope_id: ['The scope id field is required when scope type is present.'] } }) }))
 
     const wrapper = await mountGuardianPage(Page, '/guardian/two-factor-policies')
-    await wrapper.find('[data-testid="guardian-policy-new-scope-type"]').setValue('org')
+    await choose(wrapper, 'guardian-policy-new-scope-type', 'org')
     await wrapper.find('[data-testid="guardian-policy-form"]').trigger('submit')
     await settle()
 
@@ -170,10 +171,10 @@ describe('guardian.two-factor-policies', () => {
     mockPackageApi('guardian', routes())
 
     const wrapper = await mountGuardianPage(Page, '/guardian/two-factor-policies')
-    const row = wrapper.find('[data-testid="guardian-policy-pol-1"]')
-    await row.find('[data-testid="guardian-policy-required"]').setValue(false)
-    await row.find('[data-testid="guardian-policy-method-totp"]').setValue(false)
-    await row.find('[data-testid="guardian-policy-method-sms"]').setValue(true)
+    const row = rowOf(wrapper, 'guardian-policy-pol-1')
+    await check(row, 'guardian-policy-required', false)
+    await check(row, 'guardian-policy-method-totp', false)
+    await check(row, 'guardian-policy-method-sms', true)
     await row.find('[data-testid="guardian-policy-grace"]').setValue('30')
     await row.find('[data-testid="guardian-policy-save"]').trigger('click')
     await settle()
@@ -187,9 +188,9 @@ describe('guardian.two-factor-policies', () => {
     mockPackageApi('guardian', routes())
 
     const wrapper = await mountGuardianPage(Page, '/guardian/two-factor-policies')
-    const row = wrapper.find('[data-testid="guardian-policy-pol-1"]')
-    await row.find('[data-testid="guardian-policy-method-totp"]').setValue(false)
-    await row.find('[data-testid="guardian-policy-method-passkey"]').setValue(false)
+    const row = rowOf(wrapper, 'guardian-policy-pol-1')
+    await check(row, 'guardian-policy-method-totp', false)
+    await check(row, 'guardian-policy-method-passkey', false)
     await row.find('[data-testid="guardian-policy-save"]').trigger('click')
     await settle()
 

@@ -10,9 +10,11 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * The scopes Guardian's API and MCP tools name as `scope_type` (a morph
- * alias, or an Eloquent model class) and `scope_id` (its key), with no
- * knowledge of what they are: organization and team semantics come only from
- * the scope model's Keystone `Scope` (D-005, D-033).
+ * alias, or an Eloquent model class) and `scope_id` (its route key, such as
+ * an organization's slug, or else its key), with no knowledge of what they
+ * are: organization and team semantics come only from the scope model's
+ * Keystone `Scope` (D-005, D-033). Assignments, roles and policies store the
+ * scope's key (D-051).
  */
 final class Scopes
 {
@@ -73,13 +75,46 @@ final class Scopes
             throw ValidationException::withMessages([$field => __('guardian::guardian.unknown_scope_type')]);
         }
 
-        $scope = (new $class)->newQuery()->whereKey($id)->first();
+        $scope = self::named($class, (string) $id);
 
         if (! $scope instanceof Model) {
             throw ValidationException::withMessages([$field => __('guardian::guardian.unknown_scope')]);
         }
 
         return $scope;
+    }
+
+    /**
+     * The key assignments store for the scope a type and identifier name (its
+     * route key or key), quietly: the identifier as given when the type or
+     * the record is unknown, so a filter on it matches what was stored.
+     */
+    public function storedKey(string $type, string $id): string
+    {
+        $class = $this->modelClass($type);
+
+        return self::key($class === null ? null : self::named($class, $id)) ?? $id;
+    }
+
+    /**
+     * The scope of a model class an identifier names: by its route key (what
+     * a screen passes as the record, D-051), else by its key.
+     *
+     * @param  class-string<Model>  $class
+     */
+    private static function named(string $class, string $id): ?Model
+    {
+        $model = new $class;
+
+        if ($model->getRouteKeyName() !== $model->getKeyName()) {
+            $scope = $model->newQuery()->where($model->qualifyColumn($model->getRouteKeyName()), $id)->first();
+
+            if ($scope instanceof Model) {
+                return $scope;
+            }
+        }
+
+        return $model->newQuery()->whereKey($id)->first();
     }
 
     /**

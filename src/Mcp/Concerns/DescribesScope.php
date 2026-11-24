@@ -20,7 +20,7 @@ trait DescribesScope
     {
         return [
             'scope_type' => $schema->string()->description($purpose.' The scope type: a morph alias or model class.'),
-            'scope_id' => $schema->string()->description('The scope id, with scope_type.'),
+            'scope_id' => $schema->string()->description('The scope\'s route key (such as an organization\'s slug) or its key, with scope_type.'),
         ];
     }
 }

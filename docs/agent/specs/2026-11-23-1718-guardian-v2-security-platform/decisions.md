@@ -299,3 +299,9 @@
 - Rationale: The user's decision; the declaration changes with Guardian's screens and config, so it lives beside them.
 - Date: 2026-11-24
 - Raised by: user
+
+## D-051: Which identifier names a scope?
+- Choice: `scope_id` is the scope's route key, as the screen that shows the scope passes it to the `guardian.access` tab (an organization's slug), or else its key. `Scopes::resolve()` (assigning, roles, abilities, two-factor policies, the request checks) looks the route key up when it is not the key column, then the key; `ListRoleAssignmentsAction` filters a typed `scope_id` by the key it resolves to (`Scopes::storedKey()`), and an untyped one as given. Assignments, roles and policies still store the scope's key, and responses still send it. `scope_type` is unchanged: the manifest's `$subject_scope` already sends the morph type Guardian stores (`guardian.adopt.scope_types`). The MCP tools describe `scope_id` so. The test scope (`FolderScope`) now stands in as a host's organization: a ULID key routed by a slug; `ScopeRouteKeyHttpTest` lists, assigns and reads abilities by the slug, as the tab does.
+- Rationale: On a real host the organization's access tab answered 422 "No scope of this type has this id": the tab sends the organization's slug, Guardian looked it up as the ULID key. The stored-identifiers standard references records a package does not own by route key; the test scope's identifier was its key, so the mismatch never showed.
+- Date: 2026-11-24
+- Raised by: user (bug found in a real host); choices made by the implementing agent without a user available

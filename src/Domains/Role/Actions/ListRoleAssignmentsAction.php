@@ -20,7 +20,7 @@ final class ListRoleAssignmentsAction extends Action
 
     /**
      * Who holds which role where, oldest first, filtered by user, role
-     * slug, scope type and scope id.
+     * slug, scope type and scope (its route key or key).
      *
      * @return LengthAwarePaginator<int, RoleAssignmentModel>
      */
@@ -44,7 +44,9 @@ final class ListRoleAssignmentsAction extends Action
         }
 
         if ($filters->scopeId !== null) {
-            $query->where('scope_id', $filters->scopeId);
+            // The scope's route key (what a screen passes) or key, matched
+            // against the key assignments store.
+            $query->where('scope_id', $filters->scopeType === null ? $filters->scopeId : $this->scopes->storedKey($filters->scopeType, $filters->scopeId));
         }
 
         $assignments = $query->oldest()->oldest('id')->paginate($filters->perPage, ['*'], 'page', $filters->page);

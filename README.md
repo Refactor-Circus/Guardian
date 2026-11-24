@@ -12,7 +12,7 @@
 
 Guardian is the security package of the Refactor Circus suite: roles and permissions, two-factor authentication, sessions and devices, a password policy, API tokens, login protection and a security log, plus single sign-on (OIDC, SAML, Microsoft Entra ID) and SCIM 2.0 provisioning for [refactor-circus/roster](https://github.com/refactor-circus/roster)'s organizations. It is the role store behind Keystone's authorization contract, so every installed suite package checks its permissions through Guardian.
 
-Guardian has no UI of its own. It serves a JSON API and MCP tools; [Atrium v2](https://github.com/refactor-circus/atrium), or any front end, is the optional UI and builds on the API through the committed `openapi.json` and the `@refactor-circus/guardian-client` TypeScript client.
+Guardian has no PHP UI. It serves a JSON API and MCP tools; [Atrium v2](https://github.com/refactor-circus/atrium), or any front end, is the optional UI and builds on the API through the committed `openapi.json` and the `@refactor-circus/guardian-client` TypeScript client. Guardian ships its own Atrium front-end module (see [Atrium module](#atrium-module)).
 
 ## Installation
 
@@ -235,6 +235,32 @@ await guardian.POST('/two-factor/totp/confirm', { body: { code: '123456' } });
 ```
 
 It exports `createGuardianClient`, `GuardianClient`, `GuardianClientOptions` and the generated `paths` and `components` types. Contributors regenerate the document and the client with `composer client:generate` (Node required); `composer test` fails, without Node, when either is stale.
+
+## Atrium module
+
+Guardian ships its Atrium front end as a JavaScript module: its pages (security, two-factor setup and challenge, roles, permissions, role assignments, users, SSO connections, the security log, lockouts, IP rules, the password policy and two-factor policies) and its tabs on Roster's screens. It is built into `dist/atrium/` (committed, so hosts never run Node) and declared in `composer.json`:
+
+```json
+"extra": {
+    "atrium": {
+        "key": "guardian",
+        "scripts": ["dist/atrium/atrium.js"],
+        "styles": ["dist/atrium/atrium.css"]
+    }
+}
+```
+
+With Atrium v2 installed, `php artisan atrium:discover` finds it and Atrium injects the script and stylesheet into its page while the `guardian` integration is active. Guardian has no Composer dependency on Atrium and no PHP of its own knows it.
+
+Contributors edit the Vue sources in `atrium/` (not in the dist archive) and rebuild with pnpm:
+
+```bash
+cd atrium
+pnpm install
+pnpm typecheck && pnpm test && pnpm build
+```
+
+then commit `dist/atrium/`. `composer test` fails, without Node, when the build is older than its sources (`atrium/src`, `client/src`, `package.json`, `vite.config.ts`, `pnpm-lock.yaml`).
 
 ## MCP
 

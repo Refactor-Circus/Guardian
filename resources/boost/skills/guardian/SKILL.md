@@ -11,7 +11,7 @@ metadata:
 
 # Guardian
 
-Use this skill when a Laravel application uses `refactor-circus/guardian` v2, the security package of the Refactor Circus suite. It serves a JSON API and MCP tools and has no UI of its own: Atrium v2, or any front end, builds on the API (`openapi.json`, `@refactor-circus/guardian-client`).
+Use this skill when a Laravel application uses `refactor-circus/guardian` v2, the security package of the Refactor Circus suite. It serves a JSON API and MCP tools and has no PHP UI: Atrium v2, or any front end, builds on the API (`openapi.json`, `@refactor-circus/guardian-client`). Guardian ships its own Atrium module (JavaScript only, `dist/atrium/`, declared in composer.json's `extra.atrium`), which Atrium injects into its page.
 
 ## Install
 

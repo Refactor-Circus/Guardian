@@ -26,3 +26,5 @@ composer.local.lock
 /docs/agent/specs/*/*body*.md
 /docs/agent/specs/*/replay/
 /client/node_modules
+
+/atrium/node_modules

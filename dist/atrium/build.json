@@ -1,0 +1,13 @@
+{
+  "key": "guardian",
+  "shared_api": "1.0",
+  "root": "../../atrium",
+  "inputs": [
+    "src",
+    "../client/src",
+    "package.json",
+    "vite.config.ts",
+    "pnpm-lock.yaml"
+  ],
+  "hash": "13b3a50a2c0eedc9821ba82ef3d4e11593a3141a29e7f342bd832469c4444aff"
+}

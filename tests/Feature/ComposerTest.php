@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 /*
- * composer.json for v2 (criteria 1 and 2): no Atrium anywhere, no browser
- * plugin, and no scripts for the suites that went with them.
+ * composer.json for v2 (criteria 1 and 2): no Composer dependency on or
+ * repository of Atrium, no browser plugin, and no scripts for the suites
+ * that went with them. The only Atrium entry is `extra.atrium`, declaring
+ * the JavaScript module Atrium injects (AtriumModuleTest).
  */
 
 /**

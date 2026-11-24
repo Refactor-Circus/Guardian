@@ -5,16 +5,18 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 
 /*
- * Criterion 2: v2 has no UI of its own. The Atrium plugin, its screens,
- * views and config are gone; Atrium v2 (or any front end) reaches Guardian
- * through the JSON API and the generated client.
+ * Criterion 2: v2 has no PHP UI. The Atrium plugin, its screens, views and
+ * config are gone; Guardian's Atrium front end is a JavaScript module only
+ * (`atrium/`, built to `dist/atrium/`, declared in composer.json's
+ * `extra.atrium`: AtriumModuleTest), which reaches Guardian through the JSON
+ * API and the generated client. No PHP of Guardian's names Atrium.
  */
 
-it('names Atrium nowhere in src/ or config/', function (): void {
+it('names Atrium nowhere in the PHP of src/, config/, routes or the workbench', function (): void {
     $root = dirname(__DIR__, 2);
     $offenders = [];
 
-    foreach ([...phpFiles($root.'/src'), ...phpFiles($root.'/config')] as $file) {
+    foreach ([...phpFiles($root.'/src'), ...phpFiles($root.'/config'), ...phpFiles($root.'/routes'), ...phpFiles($root.'/workbench')] as $file) {
         if (stripos((string) file_get_contents($file), 'atrium') !== false) {
             $offenders[] = substr($file, strlen($root) + 1);
         }

@@ -146,7 +146,8 @@ arch('only the Passport adapter uses Laravel\\Passport')
     ->not->toUse('Laravel\Passport')
     ->ignoring(['RefactorCircus\Guardian\Domains\Token\Drivers\PassportTokenDriver', 'RefactorCircus\Guardian\Tests']);
 
-// v2 has no UI (criterion 2): nothing in Guardian names Atrium.
+// v2 has no PHP UI (criterion 2): no PHP of Guardian's uses Atrium. Its
+// Atrium module is JavaScript only (atrium/, dist/atrium: AtriumModuleTest).
 arch('nothing uses Atrium')
     ->expect('RefactorCircus\Guardian')
     ->not->toUse('RefactorCircus\Atrium');

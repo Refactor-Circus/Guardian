@@ -245,12 +245,15 @@ Guardian ships its Atrium front end as a JavaScript module: its pages (security,
     "atrium": {
         "key": "guardian",
         "scripts": ["dist/atrium/atrium.js"],
-        "styles": ["dist/atrium/atrium.css"]
+        "styles": ["dist/atrium/atrium.css"],
+        "integration": "dist/atrium/integration.json"
     }
 }
 ```
 
 With Atrium v2 installed, `php artisan atrium:discover` finds it and Atrium injects the script and stylesheet into its page while the `guardian` integration is active. Guardian has no Composer dependency on Atrium and no PHP of its own knows it.
+
+Guardian declares its integration in a static JSON manifest, `atrium/src/integration.json` (validated against Atrium's schema and copied to `dist/atrium/integration.json` by the build): the `guardian.atrium` feature, the nine Security nav items, its screens (with options read from `guardian.tokens.*`, `guardian.ip_rules.mode` and the scope-type map, `atrium.integrations.guardian.scope_types` falling back to `guardian.adopt.scope_types`), and the tabs and section it adds to Roster's screens (`guardian.access`, `guardian.user-security`, `guardian.sso`, `guardian.scim`, and the `guardian.sso-identities` aside; a host moves them with `atrium.integrations.guardian.screens`). To change what Guardian declares, edit `atrium/src/integration.json` and rebuild.
 
 Contributors edit the Vue sources in `atrium/` (not in the dist archive) and rebuild with pnpm:
 
@@ -260,7 +263,7 @@ pnpm install
 pnpm typecheck && pnpm test && pnpm build
 ```
 
-then commit `dist/atrium/`. `composer test` fails, without Node, when the build is older than its sources (`atrium/src`, `client/src`, `package.json`, `vite.config.ts`, `pnpm-lock.yaml`).
+then commit `dist/atrium/`. `composer test` fails, without Node, when the build is older than its sources (`atrium/src`, which holds the manifest, `client/src`, `package.json`, `vite.config.ts`, `pnpm-lock.yaml`).
 
 ## MCP
 

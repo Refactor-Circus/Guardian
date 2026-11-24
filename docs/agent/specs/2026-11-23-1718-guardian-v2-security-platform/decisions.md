@@ -293,3 +293,9 @@
 - Rationale: The user's decision; the module and its client change with Guardian's API, so they live and are tested beside it.
 - Date: 2026-11-24
 - Raised by: user
+
+## D-050: Guardian declares its Atrium integration in a manifest
+- Choice: The user asked to "move the php declarations": Guardian's Atrium integration (the `guardian.atrium` feature, nine Security nav items, fifteen screens with their config-derived options, and the `lists` hook placing the `guardian.access`, `guardian.user-security`, `guardian.sso`, `guardian.scim` tabs and the `guardian.sso-identities` section on Roster's screens) moves out of Atrium into Guardian as the static JSON manifest `atrium/src/integration.json` (Atrium D-090, commit `009b5bc`, `MODULES.md` §8). No PHP and no Atrium dependency: the SDK pin moves to `009b5bc`, whose preset validates the manifest and writes `dist/atrium/integration.json`, and composer.json's `extra.atrium.integration` names it. Expressions read only `guardian.tokens.*`, `guardian.ip_rules.mode`, `guardian.scim.prefix`, `guardian.adopt.scope_types` (all in `config/guardian.php`) and `atrium.integrations.guardian.*`. Scope types are now read when the integration registers rather than memoised per process; a host that set only `atrium.integrations.guardian.scope_types.organization` now replaces the whole default map, so it sets the full map. `atrium/test/integration.test.ts` validates the manifest and checks its screen, tab and section keys against the module's `screens` and `extensions`; `AtriumModuleTest` checks the shipped file and that every `guardian.*` config key it reads exists.
+- Rationale: The user's decision; the declaration changes with Guardian's screens and config, so it lives beside them.
+- Date: 2026-11-24
+- Raised by: user

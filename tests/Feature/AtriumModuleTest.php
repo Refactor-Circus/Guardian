@@ -6,7 +6,9 @@ declare(strict_types=1);
  * Guardian ships its Atrium front-end module: JavaScript only, its sources in
  * `atrium/` (export-ignored), built into the committed `dist/atrium/` and
  * declared in composer.json's `extra.atrium`, which Atrium reads to inject
- * the script and stylesheet into its page. No PHP of Guardian's knows Atrium
+ * the script and stylesheet into its page and to register the integration
+ * Guardian declares in its manifest (`atrium/src/integration.json`, shipped
+ * as `dist/atrium/integration.json`). No PHP of Guardian's knows Atrium
  * (RemovedSurfacesTest, ArchTest).
  */
 
@@ -73,10 +75,37 @@ it('declares the module in extra.atrium, pointing at the committed build', funct
         'key' => 'guardian',
         'scripts' => ['dist/atrium/atrium.js'],
         'styles' => ['dist/atrium/atrium.css'],
+        'integration' => 'dist/atrium/integration.json',
     ]);
 
-    foreach (['dist/atrium/atrium.js', 'dist/atrium/atrium.css', 'dist/atrium/build.json'] as $path) {
+    foreach (['dist/atrium/atrium.js', 'dist/atrium/atrium.css', 'dist/atrium/build.json', 'dist/atrium/integration.json'] as $path) {
         expect(is_file($root.'/'.$path))->toBeTrue("{$path} is missing: run `pnpm -C atrium build` and commit dist/atrium.");
+    }
+});
+
+it('ships its integration manifest as version 1 under the guardian key', function (): void {
+    /** @var array{atrium: array{integration: string}} $extra */
+    $extra = atriumModuleManifest()['extra'];
+    $file = dirname(__DIR__, 2).'/'.$extra['atrium']['integration'];
+
+    expect(is_file($file))->toBeTrue();
+
+    /** @var array<string, mixed> $manifest */
+    $manifest = json_decode((string) file_get_contents($file), true, flags: JSON_THROW_ON_ERROR);
+
+    expect($manifest['key'] ?? null)->toBe('guardian')
+        ->and($manifest['version'] ?? null)->toBe(1);
+});
+
+it('reads only config keys Guardian defines in its manifest expressions', function (): void {
+    $json = (string) file_get_contents(dirname(__DIR__, 2).'/dist/atrium/integration.json');
+
+    preg_match_all('/"(?:\$config|fallback)":\s*"(guardian\.[^"]+)"/', $json, $matches);
+
+    expect($matches[1])->not->toBeEmpty();
+
+    foreach (array_unique($matches[1]) as $key) {
+        expect(config($key))->not->toBeNull("{$key} is not in config/guardian.php");
     }
 });
 

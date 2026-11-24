@@ -1,18 +1,48 @@
 import { describe, expect, it } from 'vitest'
 import Guardian, { screens } from '../src/atrium'
-import { missingI18nKeys } from '@refactor-circus/atrium/testing'
+import { expectIntegrationManifest, missingI18nKeys } from '@refactor-circus/atrium/testing'
 import fixture from '@refactor-circus/atrium/fixtures/integrations/guardian.json'
 
 /*
- * Guardian's `src/atrium.ts` (AC 49, 82) against what its PHP integration declares
- * in `fixtures/integrations/guardian.json`: a route name for every screen,
- * and no widget, settings panel or search source (D-057).
+ * Guardian's `src/atrium.ts` (AC 49, 82) against its integration manifest,
+ * `src/integration.json` (D-090), and against the shell payload Atrium builds
+ * from it (`fixtures/integrations/guardian.json`): a route name for every
+ * screen, a component for every hook tab and section, and no widget,
+ * settings panel or search source (D-057).
  */
 
 /** The name Nuxt gives the page at a declared path: `/guardian/roles/:role` is `guardian-roles-role`. */
 function routeNameFor(path: string): string {
   return path.slice(1).split('/').map(part => part.replace(/^:/, '')).join('-')
 }
+
+describe('the guardian integration manifest', () => {
+  const manifest = expectIntegrationManifest('src/integration.json', 'guardian')
+
+  it('is version 1 under the guardian key, gated by guardian.atrium', () => {
+    expect(manifest.version).toBe(1)
+    expect(manifest.features).toEqual(['guardian.atrium'])
+  })
+
+  it('declares exactly the screens the module maps', () => {
+    expect((manifest.screens ?? []).map(screen => screen.key).sort()).toEqual(Object.keys(screens).sort())
+  })
+
+  it('declares only hook tabs and sections the module registers', () => {
+    const hooks = (manifest.hooks ?? []) as { tabs?: Record<string, unknown>, sections?: Record<string, unknown> }[]
+    const keys = hooks.flatMap(hook => [...Object.keys(hook.tabs ?? {}), ...Object.keys(hook.sections ?? {})])
+
+    expect(keys.sort()).toEqual(['guardian.access', 'guardian.scim', 'guardian.sso', 'guardian.sso-identities', 'guardian.user-security'])
+    expect(Object.keys(Guardian.extensions ?? {}).sort()).toEqual(keys)
+  })
+
+  it('declares no widget, so names no widget component', () => {
+    const components = (manifest.widgets ?? []).map(widget => (widget.component ?? widget.key) as string)
+
+    expect(components.filter(component => !(component in (Guardian.widgets ?? {})))).toEqual([])
+    expect(components).toEqual([])
+  })
+})
 
 describe('the guardian screens map', () => {
   it('has an entry for every screen key in the fixture, and no other', () => {

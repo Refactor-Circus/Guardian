@@ -39,7 +39,7 @@ const session = {
   created_at: '2026-11-20T10:00:00+00:00'
 } satisfies Schemas['SessionResource']
 
-const orgAssignment = { ...assignment, scope_type: 'roster.organization', scope_id: 'acme' } satisfies Schemas['RoleAssignmentResource']
+const orgAssignment = { ...assignment, user_label: 'Ada Lovelace', scope_type: 'roster.organization', scope_id: '01m74yfnd6pc2b1j1p3h2e869w', scope_label: 'Acme Corp' } satisfies Schemas['RoleAssignmentResource']
 
 function routes(overrides: PackageRoutes<'guardian'> = {}): PackageRoutes<'guardian'> {
   return {
@@ -92,6 +92,16 @@ describe('the Guardian hooks', () => {
       expect(guardianCalls('GET', '/role-assignments')[0]?.query).toEqual({ scope_type: 'roster.organization', scope_id: 'acme', per_page: '25' })
       expect(wrapper.find('[data-testid="guardian-assignment-role"]').attributes('href')).toBe('/guardian/roles/editor')
       expect(wrapper.find('[data-testid="guardian-assign-scope-type"]').exists()).toBe(false)
+    })
+
+    it('names each user and the scope by their labels, linking the user by id', async () => {
+      const wrapper = await mountHook(GuardianAccessTab, { scope_type: 'roster.organization' }, 'acme')
+      const user = wrapper.find('[data-testid="guardian-assignment-user"]')
+
+      expect(user.text()).toBe('Ada Lovelace')
+      expect(user.attributes('href')).toBe('/guardian/users/7')
+      expect(wrapper.find('[data-testid="guardian-assignments-table"]').text()).toContain('Acme Corp')
+      expect(wrapper.find('[data-testid="guardian-assignments-table"]').text()).not.toContain('01m74yfnd6pc2b1j1p3h2e869w')
     })
 
     it('assigns a role to a user in that scope', async () => {

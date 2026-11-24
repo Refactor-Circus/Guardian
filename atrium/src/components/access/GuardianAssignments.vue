@@ -24,7 +24,8 @@ import {
  * confirmation. A fixed `user` (the user screen) or a fixed scope (an
  * organization's tab) narrows the list and the form, with no filters shown
  * for what is fixed. A 422 from the escalation guard lists the permissions
- * it names.
+ * it names. Users and scopes show by Guardian's `user_label` and
+ * `scope_label`, or by id when nothing names them; actions still use ids.
  */
 const props = withDefaults(defineProps<{
   scopeTypes: GuardianScopeType[]
@@ -94,7 +95,12 @@ function scopeOf(assignment: GuardianAssignment): string {
     return t('guardian.access.scopes.global')
   }
 
-  return `${scopeKeyOf(assignment.scope_type, props.scopeTypes)} ${assignment.scope_id ?? ''}`.trim()
+  return `${scopeKeyOf(assignment.scope_type, props.scopeTypes)} ${assignment.scope_label ?? assignment.scope_id ?? ''}`.trim()
+}
+
+/** The user as people know them (Guardian's `user_label`, D-053), else the id. */
+function userOf(assignment: GuardianAssignment): string {
+  return assignment.user_label ?? assignment.user_id
 }
 
 async function assign(): Promise<void> {
@@ -123,7 +129,7 @@ async function assign(): Promise<void> {
 async function revoke(assignment: GuardianAssignment): Promise<void> {
   const name = assignment.role?.name ?? assignment.id
 
-  if (!client || !window.confirm(t('guardian.access.assignments.confirm_revoke', { role: name, user: assignment.user_id }))) {
+  if (!client || !window.confirm(t('guardian.access.assignments.confirm_revoke', { role: name, user: userOf(assignment) }))) {
     return
   }
 
@@ -163,7 +169,7 @@ function go(next: number): void {
         <GuardianErrors :action="revoking" testid="guardian-revoke" />
         <UTable :data="rows" :columns="columns" data-testid="guardian-assignments-table">
           <template #user-cell="{ row }">
-            <ULink :to="userPath(row.original.user_id)" class="hover:underline" data-testid="guardian-assignment-user">{{ row.original.user_id }}</ULink>
+            <ULink :to="userPath(row.original.user_id)" class="hover:underline" data-testid="guardian-assignment-user">{{ userOf(row.original) }}</ULink>
           </template>
           <template #role-cell="{ row }">
             <div :data-testid="`guardian-assignment-${row.original.id}`">

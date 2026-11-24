@@ -220,6 +220,7 @@ it('has the users and roles defaults', function (): void {
     $config = shippedGuardianConfig();
 
     expect($config['users'])->toBe(['model' => null, 'key_type' => 'int'])
+        ->and($config['labels'])->toBe([])
         ->and($config['roles'])->toBe(['built_in' => [
             'super-admin' => ['name' => 'Super admin', 'scope' => 'global', 'super' => true],
             'admin' => ['name' => 'Admin', 'scope' => 'any', 'super' => false],
@@ -294,7 +295,7 @@ it('has exactly the documented sections, each under a banner', function (): void
     $source = (string) file_get_contents(dirname(__DIR__, 2).'/config/guardian.php');
 
     expect(array_keys(shippedGuardianConfig()))->toBe([
-        'sso', 'scim', 'routes', 'authorization', 'super_admins', 'permission_cache', 'rate_limit', 'audit', 'users', 'roles', 'adopt', 'security_log', 'two_factor', 'sessions', 'devices', 'passwords', 'tokens', 'login', 'ip_rules', 'policies', 'tables', 'mcp', 'cortex', 'migrations',
+        'sso', 'scim', 'routes', 'authorization', 'super_admins', 'permission_cache', 'rate_limit', 'audit', 'users', 'labels', 'roles', 'adopt', 'security_log', 'two_factor', 'sessions', 'devices', 'passwords', 'tokens', 'login', 'ip_rules', 'policies', 'tables', 'mcp', 'cortex', 'migrations',
     ])->and(substr_count($source, '|--------------------------------------------------------------------------'))
         ->toBe(2 * count(shippedGuardianConfig()));
 });
@@ -304,7 +305,7 @@ it('puts a banner over each section criterion 56 names', function (string $secti
     $rule = '    \|-{74}\n';
 
     expect(preg_match('/'.$rule.'    \| [^\n]+\n'.$rule.'(?:    \|[^\n]*\n)+    \*\/\n\n    \''.preg_quote($section, '/').'\' =>/', $source))->toBe(1, "config/guardian.php has no banner over '{$section}'");
-})->with(['authorization', 'users', 'roles', 'super_admins', 'permission_cache', 'adopt', 'two_factor', 'sessions', 'devices', 'passwords', 'tokens', 'login', 'ip_rules', 'security_log']);
+})->with(['authorization', 'users', 'labels', 'roles', 'super_admins', 'permission_cache', 'adopt', 'two_factor', 'sessions', 'devices', 'passwords', 'tokens', 'login', 'ip_rules', 'security_log']);
 
 it('describes the whole API, MCP server and Cortex reach in their banners, not only SSO and SCIM', function (string $section): void {
     $source = (string) file_get_contents(dirname(__DIR__, 2).'/config/guardian.php');

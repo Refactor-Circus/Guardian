@@ -456,6 +456,12 @@
                             "null"
                         ]
                     },
+                    "scope_label": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
                     "scope_type": {
                         "type": [
                             "string",
@@ -464,14 +470,22 @@
                     },
                     "user_id": {
                         "type": "string"
+                    },
+                    "user_label": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 },
                 "required": [
                     "id",
                     "user_id",
+                    "user_label",
                     "role",
                     "scope_type",
                     "scope_id",
+                    "scope_label",
                     "assigned_at"
                 ],
                 "title": "RoleAssignmentResource",

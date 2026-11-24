@@ -54,6 +54,18 @@ describe('guardian.role-assignments', () => {
     expect(tableRow(wrapper, 'guardian-assignment-asg-2').text()).toContain('Global')
   })
 
+  it('names users and scopes by their labels when Guardian sends them, else by id', async () => {
+    mockPackageApi('guardian', routes({ 'GET /role-assignments': page([{ ...assignment, user_label: 'Ada Lovelace', scope_label: 'Acme Corp' }, globalAssignment]) as never }))
+
+    const wrapper = await mountGuardianPage(Page, '/guardian/role-assignments')
+    const row = tableRow(wrapper, 'guardian-assignment-asg-1')
+
+    expect(row.find('[data-testid="guardian-assignment-user"]').text()).toBe('Ada Lovelace')
+    expect(row.find('[data-testid="guardian-assignment-user"]').attributes('href')).toBe('/guardian/users/7')
+    expect(row.text()).toContain('organization Acme Corp')
+    expect(tableRow(wrapper, 'guardian-assignment-asg-2').find('[data-testid="guardian-assignment-user"]').text()).toBe('7')
+  })
+
   it('filters by user, role, scope type and scope id', async () => {
     mockPackageApi('guardian', routes())
 

@@ -263,6 +263,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Labels
+    |--------------------------------------------------------------------------
+    |
+    | What the API calls your records for people to read: a role
+    | assignment's `user_label` and `scope_label`, which the Access lists
+    | show in place of ids. Map a model class (or its morph alias) to an
+    | attribute name, or to an invokable class that takes the model and
+    | returns its label. Without an entry Guardian asks a closure from
+    | `Guardian::label()`, then the model's Keystone audit label, then its
+    | `name`, `title`, `label`, `display_name` or `email` attribute.
+    |
+    */
+
+    'labels' => [
+        // App\Models\Organization::class => 'legal_name',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Roles
     |--------------------------------------------------------------------------
     |

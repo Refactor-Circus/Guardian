@@ -213,7 +213,7 @@ Each organization has a SCIM 2.0 server at `/scim/v2/{organization}` (`Users`, `
 
 ## Configuration
 
-`config/guardian.php` has a section per feature, each explained in its banner: `sso`, `scim`, `routes` (the JSON API, off by default, under `guardian`), `authorization` (`enabled`, and `bind` for the role store), `super_admins`, `permission_cache`, `rate_limit` (the `guardian` limiter, 120 a minute), `audit`, `users` (`model`, and `key_type` for the user columns: `int`, `ulid` or `uuid`, set before migrating), `roles`, `adopt`, `security_log`, `two_factor`, `sessions`, `devices`, `passwords`, `tokens`, `login`, `ip_rules`, `policies`, `tables`, `mcp`, `cortex` and `migrations`.
+`config/guardian.php` has a section per feature, each explained in its banner: `sso`, `scim`, `routes` (the JSON API, off by default, under `guardian`), `authorization` (`enabled`, and `bind` for the role store), `super_admins`, `permission_cache`, `rate_limit` (the `guardian` limiter, 120 a minute), `audit`, `users` (`model`, and `key_type` for the user columns: `int`, `ulid` or `uuid`, set before migrating), `labels` (what role assignments' `user_label` and `scope_label` call your models: an attribute or an invokable class per model; `Guardian::label(Model::class, fn ($model) => ...)` takes a closure, and without either Guardian uses the model's Keystone audit label, then its `name`, `title`, `label`, `display_name` or `email`), `roles`, `adopt`, `security_log`, `two_factor`, `sessions`, `devices`, `passwords`, `tokens`, `login`, `ip_rules`, `policies`, `tables`, `mcp`, `cortex` and `migrations`.
 
 ## HTTP API
 

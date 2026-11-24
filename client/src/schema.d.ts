@@ -909,8 +909,10 @@ export interface components {
                 super: boolean;
             } | null;
             scope_id: string | null;
+            scope_label: string | null;
             scope_type: string | null;
             user_id: string;
+            user_label: string | null;
         };
         /** RoleResource */
         RoleResource: {

@@ -28,6 +28,7 @@ use RefactorCircus\Guardian\Exceptions\StrandedTablesException;
 use RefactorCircus\Guardian\Mcp\GuardianServer;
 use RefactorCircus\Guardian\Support\Authorization;
 use RefactorCircus\Guardian\Support\Integration;
+use RefactorCircus\Guardian\Support\Labels;
 use RefactorCircus\Guardian\Upgrade\Handover;
 use RefactorCircus\Guardian\Upgrade\RosterUpgrade;
 use RefactorCircus\Keystone\Authorization\Contracts\Permissions;
@@ -63,6 +64,7 @@ class GuardianServiceProvider extends PackageServiceProvider
         $this->registerPackage();
 
         $this->app->singleton(Guardian::class);
+        $this->app->singleton(Labels::class);
         $this->app->singleton(Integration::class);
         $this->app->singleton(Handover::class);
 

@@ -11,12 +11,16 @@ use RefactorCircus\Guardian\Domains\Role\Data\ListRoleAssignmentsData;
 use RefactorCircus\Guardian\Domains\Role\Events\RoleAssignmentsListedActionEvent;
 use RefactorCircus\Guardian\Domains\Role\Events\RoleAssignmentsListingActionEvent;
 use RefactorCircus\Guardian\Domains\Role\Models\RoleAssignmentModel;
+use RefactorCircus\Guardian\Domains\Role\Support\AssignmentSubjects;
 use RefactorCircus\Guardian\Support\Scopes;
 use RefactorCircus\Keystone\Actions\Action;
 
 final class ListRoleAssignmentsAction extends Action
 {
-    public function __construct(private readonly Scopes $scopes) {}
+    public function __construct(
+        private readonly Scopes $scopes,
+        private readonly AssignmentSubjects $subjects,
+    ) {}
 
     /**
      * Who holds which role where, oldest first, filtered by user, role
@@ -50,6 +54,9 @@ final class ListRoleAssignmentsAction extends Action
         }
 
         $assignments = $query->oldest()->oldest('id')->paginate($filters->perPage, ['*'], 'page', $filters->page);
+
+        // The users and scopes the page names, for their labels (D-053).
+        $this->subjects->load($assignments->items());
 
         RoleAssignmentsListedActionEvent::dispatch($filters);
 

@@ -38,13 +38,15 @@ export const rolesView = { name: 'guardian.roles.view', description: null, syste
 export const assignment = {
   id: 'asg-1',
   user_id: '7',
+  user_label: null,
   role: { slug: 'editor', name: 'Editor', scope: 'any', super: false },
   scope_type: 'org',
   scope_id: 'acme',
+  scope_label: null,
   assigned_at: '2026-11-01T10:00:00+00:00'
 } satisfies Schemas['RoleAssignmentResource']
 
-export const globalAssignment = { ...assignment, id: 'asg-2', scope_type: null, scope_id: null } satisfies Schemas['RoleAssignmentResource']
+export const globalAssignment = { ...assignment, id: 'asg-2', scope_type: null, scope_id: null, scope_label: null } satisfies Schemas['RoleAssignmentResource']
 
 /** The scope types a test screen sends (D-062). */
 export const SCOPE_TYPES = [{ key: 'organization', type: 'org' }, { key: 'team', type: 'team' }]

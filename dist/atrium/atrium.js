@@ -1,5 +1,5 @@
 import { d as e, f as t, i as n, l as r, n as i, o as a, t as o, u as s } from "./chunks/guardian-BXKFb2X7.js";
-import { t as c } from "./chunks/GuardianAssignments-DyocLrvj.js";
+import { t as c } from "./chunks/GuardianAssignments-D6Vkr3K6.js";
 import { i as l, s as u } from "./chunks/access-Ea_ryMId.js";
 import { t as d } from "./chunks/GuardianErrors-mhgGBfyk.js";
 import { t as f } from "./chunks/GuardianPager-DnfHQ8Kk.js";
@@ -1104,7 +1104,7 @@ var _e = {
 	{
 		path: "/guardian/role-assignments",
 		name: "guardian-role-assignments",
-		component: () => import("./chunks/role-assignments-CVALi6lq.js")
+		component: () => import("./chunks/role-assignments-DTwvJZ5Q.js")
 	},
 	{
 		path: "/guardian/roles/:role",
@@ -1156,7 +1156,7 @@ var _e = {
 	{
 		path: "/guardian/users/:user",
 		name: "guardian-users-user",
-		component: () => import("./chunks/_user_-Cu1656RP.js")
+		component: () => import("./chunks/_user_-DXeIiDp4.js")
 	}
 ], tt = {
 	"guardian.security": "guardian-security",

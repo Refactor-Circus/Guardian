@@ -8,26 +8,26 @@ import { UAlert as ie, UButton as ae, UCard as oe, UFormField as D, UInput as O,
 import { useI18n as A } from "vue-i18n";
 import { useRoute as j, useRouter as M } from "vue-router";
 // src/pages/two-factor/challenge.vue?vue&type=script&setup=true&lang.ts
-var N = { class: "text-lg font-semibold" }, P = { class: "text-sm text-muted" }, F = {
+var N = { class: "min-w-0" }, P = { class: "text-lg font-semibold" }, F = { class: "mt-1 text-sm text-muted" }, I = {
 	key: 3,
 	class: "space-y-4"
-}, I = {
+}, L = {
 	key: 1,
 	class: "flex flex-wrap gap-1",
 	role: "tablist",
 	"data-testid": "guardian-challenge-methods"
-}, L = {
+}, R = {
 	key: 0,
 	class: "flex items-center gap-2"
-}, R = {
+}, z = {
 	key: 0,
 	class: "text-sm text-muted",
 	"data-testid": "guardian-challenge-sent"
-}, z = /* @__PURE__ */ te({
+}, B = /* @__PURE__ */ te({
 	__name: "challenge",
 	setup(te) {
-		let { t: z } = A(), B = j(), V = M(), H = u(), U = e(), W = n();
-		ee({ title: () => z("guardian.two_factor.challenge.title") });
+		let { t: B } = A(), V = j(), H = M(), se = u(), U = e(), W = n();
+		ee({ title: () => B("guardian.two_factor.challenge.title") });
 		let G = b("loading"), K = S(null), q = b(null), J = b(""), Y = b(!1), X = f(() => {
 			let e = K.value;
 			if (!e) return [];
@@ -44,10 +44,10 @@ var N = { class: "text-lg font-semibold" }, P = { class: "text-sm text-muted" },
 		}), T(q, () => {
 			J.value = "", Y.value = !1, W.reset();
 		});
-		function se(e) {
+		function ce(e) {
 			q.value = e;
 		}
-		async function ce() {
+		async function le() {
 			G.value = "loading";
 			try {
 				K.value = i(await U.GET("/two-factor")).data, G.value = "ready";
@@ -55,20 +55,20 @@ var N = { class: "text-lg font-semibold" }, P = { class: "text-sm text-muted" },
 				G.value = l(e) === 429 ? "throttled" : "failed";
 			}
 		}
-		async function le() {
-			await H.load(!0), await V.replace(t(B.query.redirect));
+		async function ue() {
+			await se.load(!0), await H.replace(t(V.query.redirect));
 		}
 		function Z(e) {
-			if (e) return le();
+			if (e) return ue();
 			W.status.value === 429 && (G.value = "throttled");
 		}
-		async function ue() {
+		async function Q() {
 			let e = q.value;
 			(e === "email" || e === "sms") && (Y.value = await W.run(async () => {
 				i(await U.POST("/two-factor/challenge/send", { body: { method: e } }));
 			}), await Z(!1));
 		}
-		async function Q() {
+		async function de() {
 			let e = q.value;
 			if (!e || e === "passkey") return;
 			let t = {
@@ -79,7 +79,7 @@ var N = { class: "text-lg font-semibold" }, P = { class: "text-sm text-muted" },
 				i(await U.POST("/two-factor/challenge", { body: t }));
 			}));
 		}
-		async function de() {
+		async function fe() {
 			await Z(await W.run(async () => {
 				let e = i(await U.POST("/two-factor/challenge/passkey-options")).data, t = await o(e);
 				i(await U.POST("/two-factor/challenge", { body: r({
@@ -89,10 +89,10 @@ var N = { class: "text-lg font-semibold" }, P = { class: "text-sm text-muted" },
 			}));
 		}
 		let $ = f(() => W.error("code") ?? W.error("assertion") ?? W.error("method") ?? (W.status.value === 422 ? W.message.value : null));
-		return ce(), (e, t) => {
+		return le(), (e, t) => {
 			let n = k, r = ie, i = c, o = ae, s = O, l = D, u = oe;
 			return y(), p(u, { "data-testid": "guardian-challenge" }, {
-				header: E(() => [g("h1", N, C(w(z)("guardian.two_factor.challenge.title")), 1), g("p", P, C(w(z)("guardian.two_factor.challenge.intro")), 1)]),
+				header: E(() => [g("div", N, [g("h1", P, C(w(B)("guardian.two_factor.challenge.title")), 1), g("p", F, C(w(B)("guardian.two_factor.challenge.intro")), 1)])]),
 				default: E(() => [w(G) === "loading" ? (y(), p(n, {
 					key: 0,
 					class: "h-32",
@@ -102,29 +102,29 @@ var N = { class: "text-lg font-semibold" }, P = { class: "text-sm text-muted" },
 					color: "warning",
 					variant: "subtle",
 					icon: "i-lucide-timer",
-					title: w(z)("guardian.two_factor.throttled"),
-					description: w(W).retryAfter.value ? w(z)("guardian.two_factor.retry_after", { seconds: w(W).retryAfter.value }) : w(z)("guardian.two_factor.challenge.try_later"),
+					title: w(B)("guardian.two_factor.throttled"),
+					description: w(W).retryAfter.value ? w(B)("guardian.two_factor.retry_after", { seconds: w(W).retryAfter.value }) : w(B)("guardian.two_factor.challenge.try_later"),
 					"data-testid": "guardian-challenge-throttled"
 				}, null, 8, ["title", "description"])) : w(G) === "failed" ? (y(), p(i, {
 					key: 2,
-					message: w(z)("guardian.two_factor.challenge.load_failed")
-				}, null, 8, ["message"])) : (y(), h("div", F, [
+					message: w(B)("guardian.two_factor.challenge.load_failed")
+				}, null, 8, ["message"])) : (y(), h("div", I, [
 					w(X).length === 0 ? (y(), p(r, {
 						key: 0,
 						color: "neutral",
 						variant: "subtle",
-						title: w(z)("guardian.two_factor.challenge.no_methods"),
+						title: w(B)("guardian.two_factor.challenge.no_methods"),
 						"data-testid": "guardian-challenge-none"
-					}, null, 8, ["title"])) : (y(), h("div", I, [(y(!0), h(d, null, x(w(X), (e) => (y(), p(o, {
+					}, null, 8, ["title"])) : (y(), h("div", L, [(y(!0), h(d, null, x(w(X), (e) => (y(), p(o, {
 						key: e,
 						size: "sm",
 						color: w(q) === e ? "primary" : "neutral",
 						variant: w(q) === e ? "solid" : "ghost",
 						"aria-pressed": w(q) === e,
 						"data-testid": `guardian-challenge-method-${e}`,
-						onClick: (t) => se(e)
+						onClick: (t) => ce(e)
 					}, {
-						default: E(() => [_(C(w(z)(`guardian.two_factor.challenge.methods.${e}`)), 1)]),
+						default: E(() => [_(C(w(B)(`guardian.two_factor.challenge.methods.${e}`)), 1)]),
 						_: 2
 					}, 1032, [
 						"color",
@@ -148,29 +148,29 @@ var N = { class: "text-lg font-semibold" }, P = { class: "text-sm text-muted" },
 						icon: "i-lucide-key-round",
 						loading: w(W).busy.value,
 						"data-testid": "guardian-challenge-passkey",
-						onClick: de
+						onClick: fe
 					}, {
-						default: E(() => [_(C(w(z)("guardian.two_factor.challenge.use_passkey")), 1)]),
+						default: E(() => [_(C(w(B)("guardian.two_factor.challenge.use_passkey")), 1)]),
 						_: 1
 					}, 8, ["loading"])) : w(q) ? (y(), h("form", {
 						key: 5,
 						class: "space-y-3",
 						"data-testid": "guardian-challenge-form",
-						onSubmit: re(Q, ["prevent"])
+						onSubmit: re(de, ["prevent"])
 					}, [
-						w(q) === "email" || w(q) === "sms" ? (y(), h("div", L, [v(o, {
+						w(q) === "email" || w(q) === "sms" ? (y(), h("div", R, [v(o, {
 							type: "button",
 							color: "neutral",
 							variant: "soft",
 							loading: w(W).busy.value,
 							"data-testid": "guardian-challenge-send",
-							onClick: ue
+							onClick: Q
 						}, {
-							default: E(() => [_(C(w(Y) ? w(z)("guardian.two_factor.one_time.resend") : w(z)("guardian.two_factor.one_time.send")), 1)]),
+							default: E(() => [_(C(w(Y) ? w(B)("guardian.two_factor.one_time.resend") : w(B)("guardian.two_factor.one_time.send")), 1)]),
 							_: 1
-						}, 8, ["loading"]), w(Y) ? (y(), h("span", R, C(w(z)("guardian.two_factor.one_time.sent")), 1)) : m("", !0)])) : m("", !0),
+						}, 8, ["loading"]), w(Y) ? (y(), h("span", z, C(w(B)("guardian.two_factor.one_time.sent")), 1)) : m("", !0)])) : m("", !0),
 						v(l, {
-							label: w(z)(w(q) === "recovery" ? "guardian.two_factor.fields.recovery_code" : "guardian.two_factor.fields.code"),
+							label: w(B)(w(q) === "recovery" ? "guardian.two_factor.fields.recovery_code" : "guardian.two_factor.fields.code"),
 							required: ""
 						}, {
 							default: E(() => [v(s, {
@@ -188,7 +188,7 @@ var N = { class: "text-lg font-semibold" }, P = { class: "text-sm text-muted" },
 							loading: w(W).busy.value,
 							"data-testid": "guardian-challenge-submit"
 						}, {
-							default: E(() => [_(C(w(z)("guardian.two_factor.challenge.submit")), 1)]),
+							default: E(() => [_(C(w(B)("guardian.two_factor.challenge.submit")), 1)]),
 							_: 1
 						}, 8, ["loading"])
 					], 32)) : m("", !0)
@@ -198,4 +198,4 @@ var N = { class: "text-lg font-semibold" }, P = { class: "text-sm text-muted" },
 		};
 	}
 });
-export { z as default };
+export { B as default };

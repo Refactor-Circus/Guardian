@@ -93,24 +93,24 @@ async function submit(): Promise<void> {
     <UAlert v-if="notice" color="neutral" variant="subtle" :title="notice" data-testid="guardian-one-time-unavailable" />
 
     <template v-if="offered.length > 0">
-      <form class="flex flex-wrap items-end gap-2" data-testid="guardian-one-time-send" @submit.prevent="sendCode">
+      <form class="flex flex-wrap items-start gap-2" data-testid="guardian-one-time-send" @submit.prevent="sendCode">
         <UFormField :label="t('guardian.two_factor.fields.type')">
           <USelect :model-value="type ?? undefined" :items="typeChoices" class="w-32" data-testid="guardian-one-time-type" @update:model-value="type = $event" />
         </UFormField>
         <UFormField :label="t(type === 'sms' ? 'guardian.two_factor.fields.phone' : 'guardian.two_factor.fields.email')" :error="send.error('destination')" required>
           <UInput v-model="destination" :type="type === 'sms' ? 'tel' : 'email'" data-testid="guardian-one-time-destination" />
         </UFormField>
-        <UButton type="submit" :loading="send.busy.value" data-testid="guardian-one-time-submit-send">
+        <UButton type="submit" :loading="send.busy.value" class="mt-field-label" data-testid="guardian-one-time-submit-send">
           {{ sent ? t('guardian.two_factor.one_time.resend') : t('guardian.two_factor.one_time.send') }}
         </UButton>
       </form>
       <GuardianActionError v-if="send.code.value !== 'method_unavailable'" :action="send" />
 
-      <form v-if="sent" class="flex flex-wrap items-end gap-2" data-testid="guardian-one-time-confirm" @submit.prevent="submit">
+      <form v-if="sent" class="flex flex-wrap items-start gap-2" data-testid="guardian-one-time-confirm" @submit.prevent="submit">
         <UFormField :label="t('guardian.two_factor.fields.code')" :hint="t('guardian.two_factor.one_time.sent')" :error="confirm.error('code')" required>
           <UInput v-model="code" autocomplete="one-time-code" inputmode="numeric" data-testid="guardian-one-time-code" />
         </UFormField>
-        <UButton type="submit" :loading="confirm.busy.value" data-testid="guardian-one-time-submit">{{ t('guardian.two_factor.confirm') }}</UButton>
+        <UButton type="submit" :loading="confirm.busy.value" class="mt-field-label" data-testid="guardian-one-time-submit">{{ t('guardian.two_factor.confirm') }}</UButton>
       </form>
       <GuardianActionError :action="confirm" />
     </template>

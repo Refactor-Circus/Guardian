@@ -1,5 +1,5 @@
 import { d as e, f as t, i as n, l as r, n as i, o as a, t as o, u as s } from "./chunks/guardian-BXKFb2X7.js";
-import { t as c } from "./chunks/GuardianAssignments-D6Vkr3K6.js";
+import { t as c } from "./chunks/GuardianAssignments-CPpYQR2m.js";
 import { i as l, s as u } from "./chunks/access-Ea_ryMId.js";
 import { t as d } from "./chunks/GuardianErrors-mhgGBfyk.js";
 import { t as f } from "./chunks/GuardianPager-DnfHQ8Kk.js";
@@ -288,7 +288,7 @@ var _e = {
 						R(a, null, {
 							header: K(() => [I("h3", Ee, W(G(o)("guardian.sso.scim.new")), 1)]),
 							default: K(() => [I("form", {
-								class: "flex flex-wrap items-end gap-3",
+								class: "flex flex-wrap items-start gap-3",
 								"data-testid": "guardian-scim-form",
 								onSubmit: q(ce, ["prevent"])
 							}, [
@@ -342,6 +342,7 @@ var _e = {
 									type: "submit",
 									icon: "i-lucide-plus",
 									loading: G(s).busy.value,
+									class: "mt-field-label",
 									"data-testid": "guardian-scim-submit"
 								}, {
 									default: K(() => [L(W(G(o)("guardian.sso.scim.create")), 1)]),
@@ -450,7 +451,7 @@ var _e = {
 }), Re = {
 	class: "space-y-4",
 	"data-testid": "guardian-sso-connections"
-}, ze = { class: "space-y-4" }, Be = ["data-testid"], Ve = { class: "font-medium" }, He = { class: "flex flex-wrap items-end gap-3" }, Ue = /* @__PURE__ */ z({
+}, ze = { class: "space-y-4" }, Be = ["data-testid"], Ve = { class: "font-medium" }, He = { class: "flex flex-wrap items-start gap-3" }, Ue = /* @__PURE__ */ z({
 	__name: "GuardianSsoConnections",
 	props: {
 		organization: {},
@@ -1084,12 +1085,12 @@ var _e = {
 	{
 		path: "/guardian/ip-rules",
 		name: "guardian-ip-rules",
-		component: () => import("./chunks/ip-rules-BmFcyegX.js")
+		component: () => import("./chunks/ip-rules-BbrdN6j6.js")
 	},
 	{
 		path: "/guardian/lockouts",
 		name: "guardian-lockouts",
-		component: () => import("./chunks/lockouts-bL7C1bhR.js")
+		component: () => import("./chunks/lockouts-lmdyHHFR.js")
 	},
 	{
 		path: "/guardian/password-policy",
@@ -1099,12 +1100,12 @@ var _e = {
 	{
 		path: "/guardian/permissions",
 		name: "guardian-permissions",
-		component: () => import("./chunks/permissions-DtX1aoxk.js")
+		component: () => import("./chunks/permissions-CD9yjGhP.js")
 	},
 	{
 		path: "/guardian/role-assignments",
 		name: "guardian-role-assignments",
-		component: () => import("./chunks/role-assignments-DTwvJZ5Q.js")
+		component: () => import("./chunks/role-assignments-DQ8AtR7d.js")
 	},
 	{
 		path: "/guardian/roles/:role",
@@ -1124,12 +1125,12 @@ var _e = {
 	{
 		path: "/guardian/security-events",
 		name: "guardian-security-events",
-		component: () => import("./chunks/security-events-fCmar8Kk.js")
+		component: () => import("./chunks/security-events-BR5FHCE0.js")
 	},
 	{
 		path: "/guardian/security",
 		name: "guardian-security",
-		component: () => import("./chunks/security-D21uI0UY.js")
+		component: () => import("./chunks/security-DmfgYlme.js")
 	},
 	{
 		path: "/guardian/sso-connections/:connection",
@@ -1139,24 +1140,24 @@ var _e = {
 	{
 		path: "/guardian/two-factor-policies",
 		name: "guardian-two-factor-policies",
-		component: () => import("./chunks/two-factor-policies-Ck02iwAt.js")
+		component: () => import("./chunks/two-factor-policies-C-ZvtGHs.js")
 	},
 	{
 		path: "/guardian/two-factor/challenge",
 		name: "guardian-two-factor-challenge",
-		component: () => import("./chunks/challenge-CpeDt9O5.js"),
+		component: () => import("./chunks/challenge-B-RTsGkv.js"),
 		meta: { atrium: { public: !0 } }
 	},
 	{
 		path: "/guardian/two-factor/setup",
 		name: "guardian-two-factor-setup",
-		component: () => import("./chunks/setup-Cdkk1NTA.js"),
+		component: () => import("./chunks/setup-DFTnq_Oy.js"),
 		meta: { atrium: { public: !0 } }
 	},
 	{
 		path: "/guardian/users/:user",
 		name: "guardian-users-user",
-		component: () => import("./chunks/_user_-DXeIiDp4.js")
+		component: () => import("./chunks/_user_-Bude3E4H.js")
 	}
 ], tt = {
 	"guardian.security": "guardian-security",

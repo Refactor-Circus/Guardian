@@ -36,7 +36,7 @@ var L = ["data-testid"], R = /* @__PURE__ */ v({
 			let i = j, a = P, o = N, s = A;
 			return x(), m("div", { "data-testid": `guardian-remove-${n.id}` }, [E(u) ? (x(), m("form", {
 				key: 1,
-				class: "flex flex-wrap items-end gap-2",
+				class: "flex flex-wrap items-start gap-2",
 				"data-testid": "guardian-remove-form",
 				onSubmit: k(b, ["prevent"])
 			}, [
@@ -62,6 +62,7 @@ var L = ["data-testid"], R = /* @__PURE__ */ v({
 					type: "submit",
 					color: "error",
 					loading: E(l).busy.value,
+					class: "mt-field-label",
 					"data-testid": "guardian-remove-submit"
 				}, {
 					default: O(() => [g(T(E(c)("guardian.two_factor.remove.confirm")), 1)]),
@@ -70,6 +71,7 @@ var L = ["data-testid"], R = /* @__PURE__ */ v({
 				_(i, {
 					color: "neutral",
 					variant: "ghost",
+					class: "mt-field-label",
 					onClick: r[2] ||= (e) => v(!1)
 				}, {
 					default: O(() => [g(T(E(c)("guardian.two_factor.cancel")), 1)]),
@@ -150,7 +152,7 @@ var L = ["data-testid"], R = /* @__PURE__ */ v({
 				}, null, 8, ["title"])) : p("", !0),
 				E(R).length > 0 ? (x(), m(u, { key: 1 }, [
 					h("form", {
-						class: "flex flex-wrap items-end gap-2",
+						class: "flex flex-wrap items-start gap-2",
 						"data-testid": "guardian-one-time-send",
 						onSubmit: k(ee, ["prevent"])
 					}, [
@@ -180,6 +182,7 @@ var L = ["data-testid"], R = /* @__PURE__ */ v({
 						_(d, {
 							type: "submit",
 							loading: E(c).busy.value,
+							class: "mt-field-label",
 							"data-testid": "guardian-one-time-submit-send"
 						}, {
 							default: O(() => [g(T(E(w) ? E(s)("guardian.two_factor.one_time.resend") : E(s)("guardian.two_factor.one_time.send")), 1)]),
@@ -192,7 +195,7 @@ var L = ["data-testid"], R = /* @__PURE__ */ v({
 					}, null, 8, ["action"])),
 					E(w) ? (x(), m("form", {
 						key: 1,
-						class: "flex flex-wrap items-end gap-2",
+						class: "flex flex-wrap items-start gap-2",
 						"data-testid": "guardian-one-time-confirm",
 						onSubmit: k(te, ["prevent"])
 					}, [_(a, {
@@ -216,6 +219,7 @@ var L = ["data-testid"], R = /* @__PURE__ */ v({
 					]), _(d, {
 						type: "submit",
 						loading: E(l).busy.value,
+						class: "mt-field-label",
 						"data-testid": "guardian-one-time-submit"
 					}, {
 						default: O(() => [g(T(E(s)("guardian.two_factor.confirm")), 1)]),
@@ -294,7 +298,7 @@ var L = ["data-testid"], R = /* @__PURE__ */ v({
 				])], 8, re))), 128)), E(F).length === 0 ? (x(), m("li", ae, T(E(D)("guardian.two_factor.passkeys.none")), 1)) : p("", !0)])) : p("", !0),
 				_(e, { action: E(M) }, null, 8, ["action"]),
 				h("form", {
-					class: "flex flex-wrap items-end gap-2",
+					class: "flex flex-wrap items-start gap-2",
 					"data-testid": "guardian-passkey-register",
 					onSubmit: k(oe, ["prevent"])
 				}, [_(s, {
@@ -311,6 +315,7 @@ var L = ["data-testid"], R = /* @__PURE__ */ v({
 					type: "submit",
 					icon: "i-lucide-key-round",
 					loading: E(M).busy.value,
+					class: "mt-field-label",
 					"data-testid": "guardian-passkey-submit"
 				}, {
 					default: O(() => [g(T(E(D)("guardian.two_factor.passkeys.add")), 1)]),
@@ -1154,7 +1159,7 @@ var Ue = ["aria-label", "innerHTML"], We = /* @__PURE__ */ v({
 					h("p", Ye, [g(T(E(s)("guardian.two_factor.totp.manual")) + " ", 1), h("code", Xe, T(E(f)), 1)]),
 					_(e, { action: E(l) }, null, 8, ["action"]),
 					h("form", {
-						class: "flex flex-wrap items-end gap-2",
+						class: "flex flex-wrap items-start gap-2",
 						"data-testid": "guardian-totp-confirm",
 						onSubmit: k(w, ["prevent"])
 					}, [_(i, {
@@ -1173,6 +1178,7 @@ var Ue = ["aria-label", "innerHTML"], We = /* @__PURE__ */ v({
 					}, 8, ["label", "error"]), _(a, {
 						type: "submit",
 						loading: E(l).busy.value,
+						class: "mt-field-label",
 						"data-testid": "guardian-totp-submit"
 					}, {
 						default: O(() => [g(T(E(s)("guardian.two_factor.confirm")), 1)]),
@@ -1180,7 +1186,7 @@ var Ue = ["aria-label", "innerHTML"], We = /* @__PURE__ */ v({
 					}, 8, ["loading"])], 32)
 				])) : (x(), m("form", {
 					key: 0,
-					class: "flex flex-wrap items-end gap-2",
+					class: "flex flex-wrap items-start gap-2",
 					"data-testid": "guardian-totp-start",
 					onSubmit: k(C, ["prevent"])
 				}, [_(i, {
@@ -1196,6 +1202,7 @@ var Ue = ["aria-label", "innerHTML"], We = /* @__PURE__ */ v({
 				}, 8, ["label", "error"]), _(a, {
 					type: "submit",
 					loading: E(c).busy.value,
+					class: "mt-field-label",
 					"data-testid": "guardian-totp-begin"
 				}, {
 					default: O(() => [g(T(E(s)("guardian.two_factor.totp.begin")), 1)]),

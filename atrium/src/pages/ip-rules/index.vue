@@ -125,7 +125,7 @@ function go(next: number): void {
                 <template #header>
                   <h2 class="font-medium">{{ t('guardian.admin.ip_rules.new') }}</h2>
                 </template>
-                <form class="flex flex-wrap items-end gap-3" data-testid="guardian-ip-rule-form" @submit.prevent="add">
+                <form class="flex flex-wrap items-start gap-3" data-testid="guardian-ip-rule-form" @submit.prevent="add">
                   <UFormField :label="t('guardian.admin.ip_rules.fields.cidr')" :hint="t('guardian.admin.ip_rules.cidr_hint')" :error="create.error('cidr')" required>
                     <UInput v-model="form.cidr" class="w-48 font-mono" data-testid="guardian-ip-rule-cidr" />
                   </UFormField>
@@ -138,7 +138,7 @@ function go(next: number): void {
                   <UFormField :label="t('guardian.admin.ip_rules.fields.expires_at')" :error="create.error('expires_at')">
                     <UInput v-model="form.expires" type="date" data-testid="guardian-ip-rule-expires" />
                   </UFormField>
-                  <UButton type="submit" icon="i-lucide-plus" :loading="create.busy.value" data-testid="guardian-ip-rule-submit">{{ t('guardian.admin.ip_rules.create') }}</UButton>
+                  <UButton type="submit" icon="i-lucide-plus" :loading="create.busy.value" class="mt-field-label" data-testid="guardian-ip-rule-submit">{{ t('guardian.admin.ip_rules.create') }}</UButton>
                 </form>
                 <div class="mt-3">
                   <GuardianErrors v-if="Object.keys(create.errors.value).length === 0" :action="create" testid="guardian-ip-rule-create" />

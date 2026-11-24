@@ -46,14 +46,16 @@ async function submit(): Promise<void> {
         <div class="space-y-4" data-testid="guardian-lockouts">
           <UCard>
             <template #header>
-              <h2 class="font-semibold">{{ t('guardian.admin.lockouts.clear') }}</h2>
-              <p class="text-sm text-muted">{{ t('guardian.admin.lockouts.hint') }}</p>
+              <div class="min-w-0">
+                <h2 class="font-semibold">{{ t('guardian.admin.lockouts.clear') }}</h2>
+                <p class="mt-1 text-sm text-muted">{{ t('guardian.admin.lockouts.hint') }}</p>
+              </div>
             </template>
-            <form class="flex flex-wrap items-end gap-3" data-testid="guardian-lockout-form" @submit.prevent="submit">
+            <form class="flex flex-wrap items-start gap-3" data-testid="guardian-lockout-form" @submit.prevent="submit">
               <UFormField :label="t('guardian.admin.lockouts.identifier')" :error="clear.error('identifier')" required>
                 <UInput v-model="identifier" class="w-72" autocomplete="off" data-testid="guardian-lockout-identifier" />
               </UFormField>
-              <UButton type="submit" icon="i-lucide-lock-open" :loading="clear.busy.value" data-testid="guardian-lockout-submit">{{ t('guardian.admin.lockouts.submit') }}</UButton>
+              <UButton type="submit" icon="i-lucide-lock-open" :loading="clear.busy.value" class="mt-field-label" data-testid="guardian-lockout-submit">{{ t('guardian.admin.lockouts.submit') }}</UButton>
             </form>
             <UAlert v-if="cleared" class="mt-3" color="success" variant="subtle" :title="t('guardian.admin.lockouts.cleared', { identifier: cleared })" data-testid="guardian-lockout-cleared" />
             <div class="mt-3">

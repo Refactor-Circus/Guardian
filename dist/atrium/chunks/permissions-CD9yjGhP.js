@@ -76,7 +76,7 @@ var te = {
 				header: w(() => [h(a, { title: S(F)("guardian.access.permissions.title") }, null, 8, ["title"])]),
 				body: w(() => [h(C, { "screen-key": "guardian.permissions" }, {
 					default: w(() => [p("div", te, [p("form", {
-						class: "flex flex-wrap items-end gap-3",
+						class: "flex flex-wrap items-start gap-3",
 						"data-testid": "guardian-permissions-search",
 						onSubmit: T(oe, ["prevent"])
 					}, [h(s, { label: S(F)("guardian.access.permissions.search") }, {
@@ -89,7 +89,8 @@ var te = {
 						_: 1
 					}, 8, ["label"]), h(l, {
 						type: "submit",
-						icon: "i-lucide-search"
+						icon: "i-lucide-search",
+						class: "mt-field-label"
 					}, {
 						default: w(() => [m(x(S(F)("guardian.access.filter")), 1)]),
 						_: 1
@@ -176,7 +177,7 @@ var te = {
 							h(b, null, {
 								header: w(() => [p("h2", ie, x(S(F)("guardian.access.permissions.new")), 1)]),
 								default: w(() => [p("form", {
-									class: "flex flex-wrap items-end gap-3",
+									class: "flex flex-wrap items-start gap-3",
 									"data-testid": "guardian-permission-new-form",
 									onSubmit: T(se, ["prevent"])
 								}, [
@@ -214,6 +215,7 @@ var te = {
 										type: "submit",
 										icon: "i-lucide-plus",
 										loading: S(I).busy.value,
+										class: "mt-field-label",
 										"data-testid": "guardian-permission-new-submit"
 									}, {
 										default: w(() => [m(x(S(F)("guardian.access.permissions.create")), 1)]),

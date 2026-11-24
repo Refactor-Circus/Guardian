@@ -41,7 +41,7 @@ function clear(): void {
     <template #body>
       <AtriumIntegrationScreen screen-key="guardian.security-events">
         <div class="space-y-4" data-testid="guardian-security-events">
-          <form class="flex flex-wrap items-end gap-3" data-testid="guardian-events-filters" @submit.prevent="apply">
+          <form class="flex flex-wrap items-start gap-3" data-testid="guardian-events-filters" @submit.prevent="apply">
             <UFormField :label="t('guardian.admin.events.fields.type')">
               <AtriumSelect v-model="form.type" :items="types" :blank="t('guardian.admin.events.any_type')" class="w-64" data-testid="guardian-events-filter-type" />
             </UFormField>
@@ -54,8 +54,8 @@ function clear(): void {
             <UFormField :label="t('guardian.admin.events.to')">
               <UInput v-model="form.to" type="date" data-testid="guardian-events-filter-to" />
             </UFormField>
-            <UButton type="submit" icon="i-lucide-filter" data-testid="guardian-events-filter">{{ t('guardian.admin.filter') }}</UButton>
-            <UButton variant="ghost" icon="i-lucide-x" data-testid="guardian-events-clear" @click="clear">{{ t('guardian.admin.clear') }}</UButton>
+            <UButton type="submit" icon="i-lucide-filter" class="mt-field-label" data-testid="guardian-events-filter">{{ t('guardian.admin.filter') }}</UButton>
+            <UButton variant="ghost" icon="i-lucide-x" class="mt-field-label" data-testid="guardian-events-clear" @click="clear">{{ t('guardian.admin.clear') }}</UButton>
           </form>
 
           <GuardianEventList :filters="applied" testid="guardian-events" />

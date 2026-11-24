@@ -127,7 +127,7 @@ var ne = {
 			let i = M, c = j, l = ee, u = A, d = N, h = p, w = F, T = P;
 			return C(), v("div", ne, [S.filters ? (C(), v("form", {
 				key: 0,
-				class: "flex flex-wrap items-end gap-3",
+				class: "flex flex-wrap items-start gap-3",
 				"data-testid": "guardian-assignments-filters",
 				onSubmit: k(Q, ["prevent"])
 			}, [
@@ -178,6 +178,7 @@ var ne = {
 				x(u, {
 					type: "submit",
 					icon: "i-lucide-filter",
+					class: "mt-field-label",
 					"data-testid": "guardian-assignments-filter"
 				}, {
 					default: O(() => [b(E(D(L)("guardian.access.filter")), 1)]),
@@ -186,6 +187,7 @@ var ne = {
 				x(u, {
 					variant: "ghost",
 					icon: "i-lucide-x",
+					class: "mt-field-label",
 					"data-testid": "guardian-assignments-clear",
 					onClick: fe
 				}, {
@@ -252,7 +254,7 @@ var ne = {
 						onGo: ge
 					}, null, 8, ["current", "last"]),
 					y("form", {
-						class: "flex flex-wrap items-end gap-3",
+						class: "flex flex-wrap items-start gap-3",
 						"data-testid": "guardian-assign-form",
 						onSubmit: k(me, ["prevent"])
 					}, [
@@ -319,6 +321,7 @@ var ne = {
 							type: "submit",
 							icon: "i-lucide-plus",
 							loading: D(R).busy.value,
+							class: "mt-field-label",
 							"data-testid": "guardian-assign-submit"
 						}, {
 							default: O(() => [b(E(D(L)("guardian.access.assignments.assign")), 1)]),

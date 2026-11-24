@@ -15,7 +15,7 @@ var me = {
 }, he = { class: "space-y-4" }, ge = ["data-testid"], j = {
 	key: 0,
 	class: "flex flex-wrap gap-2"
-}, M = { class: "font-medium" }, N = { class: "flex flex-wrap items-end gap-3" }, P = { class: "flex flex-wrap items-center gap-4 text-sm" }, F = { class: "text-muted" }, I = { class: "text-xs text-muted" }, L = /* @__PURE__ */ C({
+}, M = { class: "font-medium" }, N = { class: "flex flex-wrap items-start gap-3" }, P = { class: "flex flex-wrap items-center gap-4 text-sm" }, F = { class: "text-muted" }, I = { class: "text-xs text-muted" }, L = /* @__PURE__ */ C({
 	__name: "index",
 	setup(C) {
 		let { t: L } = pe(), R = l(), z = l(), B = l();

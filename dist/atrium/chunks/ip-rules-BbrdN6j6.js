@@ -143,7 +143,7 @@ var I = {
 								y(S, null, {
 									header: E(() => [_("h2", B, w(T(H)("guardian.admin.ip_rules.new")), 1)]),
 									default: E(() => [_("form", {
-										class: "flex flex-wrap items-end gap-3",
+										class: "flex flex-wrap items-start gap-3",
 										"data-testid": "guardian-ip-rule-form",
 										onSubmit: D(ue, ["prevent"])
 									}, [
@@ -207,6 +207,7 @@ var I = {
 											type: "submit",
 											icon: "i-lucide-plus",
 											loading: T(U).busy.value,
+											class: "mt-field-label",
 											"data-testid": "guardian-ip-rule-submit"
 										}, {
 											default: E(() => [v(w(T(H)("guardian.admin.ip_rules.create")), 1)]),

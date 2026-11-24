@@ -44,12 +44,12 @@ async function remove(): Promise<void> {
     <UButton v-if="!open" size="xs" color="error" variant="ghost" icon="i-lucide-trash-2" data-testid="guardian-remove-open" @click="toggle(true)">
       {{ t('guardian.two_factor.remove.button') }}
     </UButton>
-    <form v-else class="flex flex-wrap items-end gap-2" data-testid="guardian-remove-form" @submit.prevent="remove">
+    <form v-else class="flex flex-wrap items-start gap-2" data-testid="guardian-remove-form" @submit.prevent="remove">
       <UFormField :label="t('guardian.two_factor.remove.proof', { name })" :hint="t('guardian.two_factor.remove.proof_hint')" :error="action.error('code')" required>
         <UInput v-model="code" autocomplete="one-time-code" data-testid="guardian-remove-code" />
       </UFormField>
-      <UButton type="submit" color="error" :loading="action.busy.value" data-testid="guardian-remove-submit">{{ t('guardian.two_factor.remove.confirm') }}</UButton>
-      <UButton color="neutral" variant="ghost" @click="toggle(false)">{{ t('guardian.two_factor.cancel') }}</UButton>
+      <UButton type="submit" color="error" :loading="action.busy.value" class="mt-field-label" data-testid="guardian-remove-submit">{{ t('guardian.two_factor.remove.confirm') }}</UButton>
+      <UButton color="neutral" variant="ghost" class="mt-field-label" @click="toggle(false)">{{ t('guardian.two_factor.cancel') }}</UButton>
     </form>
     <UAlert v-if="required" color="warning" variant="subtle" :title="t('guardian.two_factor.remove.required')" :description="action.message.value ?? undefined" data-testid="guardian-remove-required" />
     <GuardianActionError v-else :action="action" />

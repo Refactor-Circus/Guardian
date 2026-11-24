@@ -158,7 +158,7 @@ function go(next: number): void {
           <template #header>
             <h3 class="font-medium">{{ t('guardian.sso.scim.new') }}</h3>
           </template>
-          <form class="flex flex-wrap items-end gap-3" data-testid="guardian-scim-form" @submit.prevent="add">
+          <form class="flex flex-wrap items-start gap-3" data-testid="guardian-scim-form" @submit.prevent="add">
             <UFormField :label="t('guardian.sso.fields.name')" :error="issue.error('name')" required>
               <UInput v-model="form.name" class="w-56" data-testid="guardian-scim-name" />
             </UFormField>
@@ -168,7 +168,7 @@ function go(next: number): void {
             <UFormField :label="t('guardian.sso.scim.link_connection')" :error="issue.error('sso_connection')">
               <AtriumSelect v-model="form.sso_connection" :items="connectionChoices" :blank="t('guardian.sso.scim.no_connection')" class="w-56" data-testid="guardian-scim-connection" />
             </UFormField>
-            <UButton type="submit" icon="i-lucide-plus" :loading="issue.busy.value" data-testid="guardian-scim-submit">{{ t('guardian.sso.scim.create') }}</UButton>
+            <UButton type="submit" icon="i-lucide-plus" :loading="issue.busy.value" class="mt-field-label" data-testid="guardian-scim-submit">{{ t('guardian.sso.scim.create') }}</UButton>
           </form>
           <div class="mt-3">
             <GuardianErrors v-if="Object.keys(issue.errors.value).length === 0" :action="issue" testid="guardian-scim-issue" />

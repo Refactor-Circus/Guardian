@@ -39,14 +39,14 @@ function apply(): void {
       <h2 class="font-semibold">{{ t('guardian.access.user.abilities') }}</h2>
     </template>
     <div class="space-y-3">
-      <form class="flex flex-wrap items-end gap-3" data-testid="guardian-abilities-scope" @submit.prevent="apply">
+      <form class="flex flex-wrap items-start gap-3" data-testid="guardian-abilities-scope" @submit.prevent="apply">
         <UFormField :label="t('guardian.access.assignments.fields.scope_type')">
           <AtriumSelect v-model="form.scope_type" :items="scopes" :blank="t('guardian.access.scopes.global')" class="w-44" data-testid="guardian-abilities-scope-type" />
         </UFormField>
         <UFormField v-if="form.scope_type" :label="t('guardian.access.assignments.fields.scope_id')">
           <UInput v-model="form.scope_id" class="w-32" data-testid="guardian-abilities-scope-id" />
         </UFormField>
-        <UButton type="submit" size="sm" variant="soft" data-testid="guardian-abilities-apply">{{ t('guardian.access.user.show_abilities') }}</UButton>
+        <UButton type="submit" size="sm" variant="soft" class="mt-field-label" data-testid="guardian-abilities-apply">{{ t('guardian.access.user.show_abilities') }}</UButton>
       </form>
       <GuardianState :ready="!pending && data !== null" :failed="failed" :status="status" compact>
         <p v-if="data?.super_admin" data-testid="guardian-abilities-super">{{ t('guardian.access.user.super_admin') }}</p>

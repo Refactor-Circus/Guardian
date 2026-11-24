@@ -98,11 +98,11 @@ void load()
       </ul>
 
       <GuardianActionError :action="register" />
-      <form class="flex flex-wrap items-end gap-2" data-testid="guardian-passkey-register" @submit.prevent="add">
+      <form class="flex flex-wrap items-start gap-2" data-testid="guardian-passkey-register" @submit.prevent="add">
         <UFormField :label="t('guardian.two_factor.fields.label')" :error="register.error('label')">
           <UInput v-model="label" data-testid="guardian-passkey-label" />
         </UFormField>
-        <UButton type="submit" icon="i-lucide-key-round" :loading="register.busy.value" data-testid="guardian-passkey-submit">{{ t('guardian.two_factor.passkeys.add') }}</UButton>
+        <UButton type="submit" icon="i-lucide-key-round" :loading="register.busy.value" class="mt-field-label" data-testid="guardian-passkey-submit">{{ t('guardian.two_factor.passkeys.add') }}</UButton>
       </form>
     </template>
   </div>

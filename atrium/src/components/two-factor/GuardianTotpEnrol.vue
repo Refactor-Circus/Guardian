@@ -70,11 +70,11 @@ onBeforeUnmount(forget)
     <h3 class="font-medium">{{ t('guardian.two_factor.totp.title') }}</h3>
     <GuardianActionError :action="start" />
 
-    <form v-if="!uri" class="flex flex-wrap items-end gap-2" data-testid="guardian-totp-start" @submit.prevent="begin">
+    <form v-if="!uri" class="flex flex-wrap items-start gap-2" data-testid="guardian-totp-start" @submit.prevent="begin">
       <UFormField :label="t('guardian.two_factor.fields.label')" :error="start.error('label')">
         <UInput v-model="label" data-testid="guardian-totp-label" />
       </UFormField>
-      <UButton type="submit" :loading="start.busy.value" data-testid="guardian-totp-begin">{{ t('guardian.two_factor.totp.begin') }}</UButton>
+      <UButton type="submit" :loading="start.busy.value" class="mt-field-label" data-testid="guardian-totp-begin">{{ t('guardian.two_factor.totp.begin') }}</UButton>
     </form>
 
     <div v-else class="space-y-3">
@@ -85,11 +85,11 @@ onBeforeUnmount(forget)
         <code class="break-all font-mono" data-testid="guardian-totp-secret">{{ secret }}</code>
       </p>
       <GuardianActionError :action="confirm" />
-      <form class="flex flex-wrap items-end gap-2" data-testid="guardian-totp-confirm" @submit.prevent="submit">
+      <form class="flex flex-wrap items-start gap-2" data-testid="guardian-totp-confirm" @submit.prevent="submit">
         <UFormField :label="t('guardian.two_factor.fields.code')" :error="confirm.error('code')" required>
           <UInput v-model="code" autocomplete="one-time-code" inputmode="numeric" data-testid="guardian-totp-code" />
         </UFormField>
-        <UButton type="submit" :loading="confirm.busy.value" data-testid="guardian-totp-submit">{{ t('guardian.two_factor.confirm') }}</UButton>
+        <UButton type="submit" :loading="confirm.busy.value" class="mt-field-label" data-testid="guardian-totp-submit">{{ t('guardian.two_factor.confirm') }}</UButton>
       </form>
     </div>
   </div>

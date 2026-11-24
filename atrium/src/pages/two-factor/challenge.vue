@@ -170,8 +170,10 @@ void load()
 <template>
   <UCard data-testid="guardian-challenge">
     <template #header>
-      <h1 class="text-lg font-semibold">{{ t('guardian.two_factor.challenge.title') }}</h1>
-      <p class="text-sm text-muted">{{ t('guardian.two_factor.challenge.intro') }}</p>
+      <div class="min-w-0">
+        <h1 class="text-lg font-semibold">{{ t('guardian.two_factor.challenge.title') }}</h1>
+        <p class="mt-1 text-sm text-muted">{{ t('guardian.two_factor.challenge.intro') }}</p>
+      </div>
     </template>
 
     <USkeleton v-if="state === 'loading'" class="h-32" data-testid="guardian-challenge-loading" />

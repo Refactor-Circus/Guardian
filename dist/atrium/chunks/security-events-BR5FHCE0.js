@@ -45,7 +45,7 @@ var E = {
 				header: v(() => [d(r, { title: _(D)("guardian.admin.events.title") }, null, 8, ["title"])]),
 				body: v(() => [d(h, { "screen-key": "guardian.security-events" }, {
 					default: v(() => [l("div", E, [l("form", {
-						class: "flex flex-wrap items-end gap-3",
+						class: "flex flex-wrap items-start gap-3",
 						"data-testid": "guardian-events-filters",
 						onSubmit: y(j, ["prevent"])
 					}, [
@@ -94,6 +94,7 @@ var E = {
 						d(m, {
 							type: "submit",
 							icon: "i-lucide-filter",
+							class: "mt-field-label",
 							"data-testid": "guardian-events-filter"
 						}, {
 							default: v(() => [u(g(_(D)("guardian.admin.filter")), 1)]),
@@ -102,6 +103,7 @@ var E = {
 						d(m, {
 							variant: "ghost",
 							icon: "i-lucide-x",
+							class: "mt-field-label",
 							"data-testid": "guardian-events-clear",
 							onClick: M
 						}, {

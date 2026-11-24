@@ -101,11 +101,11 @@ async function destroy(permission: GuardianPermission): Promise<void> {
     <template #body>
       <AtriumIntegrationScreen screen-key="guardian.permissions">
         <div class="space-y-4" data-testid="guardian-permissions">
-          <form class="flex flex-wrap items-end gap-3" data-testid="guardian-permissions-search" @submit.prevent="find">
+          <form class="flex flex-wrap items-start gap-3" data-testid="guardian-permissions-search" @submit.prevent="find">
             <UFormField :label="t('guardian.access.permissions.search')">
               <UInput v-model="search" class="w-64" data-testid="guardian-permissions-search-input" />
             </UFormField>
-            <UButton type="submit" icon="i-lucide-search">{{ t('guardian.access.filter') }}</UButton>
+            <UButton type="submit" icon="i-lucide-search" class="mt-field-label">{{ t('guardian.access.filter') }}</UButton>
           </form>
 
           <GuardianState :ready="!pending && data !== null" :failed="failed" :status="status">
@@ -137,14 +137,14 @@ async function destroy(permission: GuardianPermission): Promise<void> {
                 <template #header>
                   <h2 class="font-medium">{{ t('guardian.access.permissions.new') }}</h2>
                 </template>
-                <form class="flex flex-wrap items-end gap-3" data-testid="guardian-permission-new-form" @submit.prevent="add">
+                <form class="flex flex-wrap items-start gap-3" data-testid="guardian-permission-new-form" @submit.prevent="add">
                   <UFormField :label="t('guardian.access.permissions.fields.name')" :hint="t('guardian.access.permissions.name_hint')" :error="create.error('name')" required>
                     <UInput v-model="form.name" class="w-56" data-testid="guardian-permission-new-name" />
                   </UFormField>
                   <UFormField :label="t('guardian.access.permissions.fields.description')" :error="create.error('description')">
                     <UInput v-model="form.description" class="w-72" data-testid="guardian-permission-new-description" />
                   </UFormField>
-                  <UButton type="submit" icon="i-lucide-plus" :loading="create.busy.value" data-testid="guardian-permission-new-submit">{{ t('guardian.access.permissions.create') }}</UButton>
+                  <UButton type="submit" icon="i-lucide-plus" :loading="create.busy.value" class="mt-field-label" data-testid="guardian-permission-new-submit">{{ t('guardian.access.permissions.create') }}</UButton>
                 </form>
               </UCard>
             </div>

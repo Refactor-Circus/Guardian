@@ -89,7 +89,7 @@ function go(next: number): void {
             <h3 class="font-medium">{{ t('guardian.sso.connections.new') }}</h3>
           </template>
           <form class="space-y-3" data-testid="guardian-sso-new-form" @submit.prevent="add">
-            <div class="flex flex-wrap items-end gap-3">
+            <div class="flex flex-wrap items-start gap-3">
               <UFormField :label="t('guardian.sso.fields.name')" :error="create.error('name')" required>
                 <UInput v-model="form.name" class="w-56" data-testid="guardian-sso-new-name" />
               </UFormField>

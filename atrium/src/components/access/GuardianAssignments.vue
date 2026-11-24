@@ -145,7 +145,7 @@ function go(next: number): void {
 
 <template>
   <div class="space-y-4" data-testid="guardian-assignments">
-    <form v-if="filters" class="flex flex-wrap items-end gap-3" data-testid="guardian-assignments-filters" @submit.prevent="applyFilters">
+    <form v-if="filters" class="flex flex-wrap items-start gap-3" data-testid="guardian-assignments-filters" @submit.prevent="applyFilters">
       <UFormField v-if="user === null" :label="t('guardian.access.assignments.fields.user')">
         <UInput v-model="filter.user" class="w-40" data-testid="guardian-assignments-filter-user" />
       </UFormField>
@@ -160,8 +160,8 @@ function go(next: number): void {
           <UInput v-model="filter.scope_id" class="w-32" data-testid="guardian-assignments-filter-scope-id" />
         </UFormField>
       </template>
-      <UButton type="submit" icon="i-lucide-filter" data-testid="guardian-assignments-filter">{{ t('guardian.access.filter') }}</UButton>
-      <UButton variant="ghost" icon="i-lucide-x" data-testid="guardian-assignments-clear" @click="clearFilters">{{ t('guardian.access.clear') }}</UButton>
+      <UButton type="submit" icon="i-lucide-filter" class="mt-field-label" data-testid="guardian-assignments-filter">{{ t('guardian.access.filter') }}</UButton>
+      <UButton variant="ghost" icon="i-lucide-x" class="mt-field-label" data-testid="guardian-assignments-clear" @click="clearFilters">{{ t('guardian.access.clear') }}</UButton>
     </form>
 
     <GuardianState :ready="!pending && data !== null" :failed="failed" :status="status" :compact="!filters">
@@ -191,7 +191,7 @@ function go(next: number): void {
 
         <GuardianPager :current="paging.current" :last="paging.last" testid="guardian-assignments" @go="go" />
 
-        <form class="flex flex-wrap items-end gap-3" data-testid="guardian-assign-form" @submit.prevent="assign">
+        <form class="flex flex-wrap items-start gap-3" data-testid="guardian-assign-form" @submit.prevent="assign">
           <UFormField v-if="user === null" :label="t('guardian.access.assignments.fields.user')" :error="action.error('user')" required>
             <UInput v-model="form.user" class="w-40" data-testid="guardian-assign-user" />
           </UFormField>
@@ -206,7 +206,7 @@ function go(next: number): void {
               <UInput v-model="form.scope_id" class="w-32" data-testid="guardian-assign-scope-id" />
             </UFormField>
           </template>
-          <UButton type="submit" icon="i-lucide-plus" :loading="action.busy.value" data-testid="guardian-assign-submit">{{ t('guardian.access.assignments.assign') }}</UButton>
+          <UButton type="submit" icon="i-lucide-plus" :loading="action.busy.value" class="mt-field-label" data-testid="guardian-assign-submit">{{ t('guardian.access.assignments.assign') }}</UButton>
         </form>
         <GuardianErrors :action="action" testid="guardian-assign" />
       </div>

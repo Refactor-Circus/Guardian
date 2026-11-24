@@ -1,7 +1,7 @@
 import { n as e, s as t } from "./access-Ea_ryMId.js";
 import { t as n } from "./GuardianState-DytBr9ih.js";
 import { f as r, o as i } from "./guardian-BXKFb2X7.js";
-import { t as a } from "./GuardianAssignments-D6Vkr3K6.js";
+import { t as a } from "./GuardianAssignments-CPpYQR2m.js";
 import { t as o } from "./UserSecurity-C9bX42tG.js";
 import { AtriumIntegrationScreen as s, AtriumSelect as c, useAtriumScreen as l, useHead as u } from "@refactor-circus/atrium";
 import { Fragment as d, computed as f, createBlock as p, createCommentVNode as m, createElementBlock as h, createElementVNode as g, createTextVNode as _, createVNode as v, defineComponent as y, openBlock as b, reactive as x, ref as S, renderList as C, toDisplayString as w, unref as T, withCtx as E, withModifiers as D } from "vue";
@@ -57,7 +57,7 @@ var L = { class: "font-semibold" }, R = { class: "space-y-3" }, z = {
 			return b(), p(f, { "data-testid": "guardian-user-abilities" }, {
 				header: E(() => [g("h2", L, w(T(o)("guardian.access.user.abilities")), 1)]),
 				default: E(() => [g("div", R, [g("form", {
-					class: "flex flex-wrap items-end gap-3",
+					class: "flex flex-wrap items-start gap-3",
 					"data-testid": "guardian-abilities-scope",
 					onSubmit: D(U, ["prevent"])
 				}, [
@@ -92,6 +92,7 @@ var L = { class: "font-semibold" }, R = { class: "space-y-3" }, z = {
 						type: "submit",
 						size: "sm",
 						variant: "soft",
+						class: "mt-field-label",
 						"data-testid": "guardian-abilities-apply"
 					}, {
 						default: E(() => [_(w(T(o)("guardian.access.user.show_abilities")), 1)]),

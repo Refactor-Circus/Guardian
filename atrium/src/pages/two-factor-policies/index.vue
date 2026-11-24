@@ -183,7 +183,7 @@ function go(next: number): void {
                   <h2 class="font-medium">{{ t('guardian.admin.policies.new') }}</h2>
                 </template>
                 <form class="space-y-3" data-testid="guardian-policy-form" @submit.prevent="add">
-                  <div class="flex flex-wrap items-end gap-3">
+                  <div class="flex flex-wrap items-start gap-3">
                     <UFormField :label="t('guardian.admin.policies.fields.scope_type')">
                       <AtriumSelect v-model="form.scope_type" :items="scopeChoices" :blank="t('guardian.admin.policies.everyone')" class="w-44" data-testid="guardian-policy-new-scope-type" />
                     </UFormField>

@@ -5,7 +5,7 @@ import { mockPackageApi, reply, resetPackageApis, type PackageRoutes } from '@re
 import { confirmWith, guardianCalls, guardianScreensApi, resetGuardianPages } from '../support'
 import { asResource, mountSso, oidc, saml, unmountSso } from './support'
 import { clearAtriumData, mockAtriumApi, mockNavigateTo, useRouter } from '@refactor-circus/atrium/testing'
-import { check, isChecked } from '../ui'
+import { isChecked, setChecked } from '@refactor-circus/atrium/testing'
 
 /*
  * `guardian.sso-connection` (AC 96): show; update with the name, the
@@ -71,9 +71,9 @@ describe('guardian.sso-connection', () => {
 
     await wrapper.find('[data-testid="guardian-sso-name"]').setValue('Acme Okta SSO')
     await wrapper.find('[data-testid="guardian-sso-issuer"]').setValue('https://login.acme.test')
-    await check(wrapper, 'guardian-sso-enforced', true)
-    await check(wrapper, 'guardian-sso-jit', false)
-    await check(wrapper, 'guardian-sso-enabled', false)
+    await setChecked(wrapper, 'guardian-sso-enforced', true)
+    await setChecked(wrapper, 'guardian-sso-jit', false)
+    await setChecked(wrapper, 'guardian-sso-enabled', false)
     await wrapper.find('[data-testid="guardian-sso-form"]').trigger('submit')
     await settle()
 

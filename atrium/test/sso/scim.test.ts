@@ -6,7 +6,7 @@ import { mockPackageApi, reply, resetPackageApis, type PackageRoutes } from '@re
 import { confirmWith, guardianCalls, guardianScreensApi, page, resetGuardianPages } from '../support'
 import { asResource, mountSso, oidc, revokedToken, scimToken, unmountSso } from './support'
 import { clearAtriumData, mockAtriumApi, useRouter } from '@refactor-circus/atrium/testing'
-import { choices, choose, rowOf } from '../ui'
+import { chooseOption, selectValues, tableRow } from '@refactor-circus/atrium/testing'
 
 /*
  * The `guardian.scim` tab's component (AC 96, D-058): the tokens; a new
@@ -80,19 +80,19 @@ describe('the guardian.scim tab', () => {
     expect(call?.path).toBe('/organizations/acme/scim-tokens')
     expect(call?.query).toEqual({ per_page: '25' })
     expect(wrapper.find('[data-testid="guardian-scim-base-url"]').text()).toBe(`${window.location.origin}/scim/v2/acme`)
-    expect(rowOf(wrapper, 'guardian-scim-token-scim-1').text()).toContain('Okta sync')
-    expect(rowOf(wrapper, 'guardian-scim-token-scim-2').text()).toContain('Revoked')
+    expect(tableRow(wrapper, 'guardian-scim-token-scim-1').text()).toContain('Okta sync')
+    expect(tableRow(wrapper, 'guardian-scim-token-scim-2').text()).toContain('Revoked')
     expect(wrapper.find('[data-testid="guardian-scim-revoke-scim-2"]').exists()).toBe(false)
   })
 
   it('issues a token with every field, shows the plain token once and never stores it', async () => {
     const wrapper = await mountTab()
 
-    expect(choices(wrapper, 'guardian-scim-connection')).toEqual(['', 'acme-okta'])
+    expect(selectValues(wrapper, 'guardian-scim-connection')).toEqual(['', 'acme-okta'])
 
     await wrapper.find('[data-testid="guardian-scim-name"]').setValue(' Okta sync ')
     await wrapper.find('[data-testid="guardian-scim-expires"]').setValue('90')
-    await choose(wrapper, 'guardian-scim-connection', 'acme-okta')
+    await chooseOption(wrapper, 'guardian-scim-connection', 'acme-okta')
     await wrapper.find('[data-testid="guardian-scim-form"]').trigger('submit')
     await settle()
 

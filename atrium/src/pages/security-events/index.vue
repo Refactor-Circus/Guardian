@@ -2,7 +2,6 @@
 import GuardianEventList from '../../components/admin/GuardianEventList.vue'
 import { endOfDay, SECURITY_EVENT_TYPES, startOfDay } from '../../components/admin/admin'
 import { blankToNull } from '../../components/access/access'
-import { choice, NONE, unchoice } from '../../components/ui'
 
 /**
  * `guardian.security-events`: Guardian's security log
@@ -15,7 +14,7 @@ const { t } = useI18n()
 
 useHead({ title: () => t('guardian.admin.events.title') })
 
-const types = computed(() => [{ label: t('guardian.admin.events.any_type'), value: NONE }, ...SECURITY_EVENT_TYPES.map(type => ({ label: type, value: type as string }))])
+const types = SECURITY_EVENT_TYPES.map(type => ({ label: type, value: type as string }))
 const form = reactive({ type: '', user: '', from: '', to: '' })
 const applied = ref<Record<string, string | null>>({})
 
@@ -44,7 +43,7 @@ function clear(): void {
         <div class="space-y-4" data-testid="guardian-security-events">
           <form class="flex flex-wrap items-end gap-3" data-testid="guardian-events-filters" @submit.prevent="apply">
             <UFormField :label="t('guardian.admin.events.fields.type')">
-              <USelect :model-value="choice(form.type)" :items="types" class="w-64" data-testid="guardian-events-filter-type" @update:model-value="form.type = unchoice($event)" />
+              <AtriumSelect v-model="form.type" :items="types" :blank="t('guardian.admin.events.any_type')" class="w-64" data-testid="guardian-events-filter-type" />
             </UFormField>
             <UFormField :label="t('guardian.admin.events.fields.user')">
               <UInput v-model="form.user" class="w-40" data-testid="guardian-events-filter-user" />

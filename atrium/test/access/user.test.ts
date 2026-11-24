@@ -6,7 +6,7 @@ import { mockPackageApi, reply, resetPackageApis, type PackageRoutes } from '@re
 import { confirmWith, cursorPage, guardianCalls, guardianScreensApi, mountGuardianPage, page, resetGuardianPages, screenOptions } from '../support'
 import { assignment, editor, SCOPE_TYPES } from './support'
 import { clearAtriumData, mockAtriumApi, useRouter } from '@refactor-circus/atrium/testing'
-import { choose } from '../ui'
+import { chooseOption } from '@refactor-circus/atrium/testing'
 
 /*
  * `guardian.user` (AC 90, D-055): role assignments with assign and revoke;
@@ -96,12 +96,12 @@ describe('guardian.user', () => {
 
     expect(wrapper.find('[data-testid="guardian-assign-user"]').exists()).toBe(false)
 
-    await choose(wrapper, 'guardian-assign-role', 'editor')
+    await chooseOption(wrapper, 'guardian-assign-role', 'editor')
     await wrapper.find('[data-testid="guardian-assign-form"]').trigger('submit')
     await settle()
 
-    await choose(wrapper, 'guardian-assign-role', 'editor')
-    await choose(wrapper, 'guardian-assign-scope-type', 'team')
+    await chooseOption(wrapper, 'guardian-assign-role', 'editor')
+    await chooseOption(wrapper, 'guardian-assign-scope-type', 'team')
     await settle()
     await wrapper.find('[data-testid="guardian-assign-scope-id"]').setValue('ops')
     await wrapper.find('[data-testid="guardian-assign-form"]').trigger('submit')
@@ -126,7 +126,7 @@ describe('guardian.user', () => {
   it('shows the abilities in a scope', async () => {
     const wrapper = await mountUser()
 
-    await choose(wrapper, 'guardian-abilities-scope-type', 'org')
+    await chooseOption(wrapper, 'guardian-abilities-scope-type', 'org')
     await settle()
     await wrapper.find('[data-testid="guardian-abilities-scope-id"]').setValue('acme')
     await wrapper.find('[data-testid="guardian-abilities-scope"]').trigger('submit')

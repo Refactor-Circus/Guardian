@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import type { TableColumn } from '@nuxt/ui'
+import type { SelectItem, TableColumn } from '@refactor-circus/atrium/ui'
 import GuardianErrors from '../access/GuardianErrors.vue'
 import GuardianPager from '../access/GuardianPager.vue'
 import { pageOf } from '../access/access'
 import GuardianState from '../two-factor/GuardianState.vue'
 import { formatDate, guardianData, useGuardianAction, useGuardianLoad, type GuardianClient, type GuardianPage } from '../two-factor/guardian'
 import { useAtriumIntegration } from '@refactor-circus/atrium'
-import { choice, NONE, unchoice, type Choice } from '../ui'
 import { CONNECTION_CHOICES, scimBaseUrl, SSO_PAGE_SIZE, type GuardianScimToken, type GuardianSsoConnection } from './sso'
 
 /**
@@ -52,10 +51,7 @@ const columns = computed<TableColumn<GuardianScimToken>[]>(() => [
   { id: 'expires', header: t('guardian.sso.scim.expires'), meta: { class: { td: 'text-muted' } } },
   { id: 'actions', meta: { class: { td: 'text-right' } } }
 ])
-const connectionChoices = computed<Choice[]>(() => [
-  { label: t('guardian.sso.scim.no_connection'), value: NONE },
-  ...connections.value.map(connection => ({ label: connection.name, value: connection.slug }))
-])
+const connectionChoices = computed<SelectItem[]>(() => connections.value.map(connection => ({ label: connection.name, value: connection.slug })))
 const paging = computed(() => pageOf(data.value))
 const form = reactive({ name: '', expires_in_days: '' as string | number, sso_connection: '' })
 const plain = ref<string | null>(null)
@@ -170,7 +166,7 @@ function go(next: number): void {
               <UInput v-model="form.expires_in_days" type="number" min="1" max="3650" class="w-32" data-testid="guardian-scim-expires" />
             </UFormField>
             <UFormField :label="t('guardian.sso.scim.link_connection')" :error="issue.error('sso_connection')">
-              <USelect :model-value="choice(form.sso_connection)" :items="connectionChoices" class="w-56" data-testid="guardian-scim-connection" @update:model-value="form.sso_connection = unchoice($event)" />
+              <AtriumSelect v-model="form.sso_connection" :items="connectionChoices" :blank="t('guardian.sso.scim.no_connection')" class="w-56" data-testid="guardian-scim-connection" />
             </UFormField>
             <UButton type="submit" icon="i-lucide-plus" :loading="issue.busy.value" data-testid="guardian-scim-submit">{{ t('guardian.sso.scim.create') }}</UButton>
           </form>

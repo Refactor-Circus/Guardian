@@ -1,5 +1,5 @@
 import { t as e } from "./GuardianActionError-DKEMy_E4.js";
-import { c as t, i as n, o as r, r as i, s as a, u as o } from "./guardian-D9MeowUD.js";
+import { d as t, i as n, l as r, o as i, r as a, s as o } from "./guardian-BXKFb2X7.js";
 import { r as s, t as c } from "./webauthn-DJJMk2td.js";
 import { atriumStatus as l } from "@refactor-circus/atrium";
 import { Fragment as u, computed as d, createBlock as f, createCommentVNode as p, createElementBlock as m, createElementVNode as h, createTextVNode as g, createVNode as _, defineComponent as v, isRef as y, onBeforeUnmount as b, openBlock as x, ref as S, renderList as C, shallowRef as w, toDisplayString as T, unref as E, watch as D, withCtx as O, withModifiers as k } from "vue";
@@ -15,22 +15,22 @@ var L = ["data-testid"], R = /* @__PURE__ */ v({
 		name: {}
 	},
 	emits: ["removed"],
-	setup(n, { emit: i }) {
-		let a = n, s = i, { t: c } = I(), l = o(), u = S(!1), p = S(""), h = d(() => l.code.value === "two_factor_required");
+	setup(n, { emit: a }) {
+		let o = n, s = a, { t: c } = I(), l = t(), u = S(!1), p = S(""), h = d(() => l.code.value === "two_factor_required");
 		function v(e) {
 			u.value = e;
 		}
 		async function b() {
-			let e = t({ code: p.value.trim() }), n = await l.run(async () => {
-				r(a.kind === "method" ? await a.client.DELETE("/two-factor/methods/{method}", {
-					params: { path: { method: a.id } },
+			let e = r({ code: p.value.trim() }), t = await l.run(async () => {
+				i(o.kind === "method" ? await o.client.DELETE("/two-factor/methods/{method}", {
+					params: { path: { method: o.id } },
 					body: e
-				}) : await a.client.DELETE("/two-factor/passkeys/{passkey}", {
-					params: { path: { passkey: a.id } },
+				}) : await o.client.DELETE("/two-factor/passkeys/{passkey}", {
+					params: { path: { passkey: o.id } },
 					body: e
 				}));
 			});
-			p.value = "", n && (u.value = !1, s("removed"));
+			p.value = "", t && (u.value = !1, s("removed"));
 		}
 		return (t, r) => {
 			let i = j, a = P, o = N, s = A;
@@ -109,8 +109,8 @@ var L = ["data-testid"], R = /* @__PURE__ */ v({
 		types: {}
 	},
 	emits: ["confirmed"],
-	setup(t, { emit: n }) {
-		let i = t, a = n, { t: s } = I(), c = o(), l = o(), v = S([]), b = S(null), C = S(""), w = S(!1), M = S(""), L = S(null), R = d(() => i.types.filter((e) => !v.value.includes(e))), V = d(() => R.value.map((e) => ({
+	setup(n, { emit: r }) {
+		let a = n, o = r, { t: s } = I(), c = t(), l = t(), v = S([]), b = S(null), C = S(""), w = S(!1), M = S(""), L = S(null), R = d(() => a.types.filter((e) => !v.value.includes(e))), V = d(() => R.value.map((e) => ({
 			label: s(`guardian.two_factor.types.${e}`),
 			value: e
 		})));
@@ -120,7 +120,7 @@ var L = ["data-testid"], R = /* @__PURE__ */ v({
 		async function ee() {
 			let e = b.value;
 			e && (L.value = null, await c.run(async () => {
-				r(await i.client.POST("/two-factor/one-time-codes", { body: {
+				i(await a.client.POST("/two-factor/one-time-codes", { body: {
 					type: e,
 					destination: C.value.trim()
 				} }));
@@ -130,12 +130,12 @@ var L = ["data-testid"], R = /* @__PURE__ */ v({
 			let e = b.value;
 			if (!e) return;
 			let t = null, n = await l.run(async () => {
-				t = r(await i.client.POST("/two-factor/one-time-codes/confirm", { body: {
+				t = i(await a.client.POST("/two-factor/one-time-codes/confirm", { body: {
 					type: e,
 					code: M.value.trim()
 				} })).data.recovery_codes ?? null;
 			});
-			M.value = "", n && (w.value = !1, C.value = "", a("confirmed", t));
+			M.value = "", n && (w.value = !1, C.value = "", o("confirmed", t));
 		}
 		return (t, n) => {
 			let r = A, i = F, a = N, o = P, d = j;
@@ -246,43 +246,43 @@ var L = ["data-testid"], R = /* @__PURE__ */ v({
 		}
 	},
 	emits: ["confirmed", "changed"],
-	setup(i, { emit: a }) {
-		let v = i, b = a, { t: D } = I(), M = o(), F = w([]), L = S(!1), z = S(""), B = s(), V = d(() => !v.available || L.value || !B);
+	setup(a, { emit: o }) {
+		let v = a, b = o, { t: D } = I(), M = t(), F = w([]), L = S(!1), z = S(""), B = s(), V = d(() => !v.available || L.value || !B);
 		async function H() {
 			if (v.manage && v.available && B) try {
-				F.value = r(await v.client.GET("/two-factor/passkeys")).data;
+				F.value = i(await v.client.GET("/two-factor/passkeys")).data;
 			} catch (e) {
 				L.value = l(e) === 501, F.value = [];
 			}
 		}
 		async function oe() {
-			let e = null, n = await M.run(async () => {
-				let n = r(await v.client.POST("/two-factor/passkeys/options")).data, i = await c(n);
-				e = r(await v.client.POST("/two-factor/passkeys", { body: t({
-					credential: i,
+			let e = null, t = await M.run(async () => {
+				let t = i(await v.client.POST("/two-factor/passkeys/options")).data, n = await c(t);
+				e = i(await v.client.POST("/two-factor/passkeys", { body: r({
+					credential: n,
 					label: z.value.trim() || null
 				}) })).data.recovery_codes ?? null;
 			});
-			M.status.value === 501 && (L.value = !0), n && (z.value = "", await H(), b("confirmed", e));
+			M.status.value === 501 && (L.value = !0), t && (z.value = "", await H(), b("confirmed", e));
 		}
 		async function se() {
 			await H(), b("changed");
 		}
 		return H(), (t, r) => {
-			let a = A, o = P, s = N, c = j;
-			return x(), m("div", ee, [h("h3", te, T(E(D)("guardian.two_factor.passkeys.title")), 1), E(V) ? (x(), f(a, {
+			let i = A, o = P, s = N, c = j;
+			return x(), m("div", ee, [h("h3", te, T(E(D)("guardian.two_factor.passkeys.title")), 1), E(V) ? (x(), f(i, {
 				key: 0,
 				color: "neutral",
 				variant: "subtle",
 				title: E(D)("guardian.two_factor.passkeys.unavailable"),
 				"data-testid": "guardian-passkeys-unavailable"
 			}, null, 8, ["title"])) : (x(), m(u, { key: 1 }, [
-				i.manage ? (x(), m("ul", ne, [(x(!0), m(u, null, C(E(F), (e) => (x(), m("li", {
+				a.manage ? (x(), m("ul", ne, [(x(!0), m(u, null, C(E(F), (e) => (x(), m("li", {
 					key: e.id,
 					class: "flex flex-wrap items-center justify-between gap-2 py-2",
 					"data-testid": `guardian-passkey-${e.id}`
 				}, [h("span", null, [g(T(e.label ?? E(D)("guardian.two_factor.passkeys.unnamed")) + " ", 1), h("span", ie, T(E(n)(e.last_used_at) ?? E(D)("guardian.two_factor.never_used")), 1)]), _(R, {
-					client: i.client,
+					client: a.client,
 					kind: "passkey",
 					id: e.id,
 					name: e.label ?? E(D)("guardian.two_factor.passkeys.unnamed"),
@@ -1123,22 +1123,22 @@ var Ue = ["aria-label", "innerHTML"], We = /* @__PURE__ */ v({
 	__name: "GuardianTotpEnrol",
 	props: { client: {} },
 	emits: ["confirmed"],
-	setup(t, { emit: n }) {
-		let i = t, a = n, { t: s } = I(), c = o(), l = o(), u = S(""), d = S(""), f = S(null), p = S(null);
+	setup(n, { emit: r }) {
+		let a = n, o = r, { t: s } = I(), c = t(), l = t(), u = S(""), d = S(""), f = S(null), p = S(null);
 		function v() {
 			f.value = null, p.value = null, d.value = "";
 		}
 		async function C() {
 			await c.run(async () => {
-				let e = r(await i.client.POST("/two-factor/totp", { body: { label: u.value.trim() || null } })).data;
+				let e = i(await a.client.POST("/two-factor/totp", { body: { label: u.value.trim() || null } })).data;
 				f.value = e.secret, p.value = e.otpauth_uri;
 			});
 		}
 		async function w() {
 			let e = null, t = await l.run(async () => {
-				e = r(await i.client.POST("/two-factor/totp/confirm", { body: { code: d.value.trim() } })).data.recovery_codes ?? null;
+				e = i(await a.client.POST("/two-factor/totp/confirm", { body: { code: d.value.trim() } })).data.recovery_codes ?? null;
 			});
-			d.value = "", t && (v(), a("confirmed", e));
+			d.value = "", t && (v(), o("confirmed", e));
 		}
 		return b(v), (t, n) => {
 			let r = P, i = N, a = j;
@@ -1231,19 +1231,19 @@ var Ue = ["aria-label", "innerHTML"], We = /* @__PURE__ */ v({
 		}
 	},
 	emits: ["changed", "confirmed"],
-	setup(t, { emit: s }) {
-		let c = t, l = s, { t: v } = I(), y = o(), w = S(null), D = d(() => a(c.status)), k = d(() => D.value.filter((e) => e === "email" || e === "sms")), A = d(() => i(c.status));
+	setup(r, { emit: s }) {
+		let c = r, l = s, { t: v } = I(), y = t(), w = S(null), D = d(() => o(c.status)), k = d(() => D.value.filter((e) => e === "email" || e === "sms")), A = d(() => a(c.status));
 		function M(e) {
 			c.setup ? l("confirmed", e) : (w.value = e && e.length > 0 ? e : null, l("changed"));
 		}
 		async function N() {
 			window.confirm(v("guardian.two_factor.recovery.confirm_regenerate")) && (await y.run(async () => {
-				w.value = r(await c.client.POST("/two-factor/recovery-codes")).data.recovery_codes;
+				w.value = i(await c.client.POST("/two-factor/recovery-codes")).data.recovery_codes;
 			}), l("changed"));
 		}
 		return b(() => {
 			w.value = null;
-		}), (r, i) => {
+		}), (t, i) => {
 			let a = j;
 			return x(), m("div", Qe, [
 				E(w) ? (x(), f(ue, {
@@ -1251,7 +1251,7 @@ var Ue = ["aria-label", "innerHTML"], We = /* @__PURE__ */ v({
 					codes: E(w),
 					onDone: i[0] ||= (e) => w.value = null
 				}, null, 8, ["codes"])) : p("", !0),
-				t.setup ? p("", !0) : (x(), m("section", $e, [h("h3", et, T(E(v)("guardian.two_factor.methods.title")), 1), h("ul", tt, [(x(!0), m(u, null, C(E(A), (e) => (x(), m("li", {
+				r.setup ? p("", !0) : (x(), m("section", $e, [h("h3", et, T(E(v)("guardian.two_factor.methods.title")), 1), h("ul", tt, [(x(!0), m(u, null, C(E(A), (e) => (x(), m("li", {
 					key: e.id,
 					class: "flex flex-wrap items-center justify-between gap-2 py-2",
 					"data-testid": `guardian-method-${e.id}`
@@ -1260,7 +1260,7 @@ var Ue = ["aria-label", "innerHTML"], We = /* @__PURE__ */ v({
 					g(" " + T(e.label ?? e.destination ?? "") + " ", 1),
 					h("span", rt, T(E(n)(e.last_used_at) ?? E(v)("guardian.two_factor.never_used")), 1)
 				]), _(R, {
-					client: t.client,
+					client: r.client,
 					kind: "method",
 					id: e.id,
 					name: E(v)(`guardian.two_factor.types.${e.type}`),
@@ -1272,20 +1272,20 @@ var Ue = ["aria-label", "innerHTML"], We = /* @__PURE__ */ v({
 				])], 8, nt))), 128)), E(A).length === 0 ? (x(), m("li", it, T(E(v)("guardian.two_factor.methods.none")), 1)) : p("", !0)])])),
 				E(D).includes("totp") ? (x(), f(Ze, {
 					key: 2,
-					client: t.client,
+					client: r.client,
 					onConfirmed: M
 				}, null, 8, ["client"])) : p("", !0),
 				E(k).length > 0 ? (x(), f(V, {
 					key: 3,
-					client: t.client,
+					client: r.client,
 					types: E(k),
 					onConfirmed: M
 				}, null, 8, ["client", "types"])) : p("", !0),
 				E(D).includes("passkey") ? (x(), f(H, {
 					key: 4,
-					client: t.client,
-					available: t.status.passkeys_available,
-					manage: !t.setup,
+					client: r.client,
+					available: r.status.passkeys_available,
+					manage: !r.setup,
 					onConfirmed: M,
 					onChanged: i[2] ||= (e) => l("changed")
 				}, null, 8, [
@@ -1293,9 +1293,9 @@ var Ue = ["aria-label", "innerHTML"], We = /* @__PURE__ */ v({
 					"available",
 					"manage"
 				])) : p("", !0),
-				!t.setup && t.status.enabled ? (x(), m("section", at, [
+				!r.setup && r.status.enabled ? (x(), m("section", at, [
 					h("h3", ot, T(E(v)("guardian.two_factor.recovery.title")), 1),
-					h("p", st, T(E(v)("guardian.two_factor.recovery.remaining", { count: t.status.recovery_codes_remaining })), 1),
+					h("p", st, T(E(v)("guardian.two_factor.recovery.remaining", { count: r.status.recovery_codes_remaining })), 1),
 					_(e, { action: E(y) }, null, 8, ["action"]),
 					_(a, {
 						color: "neutral",

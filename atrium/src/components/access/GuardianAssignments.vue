@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import type { TableColumn } from '@nuxt/ui'
+import type { SelectItem, TableColumn } from '@refactor-circus/atrium/ui'
 import GuardianState from '../two-factor/GuardianState.vue'
-import { choice, NONE, unchoice, type Choice } from '../ui'
 import { formatDate, guardianData, useGuardianAction, useGuardianLoad, type GuardianClient, type GuardianPage } from '../two-factor/guardian'
 import GuardianErrors from './GuardianErrors.vue'
 import GuardianPager from './GuardianPager.vue'
@@ -77,10 +76,8 @@ const columns = computed<TableColumn<GuardianAssignment>[]>(() => [
   { id: 'actions', meta: { class: { td: 'text-right' } } }
 ])
 
-const scopeChoices = computed<Choice[]>(() => props.scopeTypes.map(scope => ({ label: scope.key, value: scope.type })))
-const filterScopes = computed<Choice[]>(() => [{ label: t('guardian.access.assignments.any_scope'), value: NONE }, ...scopeChoices.value])
-const formScopes = computed<Choice[]>(() => [{ label: t('guardian.access.scopes.global'), value: NONE }, ...scopeChoices.value])
-const roleChoices = computed<Choice[]>(() => roles.value.map(role => ({ label: role.name, value: role.slug })))
+const scopeChoices = computed<SelectItem[]>(() => props.scopeTypes.map(scope => ({ label: scope.key, value: scope.type })))
+const roleChoices = computed<SelectItem[]>(() => roles.value.map(role => ({ label: role.name, value: role.slug })))
 
 function applyFilters(): void {
   page.value = 1
@@ -151,7 +148,7 @@ function go(next: number): void {
       </UFormField>
       <template v-if="!scoped">
         <UFormField :label="t('guardian.access.assignments.fields.scope_type')">
-          <USelect :model-value="choice(filter.scope_type)" :items="filterScopes" class="w-44" data-testid="guardian-assignments-filter-scope-type" @update:model-value="filter.scope_type = unchoice($event)" />
+          <AtriumSelect v-model="filter.scope_type" :items="scopeChoices" :blank="t('guardian.access.assignments.any_scope')" class="w-44" data-testid="guardian-assignments-filter-scope-type" />
         </UFormField>
         <UFormField :label="t('guardian.access.assignments.fields.scope_id')">
           <UInput v-model="filter.scope_id" class="w-32" data-testid="guardian-assignments-filter-scope-id" />
@@ -197,7 +194,7 @@ function go(next: number): void {
           </UFormField>
           <template v-if="!scoped">
             <UFormField :label="t('guardian.access.assignments.fields.scope_type')">
-              <USelect :model-value="choice(form.scope_type)" :items="formScopes" class="w-44" data-testid="guardian-assign-scope-type" @update:model-value="form.scope_type = unchoice($event)" />
+              <AtriumSelect v-model="form.scope_type" :items="scopeChoices" :blank="t('guardian.access.scopes.global')" class="w-44" data-testid="guardian-assign-scope-type" />
             </UFormField>
             <UFormField v-if="form.scope_type" :label="t('guardian.access.assignments.fields.scope_id')" required>
               <UInput v-model="form.scope_id" class="w-32" data-testid="guardian-assign-scope-id" />

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import GuardianActionError from '../two-factor/GuardianActionError.vue'
 import GuardianState from '../two-factor/GuardianState.vue'
-import { formatDate, guardianData, untypedBody, useGuardianAction, useGuardianLoad } from '../two-factor/guardian'
-import { toggled } from '../ui'
+import { formatDate, guardianData, toggled, untypedBody, useGuardianAction, useGuardianLoad } from '../two-factor/guardian'
 import { expiryOf, latestExpiry, type GuardianToken } from './security'
 
 /**

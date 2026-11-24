@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TableColumn } from '@nuxt/ui'
+import type { TableColumn } from '@refactor-circus/atrium/ui'
 import GuardianState from '../two-factor/GuardianState.vue'
 import { formatDate, guardianData, useGuardianLoad, type GuardianCursorPage } from '../two-factor/guardian'
 import type { GuardianSecurityEvent } from '../security/security'

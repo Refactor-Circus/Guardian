@@ -24,18 +24,21 @@ function p(e) {
 	let r = t.split(/[?#]/)[0];
 	return r === "/guardian/two-factor/challenge" || r === "/guardian/two-factor/setup" ? "/" : t;
 }
-function m(e) {
+function m(e, t, n) {
+	return n === !0 ? [.../* @__PURE__ */ new Set([...e, t])] : e.filter((e) => e !== t);
+}
+function h(e) {
 	if (!e) return null;
 	let t = new Date(e);
 	return Number.isNaN(t.getTime()) ? e : t.toLocaleString();
 }
-function h(e) {
+function g(e) {
 	return e?.required ? s.filter((t) => e.allowed_methods.includes(t)) : [...s];
 }
-function g(e) {
+function _(e) {
 	return (e?.methods ?? []).filter((e) => e.confirmed_at !== null);
 }
-function _() {
+function v() {
 	let e = i(!1), n = i(null), r = i(null), a = i({}), o = i(!1), s = i(null), c = i(null);
 	function l() {
 		n.value = null, r.value = null, a.value = {}, o.value = !1, s.value = null, c.value = null;
@@ -67,10 +70,10 @@ function _() {
 		reset: l
 	};
 }
-function v() {
+function y() {
 	return r("guardian").client;
 }
-function y(e, n, r = v()) {
+function b(e, n, r = y()) {
 	let s = a(null), c = i(!0), l = i(!1), u = i(null);
 	async function d() {
 		if (!r) c.value = !1;
@@ -94,4 +97,4 @@ function y(e, n, r = v()) {
 		reload: d
 	};
 }
-export { p as a, f as c, y as d, m as i, v as l, l as n, u as o, g as r, h as s, c as t, _ as u };
+export { p as a, m as c, v as d, b as f, h as i, f as l, l as n, u as o, _ as r, g as s, c as t, y as u };

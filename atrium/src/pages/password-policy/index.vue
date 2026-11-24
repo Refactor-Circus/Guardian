@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AtriumDetailsItem } from '@refactor-circus/atrium'
 import type { GuardianPasswordPolicy } from '../../components/admin/admin'
 import GuardianState from '../../components/two-factor/GuardianState.vue'
 import { guardianData, useGuardianLoad, type GuardianOne } from '../../components/two-factor/guardian'
@@ -16,12 +17,36 @@ useHead({ title: () => t('guardian.admin.password_policy.title') })
 const { data: policy, pending, failed, status } = useGuardianLoad(async guardian =>
   guardianData<GuardianOne<GuardianPasswordPolicy>>(await guardian.GET('/password-policy')).data)
 
-const composition = computed(() => {
+const details = computed<AtriumDetailsItem[]>(() => {
   const current = policy.value
 
-  return current
-    ? (['letters', 'mixed_case', 'numbers', 'symbols'] as const).map(rule => ({ rule, on: current[rule] }))
-    : []
+  if (!current) {
+    return []
+  }
+
+  return [
+    { label: t('guardian.admin.password_policy.length'), value: t('guardian.admin.password_policy.length_value', { min: current.min_length, max: current.max_length }), testid: 'guardian-password-length' },
+    ...(['letters', 'mixed_case', 'numbers', 'symbols'] as const).map(rule => ({
+      label: t(`guardian.admin.password_policy.rules.${rule}`),
+      value: yesNo(current[rule]),
+      testid: `guardian-password-${rule}`
+    })),
+    {
+      label: t('guardian.admin.password_policy.uncompromised'),
+      value: current.uncompromised ? t('guardian.admin.password_policy.uncompromised_on', { threshold: current.uncompromised_threshold }) : t('guardian.admin.no'),
+      testid: 'guardian-password-uncompromised'
+    },
+    {
+      label: t('guardian.admin.password_policy.history'),
+      value: current.history > 0 ? t('guardian.admin.password_policy.history_value', { count: current.history }) : t('guardian.admin.no'),
+      testid: 'guardian-password-history'
+    },
+    {
+      label: t('guardian.admin.password_policy.max_age'),
+      value: current.max_age_days ? t('guardian.admin.password_policy.max_age_value', { days: current.max_age_days }) : t('guardian.admin.never'),
+      testid: 'guardian-password-max-age'
+    }
+  ]
 })
 
 function yesNo(value: boolean): string {
@@ -41,22 +66,7 @@ function yesNo(value: boolean): string {
             <template #header>
               <p class="text-sm text-muted">{{ t('guardian.admin.password_policy.read_only') }}</p>
             </template>
-            <dl class="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[16rem_1fr]">
-              <dt class="text-muted">{{ t('guardian.admin.password_policy.length') }}</dt>
-              <dd data-testid="guardian-password-length">{{ t('guardian.admin.password_policy.length_value', { min: policy.min_length, max: policy.max_length }) }}</dd>
-              <template v-for="entry in composition" :key="entry.rule">
-                <dt class="text-muted">{{ t(`guardian.admin.password_policy.rules.${entry.rule}`) }}</dt>
-                <dd :data-testid="`guardian-password-${entry.rule}`">{{ yesNo(entry.on) }}</dd>
-              </template>
-              <dt class="text-muted">{{ t('guardian.admin.password_policy.uncompromised') }}</dt>
-              <dd data-testid="guardian-password-uncompromised">
-                {{ policy.uncompromised ? t('guardian.admin.password_policy.uncompromised_on', { threshold: policy.uncompromised_threshold }) : t('guardian.admin.no') }}
-              </dd>
-              <dt class="text-muted">{{ t('guardian.admin.password_policy.history') }}</dt>
-              <dd data-testid="guardian-password-history">{{ policy.history > 0 ? t('guardian.admin.password_policy.history_value', { count: policy.history }) : t('guardian.admin.no') }}</dd>
-              <dt class="text-muted">{{ t('guardian.admin.password_policy.max_age') }}</dt>
-              <dd data-testid="guardian-password-max-age">{{ policy.max_age_days ? t('guardian.admin.password_policy.max_age_value', { days: policy.max_age_days }) : t('guardian.admin.never') }}</dd>
-            </dl>
+            <AtriumDetails :items="details" />
           </UCard>
         </GuardianState>
       </AtriumIntegrationScreen>

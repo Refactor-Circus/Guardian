@@ -5,7 +5,7 @@ import { fieldsOf, organizationSsoPath, SECRET_FIELDS, settingsBody, type Guardi
 import GuardianState from '../../components/two-factor/GuardianState.vue'
 import { guardianData, untypedBody, useGuardianAction, useGuardianLoad, type GuardianOne } from '../../components/two-factor/guardian'
 import { useAtriumIntegration } from '@refactor-circus/atrium'
-import { isExternalUrl } from '@refactor-circus/atrium'
+import { isExternalUrl, type AtriumDetailsItem } from '@refactor-circus/atrium'
 
 /**
  * `guardian.sso-connection` (AC 96): one SSO connection
@@ -32,6 +32,19 @@ const { client, data: connection, pending, failed, status, reload } = useGuardia
 
 useHead({ title: () => connection.value?.name ?? t('guardian.sso.connection.title') })
 
+const details = computed<AtriumDetailsItem[]>(() => {
+  const current = connection.value
+
+  if (!current) {
+    return []
+  }
+
+  return [
+    { label: t('guardian.sso.connection.callback_url'), value: current.callback_url, mono: true, testid: 'guardian-sso-callback-url' },
+    ...(current.metadata_url ? [{ label: t('guardian.sso.connection.metadata_url'), value: current.metadata_url, mono: true, testid: 'guardian-sso-metadata-url' }] : []),
+    { label: t('guardian.sso.identities.title'), value: current.identities_count, testid: 'guardian-sso-identities-count' }
+  ]
+})
 const back = computed(() => roster.active && connection.value?.organization ? organizationSsoPath(connection.value.organization) : null)
 const form = reactive({ name: '', enabled: true, enforced: false, jit: true })
 const settings = reactive<Partial<Record<GuardianSsoField, string>>>({})
@@ -105,16 +118,7 @@ async function destroy(): Promise<void> {
               <template #header>
                 <h2 class="font-semibold">{{ t(`guardian.sso.protocols.${connection.protocol}`, connection.protocol) }} · {{ connection.organization }}</h2>
               </template>
-              <dl class="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[14rem_1fr]">
-                <dt class="text-muted">{{ t('guardian.sso.connection.callback_url') }}</dt>
-                <dd class="break-all font-mono text-xs" data-testid="guardian-sso-callback-url">{{ connection.callback_url ?? '—' }}</dd>
-                <template v-if="connection.metadata_url">
-                  <dt class="text-muted">{{ t('guardian.sso.connection.metadata_url') }}</dt>
-                  <dd class="break-all font-mono text-xs" data-testid="guardian-sso-metadata-url">{{ connection.metadata_url }}</dd>
-                </template>
-                <dt class="text-muted">{{ t('guardian.sso.identities.title') }}</dt>
-                <dd data-testid="guardian-sso-identities-count">{{ connection.identities_count ?? '—' }}</dd>
-              </dl>
+              <AtriumDetails :items="details" />
               <UButton
                 v-if="connection.sign_in_url && isExternalUrl(connection.sign_in_url)"
                 :to="connection.sign_in_url"

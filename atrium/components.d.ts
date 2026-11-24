@@ -11,9 +11,11 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AtriumDetails: typeof import('@refactor-circus/atrium')['AtriumDetails']
     AtriumErrorCard: typeof import('@refactor-circus/atrium')['AtriumErrorCard']
     AtriumIntegrationScreen: typeof import('@refactor-circus/atrium')['AtriumIntegrationScreen']
     AtriumNoAccess: typeof import('@refactor-circus/atrium')['AtriumNoAccess']
+    AtriumSelect: typeof import('@refactor-circus/atrium')['AtriumSelect']
     AtriumState: typeof import('@refactor-circus/atrium')['AtriumState']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

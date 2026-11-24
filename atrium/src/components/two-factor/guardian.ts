@@ -96,6 +96,11 @@ export function guardedRedirect(redirect: unknown): string {
   return path === CHALLENGE_PATH || path === SETUP_PATH ? '/' : value
 }
 
+/** `list` with `value` in it when `on`, without it otherwise: a checkbox per value of a list. */
+export function toggled<T>(list: readonly T[], value: T, on: boolean | 'indeterminate'): T[] {
+  return on === true ? [...new Set([...list, value])] : list.filter(candidate => candidate !== value)
+}
+
 /** A timestamp as the user's locale shows it, or null. */
 export function formatDate(value: string | null | undefined): string | null {
   if (!value) {

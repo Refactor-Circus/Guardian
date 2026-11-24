@@ -1,7 +1,7 @@
-import { t as e } from "./GuardianErrors-DtyToZz8.js";
-import { t } from "./GuardianEventList-DlZYO5Zo.js";
+import { t as e } from "./GuardianErrors-mhgGBfyk.js";
+import { t } from "./GuardianEventList-BN0iSQ2F.js";
 import { t as n } from "./admin-_cLX5Zre.js";
-import { c as r, l as i, o as a, u as o } from "./guardian-D9MeowUD.js";
+import { d as r, l as i, o as a, u as o } from "./guardian-BXKFb2X7.js";
 import { AtriumIntegrationScreen as s, useHead as c } from "@refactor-circus/atrium";
 import { createBlock as l, createCommentVNode as u, createElementVNode as d, createTextVNode as f, createVNode as p, defineComponent as m, isRef as h, openBlock as g, ref as _, toDisplayString as v, unref as y, withCtx as b, withModifiers as x } from "vue";
 import { UAlert as S, UButton as C, UCard as w, UDashboardNavbar as T, UDashboardPanel as E, UFormField as D, UInput as O } from "@refactor-circus/atrium/ui";
@@ -13,12 +13,12 @@ var A = {
 }, j = { class: "font-semibold" }, M = { class: "text-sm text-muted" }, N = { class: "mt-3" }, P = { class: "font-semibold" }, F = /* @__PURE__ */ m({
 	__name: "index",
 	setup(m) {
-		let { t: F } = k(), I = i(), L = o();
+		let { t: F } = k(), I = o(), L = r();
 		c({ title: () => F("guardian.admin.lockouts.title") });
 		let R = _(""), z = _(null), B = { type: n };
 		async function V() {
 			let e = R.value.trim();
-			z.value = null, I && e !== "" && window.confirm(F("guardian.admin.lockouts.confirm", { identifier: e })) && await L.run(async () => a(await I.DELETE("/lockouts", r({ body: { identifier: e } })))) && (z.value = e, R.value = "");
+			z.value = null, I && e !== "" && window.confirm(F("guardian.admin.lockouts.confirm", { identifier: e })) && await L.run(async () => a(await I.DELETE("/lockouts", i({ body: { identifier: e } })))) && (z.value = e, R.value = "");
 		}
 		return (n, r) => {
 			let i = T, a = O, o = D, c = C, m = S, _ = w, k = s, I = E;

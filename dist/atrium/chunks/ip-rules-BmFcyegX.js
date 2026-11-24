@@ -1,9 +1,9 @@
-import { t as e } from "./GuardianErrors-DtyToZz8.js";
+import { t as e } from "./GuardianErrors-mhgGBfyk.js";
 import { t } from "./GuardianPager-DnfHQ8Kk.js";
-import { i as n, n as r } from "./access-CMUXpA7X.js";
+import { i as n, n as r } from "./access-Ea_ryMId.js";
 import { a as i, s as a } from "./admin-_cLX5Zre.js";
 import { t as o } from "./GuardianState-DytBr9ih.js";
-import { d as s, i as c, o as l, u } from "./guardian-D9MeowUD.js";
+import { d as s, f as c, i as l, o as u } from "./guardian-BXKFb2X7.js";
 import { AtriumIntegrationScreen as d, AtriumState as ee, useAtriumScreen as f, useHead as p } from "@refactor-circus/atrium";
 import { computed as m, createBlock as h, createCommentVNode as g, createElementVNode as _, createTextVNode as v, createVNode as y, defineComponent as b, openBlock as x, reactive as S, ref as C, toDisplayString as w, unref as T, withCtx as E, withModifiers as D } from "vue";
 import { UAlert as O, UBadge as k, UButton as A, UCard as te, UDashboardNavbar as ne, UDashboardPanel as re, UFormField as j, UInput as M, USelect as N, UTable as P } from "@refactor-circus/atrium/ui";
@@ -18,12 +18,12 @@ var I = {
 }, R = { class: "space-y-4" }, z = ["data-testid"], B = { class: "font-medium" }, V = { class: "mt-3" }, H = /* @__PURE__ */ b({
 	__name: "index",
 	setup(b) {
-		let { t: H } = F(), U = u(), W = u();
+		let { t: H } = F(), U = s(), W = s();
 		p({ title: () => H("guardian.admin.ip_rules.title") });
 		let { data: G } = f("guardian.ip-rules"), K = m(() => a(G.value?.data.options)), q = C(1), J = m(() => ({
 			per_page: 25,
 			...q.value > 1 ? { page: q.value } : {}
-		})), { client: Y, data: X, pending: ie, failed: ae, status: oe, reload: Z } = s(async (e) => l(await e.GET("/ip-rules", { params: { query: J.value } })), J), se = m(() => X.value?.data ?? []), Q = m(() => n(X.value)), ce = m(() => [
+		})), { client: Y, data: X, pending: ie, failed: ae, status: oe, reload: Z } = c(async (e) => u(await e.GET("/ip-rules", { params: { query: J.value } })), J), se = m(() => X.value?.data ?? []), Q = m(() => n(X.value)), ce = m(() => [
 			{
 				id: "cidr",
 				header: H("guardian.admin.ip_rules.fields.cidr"),
@@ -63,7 +63,7 @@ var I = {
 				description: r($.description),
 				expires_at: i($.expires)
 			};
-			await U.run(async () => l(await Y.POST("/ip-rules", { body: e }))) && (Object.assign($, {
+			await U.run(async () => u(await Y.POST("/ip-rules", { body: e }))) && (Object.assign($, {
 				cidr: "",
 				action: "deny",
 				description: "",
@@ -71,13 +71,13 @@ var I = {
 			}), await Z());
 		}
 		async function de(e) {
-			Y && window.confirm(H("guardian.admin.ip_rules.confirm_delete", { cidr: e.cidr })) && (K.value !== "allowlist" || e.action !== "allow" || window.confirm(H("guardian.admin.ip_rules.confirm_allow_delete", { cidr: e.cidr }))) && await W.run(async () => l(await Y.DELETE("/ip-rules/{rule}", { params: { path: { rule: e.id } } }))) && await Z();
+			Y && window.confirm(H("guardian.admin.ip_rules.confirm_delete", { cidr: e.cidr })) && (K.value !== "allowlist" || e.action !== "allow" || window.confirm(H("guardian.admin.ip_rules.confirm_allow_delete", { cidr: e.cidr }))) && await W.run(async () => u(await Y.DELETE("/ip-rules/{rule}", { params: { path: { rule: e.id } } }))) && await Z();
 		}
 		function fe(e) {
 			q.value = e;
 		}
 		return (n, r) => {
-			let i = ne, a = O, s = k, l = A, u = ee, f = P, p = M, m = j, b = N, S = te, C = d, F = re;
+			let i = ne, a = O, s = k, c = A, u = ee, f = P, p = M, m = j, b = N, S = te, C = d, F = re;
 			return x(), h(F, null, {
 				header: E(() => [y(i, { title: T(H)("guardian.admin.ip_rules.title") }, null, 8, ["title"])]),
 				body: E(() => [y(C, { "screen-key": "guardian.ip-rules" }, {
@@ -115,8 +115,8 @@ var I = {
 										_: 2
 									}, 1032, ["color"])]),
 									"description-cell": E(({ row: e }) => [v(w(e.original.description ?? "—"), 1)]),
-									"expires_at-cell": E(({ row: e }) => [v(w(T(c)(e.original.expires_at) ?? T(H)("guardian.admin.never")), 1)]),
-									"actions-cell": E(({ row: e }) => [y(l, {
+									"expires_at-cell": E(({ row: e }) => [v(w(T(l)(e.original.expires_at) ?? T(H)("guardian.admin.never")), 1)]),
+									"actions-cell": E(({ row: e }) => [y(c, {
 										size: "xs",
 										color: "error",
 										variant: "ghost",
@@ -203,7 +203,7 @@ var I = {
 											}, null, 8, ["modelValue"])]),
 											_: 1
 										}, 8, ["label", "error"]),
-										y(l, {
+										y(c, {
 											type: "submit",
 											icon: "i-lucide-plus",
 											loading: T(U).busy.value,

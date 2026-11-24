@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import type { TableColumn } from '@nuxt/ui'
+import type { SelectItem, TableColumn } from '@refactor-circus/atrium/ui'
 import GuardianErrors from '../../components/access/GuardianErrors.vue'
 import GuardianPager from '../../components/access/GuardianPager.vue'
 import { blankToNull, pageOf, scopeKeyOf, scopeTypesOf, useRoleCatalogue } from '../../components/access/access'
 import { ADMIN_PAGE_SIZE, POLICY_METHODS, type GuardianPolicyMethod, type GuardianTwoFactorPolicy } from '../../components/admin/admin'
 import GuardianState from '../../components/two-factor/GuardianState.vue'
-import { choice, NONE, toggled, unchoice, type Choice } from '../../components/ui'
-import { guardianData, useGuardianAction, useGuardianLoad, type GuardianPage } from '../../components/two-factor/guardian'
+import { guardianData, toggled, useGuardianAction, useGuardianLoad, type GuardianPage } from '../../components/two-factor/guardian'
 
 /**
  * `guardian.two-factor-policies` (AC 95): who must use two-factor, and how.
@@ -45,14 +44,8 @@ const columns = computed<TableColumn<GuardianTwoFactorPolicy>[]>(() => [
   { id: 'grace_days', header: t('guardian.admin.policies.fields.grace_days'), meta: { class: { th: 'text-right', td: 'text-right' } } },
   { id: 'actions', meta: { class: { td: 'text-right whitespace-nowrap' } } }
 ])
-const scopeChoices = computed<Choice[]>(() => [
-  { label: t('guardian.admin.policies.everyone'), value: NONE },
-  ...scopeTypes.value.map(scope => ({ label: scope.key, value: scope.type }))
-])
-const roleChoices = computed<Choice[]>(() => [
-  { label: t('guardian.admin.policies.any_role'), value: NONE },
-  ...roles.value.map(role => ({ label: role.name, value: role.slug }))
-])
+const scopeChoices = computed<SelectItem[]>(() => scopeTypes.value.map(scope => ({ label: scope.key, value: scope.type })))
+const roleChoices = computed<SelectItem[]>(() => roles.value.map(role => ({ label: role.name, value: role.slug })))
 
 interface PolicyEdit {
   required: boolean
@@ -192,13 +185,13 @@ function go(next: number): void {
                 <form class="space-y-3" data-testid="guardian-policy-form" @submit.prevent="add">
                   <div class="flex flex-wrap items-end gap-3">
                     <UFormField :label="t('guardian.admin.policies.fields.scope_type')">
-                      <USelect :model-value="choice(form.scope_type)" :items="scopeChoices" class="w-44" data-testid="guardian-policy-new-scope-type" @update:model-value="form.scope_type = unchoice($event)" />
+                      <AtriumSelect v-model="form.scope_type" :items="scopeChoices" :blank="t('guardian.admin.policies.everyone')" class="w-44" data-testid="guardian-policy-new-scope-type" />
                     </UFormField>
                     <UFormField v-if="form.scope_type" :label="t('guardian.admin.policies.fields.scope_id')" required>
                       <UInput v-model="form.scope_id" class="w-32" data-testid="guardian-policy-new-scope-id" />
                     </UFormField>
                     <UFormField :label="t('guardian.admin.policies.fields.role')">
-                      <USelect :model-value="choice(form.role)" :items="roleChoices" class="w-48" data-testid="guardian-policy-new-role" @update:model-value="form.role = unchoice($event)" />
+                      <AtriumSelect v-model="form.role" :items="roleChoices" :blank="t('guardian.admin.policies.any_role')" class="w-48" data-testid="guardian-policy-new-role" />
                     </UFormField>
                     <UFormField :label="t('guardian.admin.policies.fields.grace_days')">
                       <UInput v-model.number="form.grace_days" type="number" min="0" max="3650" class="w-24" data-testid="guardian-policy-new-grace" />

@@ -5,7 +5,7 @@ import { mockPackageApi, reply, resetPackageApis, type PackageRoutes } from '@re
 import { guardianCalls, guardianScreensApi, page, resetGuardianPages } from '../support'
 import { asResource, mountSso, oidc, saml, unmountSso } from './support'
 import { clearAtriumData, mockAtriumApi, mockNavigateTo, useRouter } from '@refactor-circus/atrium/testing'
-import { choose, rowOf } from '../ui'
+import { chooseOption, tableRow } from '@refactor-circus/atrium/testing'
 
 /*
  * The `guardian.sso` tab's component (AC 96): the organization's
@@ -55,12 +55,12 @@ describe('the guardian.sso tab', () => {
     expect(call?.path).toBe('/organizations/acme/sso-connections')
     expect(call?.query).toEqual({ per_page: '25' })
 
-    const row = rowOf(wrapper, 'guardian-sso-connection-acme-okta')
+    const row = tableRow(wrapper, 'guardian-sso-connection-acme-okta')
     expect(row.text()).toContain('OpenID Connect')
     expect(row.text()).toContain('3')
     expect(row.find('a').attributes('href')).toBe('/guardian/sso-connections/acme-okta')
 
-    const disabled = rowOf(wrapper, 'guardian-sso-connection-acme-saml')
+    const disabled = tableRow(wrapper, 'guardian-sso-connection-acme-saml')
     expect(disabled.text()).toContain('Enforced')
     expect(disabled.text()).toContain('Disabled')
   })
@@ -78,7 +78,7 @@ describe('the guardian.sso tab', () => {
     expect(wrapper.find('[data-testid="guardian-sso-new-tenant"]').exists()).toBe(false)
 
     await wrapper.find('[data-testid="guardian-sso-new-name"]').setValue(' Acme Entra ')
-    await choose(wrapper, 'guardian-sso-new-protocol', 'azure')
+    await chooseOption(wrapper, 'guardian-sso-new-protocol', 'azure')
 
     expect(wrapper.find('[data-testid="guardian-sso-new-issuer"]').exists()).toBe(false)
 
@@ -98,7 +98,7 @@ describe('the guardian.sso tab', () => {
     const wrapper = await mountTab()
 
     await wrapper.find('[data-testid="guardian-sso-new-name"]').setValue('Acme SAML')
-    await choose(wrapper, 'guardian-sso-new-protocol', 'saml')
+    await chooseOption(wrapper, 'guardian-sso-new-protocol', 'saml')
     await wrapper.find('[data-testid="guardian-sso-new-metadata_url"]').setValue('https://idp.acme.test/metadata')
     await wrapper.find('[data-testid="guardian-sso-new-form"]').trigger('submit')
     await settle()

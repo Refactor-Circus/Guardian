@@ -10,7 +10,7 @@ import { mockPackageApi, reply, resetPackageApis, type PackageRoutes } from '@re
 import { confirmWith, cursorPage, guardianCalls, guardianScreensApi, mountGuardianPage, page, resetGuardianPages, screenOptions } from '../support'
 import { enabledStatus, leakSurfaces } from '../two-factor/support'
 import { clearAtriumData, mockAtriumApi, useRouter } from '@refactor-circus/atrium/testing'
-import { check } from '../ui'
+import { setChecked } from '@refactor-circus/atrium/testing'
 
 /*
  * `guardian.security` (AC 88): five sections, each loading and handling its
@@ -174,7 +174,7 @@ describe('guardian.security', () => {
       const confirm = confirmWith(true)
       const wrapper = await mountSecurity({ 'DELETE /sessions/others': { revoked: 1, tokens_revoked: 3 } })
 
-      await check(wrapper, 'guardian-sessions-also-tokens', true)
+      await setChecked(wrapper, 'guardian-sessions-also-tokens', true)
       await settle()
       await wrapper.find('[data-testid="guardian-sessions-others"]').trigger('click')
       await settle()
@@ -225,7 +225,7 @@ describe('guardian.security', () => {
 
       const day = latestExpiry(30)!
       await wrapper.find('[data-testid="guardian-token-name"]').setValue('Deploys')
-      await check(wrapper, 'guardian-token-ability-write', false)
+      await setChecked(wrapper, 'guardian-token-ability-write', false)
       await wrapper.find('[data-testid="guardian-token-expires"]').setValue(day)
       await wrapper.find('[data-testid="guardian-token-form"]').trigger('submit')
       await settle()

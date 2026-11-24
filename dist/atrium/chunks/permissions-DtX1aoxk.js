@@ -1,8 +1,8 @@
-import { t as e } from "./GuardianErrors-DtyToZz8.js";
+import { t as e } from "./GuardianErrors-mhgGBfyk.js";
 import { t } from "./GuardianPager-DnfHQ8Kk.js";
-import { i as n, n as r } from "./access-CMUXpA7X.js";
+import { i as n, n as r } from "./access-Ea_ryMId.js";
 import { t as i } from "./GuardianState-DytBr9ih.js";
-import { d as a, o, u as s } from "./guardian-D9MeowUD.js";
+import { d as a, f as o, o as s } from "./guardian-BXKFb2X7.js";
 import { AtriumIntegrationScreen as c, AtriumState as ee, useHead as l } from "@refactor-circus/atrium";
 import { computed as u, createBlock as d, createCommentVNode as f, createElementVNode as p, createTextVNode as m, createVNode as h, defineComponent as g, isRef as _, openBlock as v, reactive as y, ref as b, toDisplayString as x, unref as S, watch as C, withCtx as w, withModifiers as T } from "vue";
 import { UBadge as E, UButton as D, UCard as O, UDashboardNavbar as k, UDashboardPanel as A, UFormField as j, UInput as M, UTable as N } from "@refactor-circus/atrium/ui";
@@ -14,13 +14,13 @@ var te = {
 }, ne = { class: "space-y-4" }, re = ["data-testid"], ie = { class: "font-medium" }, F = /* @__PURE__ */ g({
 	__name: "index",
 	setup(g) {
-		let { t: F } = P(), I = s(), L = s(), R = s();
+		let { t: F } = P(), I = a(), L = a(), R = a();
 		l({ title: () => F("guardian.access.permissions.title") });
 		let z = b(1), B = b(""), V = b(""), H = u(() => ({
 			per_page: 50,
 			...V.value ? { search: V.value } : {},
 			...z.value > 1 ? { page: z.value } : {}
-		})), { client: U, data: W, pending: G, failed: K, status: q, reload: J } = a(async (e) => o(await e.GET("/permissions", { params: { query: H.value } })), H), Y = u(() => W.value?.data ?? []), X = u(() => n(W.value)), ae = u(() => [
+		})), { client: U, data: W, pending: G, failed: K, status: q, reload: J } = o(async (e) => s(await e.GET("/permissions", { params: { query: H.value } })), H), Y = u(() => W.value?.data ?? []), X = u(() => n(W.value)), ae = u(() => [
 			{
 				id: "name",
 				header: F("guardian.access.permissions.fields.name")
@@ -50,7 +50,7 @@ var te = {
 			z.value = e;
 		}
 		async function se() {
-			U && await I.run(async () => o(await U.POST("/permissions", { body: {
+			U && await I.run(async () => s(await U.POST("/permissions", { body: {
 				name: Q.name.trim(),
 				description: r(Q.description)
 			} }))) && (Q.name = "", Q.description = "", await J());
@@ -62,13 +62,13 @@ var te = {
 				name: t.name.trim(),
 				description: r(t.description)
 			};
-			await L.run(async () => o(await U.PATCH("/permissions/{permission}", {
+			await L.run(async () => s(await U.PATCH("/permissions/{permission}", {
 				params: { path: { permission: e.name } },
 				body: n
 			}))) && await J();
 		}
 		async function le(e) {
-			U && !e.system && window.confirm(F("guardian.access.permissions.confirm_delete", { name: e.name })) && await R.run(async () => o(await U.DELETE("/permissions/{permission}", { params: { path: { permission: e.name } } }))) && await J();
+			U && !e.system && window.confirm(F("guardian.access.permissions.confirm_delete", { name: e.name })) && await R.run(async () => s(await U.DELETE("/permissions/{permission}", { params: { path: { permission: e.name } } }))) && await J();
 		}
 		return (n, r) => {
 			let a = k, o = M, s = j, l = D, u = E, g = ee, y = N, b = O, C = c, P = A;

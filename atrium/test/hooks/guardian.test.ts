@@ -12,7 +12,7 @@ import { assignment, editor, SCOPE_TYPES } from '../access/support'
 import { asResource, identity, mountSso, oidc, scimToken, unmountSso } from '../sso/support'
 import { confirmWith, cursorPage, guardianCalls, guardianScreensApi, page, resetGuardianPages, screenOptions } from '../support'
 import { clearAtriumData, mockAtriumApi, useRouter } from '@refactor-circus/atrium/testing'
-import { choices, choose } from '../ui'
+import { chooseOption, selectValues } from '@refactor-circus/atrium/testing'
 
 /*
  * Guardian's hooks on Roster's screens (AC 97, 98): the `guardian.access`
@@ -98,7 +98,7 @@ describe('the Guardian hooks', () => {
       const wrapper = await mountHook(GuardianAccessTab, { scope_type: 'roster.organization' }, 'acme')
 
       await wrapper.find('[data-testid="guardian-assign-user"]').setValue('9')
-      await choose(wrapper, 'guardian-assign-role', 'editor')
+      await chooseOption(wrapper, 'guardian-assign-role', 'editor')
       await wrapper.find('[data-testid="guardian-assign-form"]').trigger('submit')
       await settle()
 
@@ -131,10 +131,10 @@ describe('the Guardian hooks', () => {
       expect(guardianCalls('GET', '/role-assignments')[0]?.query).toEqual({ user: '7', per_page: '25' })
       expect(api).toHaveBeenCalledWith('/screens/guardian.role-assignments')
       expect(wrapper.find('[data-testid="guardian-assign-user"]').exists()).toBe(false)
-      expect(choices(wrapper, 'guardian-assign-scope-type')).toEqual(['', 'org', 'team'])
+      expect(selectValues(wrapper, 'guardian-assign-scope-type')).toEqual(['', 'org', 'team'])
 
-      await choose(wrapper, 'guardian-assign-role', 'editor')
-      await choose(wrapper, 'guardian-assign-scope-type', 'org')
+      await chooseOption(wrapper, 'guardian-assign-role', 'editor')
+      await chooseOption(wrapper, 'guardian-assign-scope-type', 'org')
       await wrapper.find('[data-testid="guardian-assign-scope-id"]').setValue('acme')
       await wrapper.find('[data-testid="guardian-assign-form"]').trigger('submit')
       await settle()
@@ -145,7 +145,7 @@ describe('the Guardian hooks', () => {
     it('assigns globally with no scope', async () => {
       const wrapper = await mountHook(GuardianAccessTab, { scope_type: null }, 7)
 
-      await choose(wrapper, 'guardian-assign-role', 'editor')
+      await chooseOption(wrapper, 'guardian-assign-role', 'editor')
       await wrapper.find('[data-testid="guardian-assign-form"]').trigger('submit')
       await settle()
 
@@ -157,7 +157,7 @@ describe('the Guardian hooks', () => {
 
       const wrapper = await mountHook(GuardianAccessTab, { scope_type: null }, '7')
 
-      expect(choices(wrapper, 'guardian-assign-scope-type')).toEqual([''])
+      expect(selectValues(wrapper, 'guardian-assign-scope-type')).toEqual([''])
     })
 
     it('shows no access on a 403', async () => {

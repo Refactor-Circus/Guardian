@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toggled } from '../ui'
+import { toggled } from '../two-factor/guardian'
 import type { GuardianPermission } from './access'
 
 /**

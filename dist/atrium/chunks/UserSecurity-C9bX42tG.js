@@ -1,5 +1,5 @@
 import { t as e } from "./GuardianState-DytBr9ih.js";
-import { d as t, i as n, l as r, o as i, u as a } from "./guardian-D9MeowUD.js";
+import { d as t, f as n, i as r, o as i, u as a } from "./guardian-BXKFb2X7.js";
 import { t as o } from "./GuardianActionError-DKEMy_E4.js";
 import { Fragment as s, computed as c, createBlock as l, createCommentVNode as u, createElementBlock as d, createElementVNode as f, createTextVNode as p, createVNode as m, defineComponent as h, openBlock as g, ref as _, renderList as v, toDisplayString as y, unref as b, withCtx as x } from "vue";
 import { UAlert as S, UButton as C, UCard as w, ULink as T } from "@refactor-circus/atrium/ui";
@@ -11,12 +11,12 @@ var D = { class: "font-semibold" }, O = { class: "divide-y divide-default text-s
 }, M = /* @__PURE__ */ h({
 	__name: "UserEvents",
 	props: { user: {} },
-	setup(r) {
-		let a = r, { t: o } = E(), { data: c, pending: h, failed: _, status: S } = t(async (e) => i(await e.GET("/security-events", { params: { query: {
+	setup(t) {
+		let a = t, { t: o } = E(), { data: c, pending: h, failed: _, status: S } = n(async (e) => i(await e.GET("/security-events", { params: { query: {
 			user: a.user,
 			per_page: 20
 		} } })), () => a.user);
-		return (t, r) => {
+		return (t, n) => {
 			let i = T, a = w;
 			return g(), l(a, { "data-testid": "guardian-user-events" }, {
 				header: x(() => [f("h2", D, y(b(o)("guardian.access.user.events")), 1)]),
@@ -36,7 +36,7 @@ var D = { class: "font-semibold" }, O = { class: "divide-y divide-default text-s
 					}, {
 						default: x(() => [p(y(e.type), 1)]),
 						_: 2
-					}, 1032, ["to"]), f("span", A, y(e.ip ?? "—") + " · " + y(b(n)(e.occurred_at)), 1)], 8, k))), 128)), (b(c)?.data ?? []).length === 0 ? (g(), d("li", j, y(b(o)("guardian.access.user.no_events")), 1)) : u("", !0)])]),
+					}, 1032, ["to"]), f("span", A, y(e.ip ?? "—") + " · " + y(b(r)(e.occurred_at)), 1)], 8, k))), 128)), (b(c)?.data ?? []).length === 0 ? (g(), d("li", j, y(b(o)("guardian.access.user.no_events")), 1)) : u("", !0)])]),
 					_: 1
 				}, 8, [
 					"ready",
@@ -56,8 +56,8 @@ var D = { class: "font-semibold" }, O = { class: "divide-y divide-default text-s
 		user: {},
 		name: {}
 	},
-	setup(r) {
-		let c = r, { t: h } = E(), T = a(), D = _(null), { client: O, data: k, pending: A, failed: j, status: M, reload: z } = t(async (e) => i(await e.GET("/users/{user}/sessions", { params: {
+	setup(a) {
+		let c = a, { t: h } = E(), T = t(), D = _(null), { client: O, data: k, pending: A, failed: j, status: M, reload: z } = n(async (e) => i(await e.GET("/users/{user}/sessions", { params: {
 			path: { user: c.user },
 			query: { per_page: 50 }
 		} })).data, () => c.user);
@@ -66,7 +66,7 @@ var D = { class: "font-semibold" }, O = { class: "divide-y divide-default text-s
 			let e = [];
 			await T.run(async () => e.push(i(await O.DELETE("/users/{user}/sessions", { params: { path: { user: c.user } } })))) && (D.value = h("guardian.access.user.sessions_revoked", { count: e[0]?.revoked ?? 0 }), await z());
 		}
-		return (t, r) => {
+		return (t, n) => {
 			let i = S, a = C, c = w;
 			return g(), l(c, { "data-testid": "guardian-user-sessions" }, {
 				header: x(() => [f("h2", N, y(b(h)("guardian.access.user.sessions")), 1)]),
@@ -89,7 +89,7 @@ var D = { class: "font-semibold" }, O = { class: "divide-y divide-default text-s
 							key: e.id,
 							class: "py-2",
 							"data-testid": `guardian-user-session-${e.id}`
-						}, [f("strong", null, y(e.device_name ?? e.user_agent ?? "—"), 1), f("span", L, " · " + y(e.ip ?? "—") + " · " + y(b(n)(e.last_active_at)), 1)], 8, I))), 128)), (b(k) ?? []).length === 0 ? (g(), d("li", R, y(b(h)("guardian.access.user.no_sessions")), 1)) : u("", !0)]),
+						}, [f("strong", null, y(e.device_name ?? e.user_agent ?? "—"), 1), f("span", L, " · " + y(e.ip ?? "—") + " · " + y(b(r)(e.last_active_at)), 1)], 8, I))), 128)), (b(k) ?? []).length === 0 ? (g(), d("li", R, y(b(h)("guardian.access.user.no_sessions")), 1)) : u("", !0)]),
 						m(a, {
 							color: "error",
 							variant: "soft",
@@ -122,12 +122,12 @@ var D = { class: "font-semibold" }, O = { class: "divide-y divide-default text-s
 		user: {},
 		name: {}
 	},
-	setup(r) {
-		let h = r, { t: _ } = E(), S = a(), { client: T, data: D, pending: O, failed: k, status: A, reload: j } = t(async (e) => i(await e.GET("/users/{user}/tokens", { params: { path: { user: h.user } } })).data, () => h.user), M = c(() => k.value && A.value === 501);
+	setup(a) {
+		let h = a, { t: _ } = E(), S = t(), { client: T, data: D, pending: O, failed: k, status: A, reload: j } = n(async (e) => i(await e.GET("/users/{user}/tokens", { params: { path: { user: h.user } } })).data, () => h.user), M = c(() => k.value && A.value === 501);
 		async function N() {
 			T && window.confirm(_("guardian.access.user.confirm_revoke_tokens", { user: h.name ?? h.user })) && await S.run(async () => i(await T.DELETE("/users/{user}/tokens", { params: { path: { user: h.user } } }))) && await j();
 		}
-		return (t, r) => {
+		return (t, n) => {
 			let i = C, a = w;
 			return b(M) ? u("", !0) : (g(), l(a, {
 				key: 0,
@@ -146,7 +146,7 @@ var D = { class: "font-semibold" }, O = { class: "divide-y divide-default text-s
 							key: e.id,
 							class: "py-2",
 							"data-testid": `guardian-user-token-${e.id}`
-						}, [f("strong", null, y(e.name), 1), f("span", W, " · " + y(e.abilities.join(", ")) + " · " + y(b(n)(e.last_used_at) ?? b(_)("guardian.access.user.never_used")), 1)], 8, U))), 128)), (b(D) ?? []).length === 0 ? (g(), d("li", G, y(b(_)("guardian.access.user.no_tokens")), 1)) : u("", !0)]),
+						}, [f("strong", null, y(e.name), 1), f("span", W, " · " + y(e.abilities.join(", ")) + " · " + y(b(r)(e.last_used_at) ?? b(_)("guardian.access.user.never_used")), 1)], 8, U))), 128)), (b(D) ?? []).length === 0 ? (g(), d("li", G, y(b(_)("guardian.access.user.no_tokens")), 1)) : u("", !0)]),
 						m(i, {
 							color: "error",
 							variant: "soft",
@@ -177,21 +177,21 @@ var D = { class: "font-semibold" }, O = { class: "divide-y divide-default text-s
 		name: {}
 	},
 	setup(e) {
-		let t = e, { t: n } = E(), s = r(), c = a(), d = _(!1);
+		let n = e, { t: r } = E(), s = a(), c = t(), d = _(!1);
 		async function h() {
-			s && window.confirm(n("guardian.access.user.confirm_reset_two_factor", { user: t.name ?? t.user })) && (d.value = await c.run(async () => i(await s.DELETE("/users/{user}/two-factor", { params: { path: { user: t.user } } }))));
+			s && window.confirm(r("guardian.access.user.confirm_reset_two_factor", { user: n.name ?? n.user })) && (d.value = await c.run(async () => i(await s.DELETE("/users/{user}/two-factor", { params: { path: { user: n.user } } }))));
 		}
 		return (e, t) => {
-			let r = S, i = C, a = w;
+			let n = S, i = C, a = w;
 			return g(), l(a, { "data-testid": "guardian-user-two-factor" }, {
-				header: x(() => [f("h2", q, y(b(n)("guardian.access.user.two_factor")), 1)]),
+				header: x(() => [f("h2", q, y(b(r)("guardian.access.user.two_factor")), 1)]),
 				default: x(() => [f("div", J, [
-					f("p", Y, y(b(n)("guardian.access.user.reset_two_factor_hint")), 1),
-					b(d) ? (g(), l(r, {
+					f("p", Y, y(b(r)("guardian.access.user.reset_two_factor_hint")), 1),
+					b(d) ? (g(), l(n, {
 						key: 0,
 						color: "success",
 						variant: "subtle",
-						title: b(n)("guardian.access.user.two_factor_reset"),
+						title: b(r)("guardian.access.user.two_factor_reset"),
 						"data-testid": "guardian-user-two-factor-done"
 					}, null, 8, ["title"])) : u("", !0),
 					m(o, { action: b(c) }, null, 8, ["action"]),
@@ -204,7 +204,7 @@ var D = { class: "font-semibold" }, O = { class: "divide-y divide-default text-s
 						"data-testid": "guardian-user-two-factor-reset",
 						onClick: h
 					}, {
-						default: x(() => [p(y(b(n)("guardian.access.user.reset_two_factor")), 1)]),
+						default: x(() => [p(y(b(r)("guardian.access.user.reset_two_factor")), 1)]),
 						_: 1
 					}, 8, ["loading"])
 				])]),

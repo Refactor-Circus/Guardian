@@ -1,9 +1,9 @@
-import { t as e } from "./GuardianErrors-DtyToZz8.js";
+import { t as e } from "./GuardianErrors-mhgGBfyk.js";
 import { t } from "./GuardianPager-DnfHQ8Kk.js";
-import { t as ee } from "./GuardianRolePermissions-BMs9t7kQ.js";
-import { a as n, c as te, i as r, n as i, o as a, s as o, t as s } from "./access-CMUXpA7X.js";
+import { t as ee } from "./GuardianRolePermissions-2WU66JHq.js";
+import { a as n, c as te, i as r, n as i, o as a, s as o, t as s } from "./access-Ea_ryMId.js";
 import { t as ne } from "./GuardianState-DytBr9ih.js";
-import { d as c, o as l, u } from "./guardian-D9MeowUD.js";
+import { d as c, f as l, o as u } from "./guardian-BXKFb2X7.js";
 import { AtriumIntegrationScreen as d, AtriumState as f, useAtriumScreen as p, useHead as m } from "@refactor-circus/atrium";
 import { computed as h, createBlock as g, createCommentVNode as _, createElementVNode as v, createTextVNode as y, createVNode as b, defineComponent as x, openBlock as S, reactive as C, ref as w, toDisplayString as T, unref as E, withCtx as D, withModifiers as O } from "vue";
 import { UBadge as re, UButton as ie, UCard as ae, UDashboardNavbar as k, UDashboardPanel as A, UFormField as j, UInput as M, ULink as N, USelect as P, UTable as F, UTextarea as I } from "@refactor-circus/atrium/ui";
@@ -16,12 +16,12 @@ var z = {
 }, B = ["data-testid"], V = { class: "font-medium" }, H = { class: "flex flex-wrap gap-3" }, U = /* @__PURE__ */ x({
 	__name: "index",
 	setup(x) {
-		let { t: U } = L(), W = R(), G = u();
+		let { t: U } = L(), W = R(), G = c();
 		m({ title: () => U("guardian.access.roles.title") });
 		let { data: K } = p("guardian.roles"), q = h(() => o(K.value?.data.options)), J = w(1), Y = h(() => ({
 			per_page: 25,
 			...J.value > 1 ? { page: J.value } : {}
-		})), { client: X, data: Z, pending: oe, failed: se, status: ce } = c(async (e) => l(await e.GET("/roles", { params: { query: Y.value } })), Y), le = te(X), ue = h(() => Z.value?.data ?? []), Q = h(() => r(Z.value)), de = h(() => [
+		})), { client: X, data: Z, pending: oe, failed: se, status: ce } = l(async (e) => u(await e.GET("/roles", { params: { query: Y.value } })), Y), le = te(X), ue = h(() => Z.value?.data ?? []), Q = h(() => r(Z.value)), de = h(() => [
 			{
 				id: "name",
 				header: U("guardian.access.roles.fields.name")
@@ -61,7 +61,7 @@ var z = {
 			if (!X) return;
 			let e = [];
 			await G.run(async () => {
-				e.push(l(await X.POST("/roles", { body: {
+				e.push(u(await X.POST("/roles", { body: {
 					name: $.name.trim(),
 					slug: i($.slug),
 					scope: $.scope,

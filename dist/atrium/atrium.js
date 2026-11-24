@@ -1,25 +1,24 @@
-import { c as e, d as t, i as n, l as r, n as i, o as a, t as o, u as s } from "./chunks/guardian-D9MeowUD.js";
-import { t as c } from "./chunks/GuardianAssignments-BWA4wz2w.js";
-import { i as l, s as u } from "./chunks/access-CMUXpA7X.js";
-import { t as d } from "./chunks/GuardianErrors-DtyToZz8.js";
+import { d as e, f as t, i as n, l as r, n as i, o as a, t as o, u as s } from "./chunks/guardian-BXKFb2X7.js";
+import { t as c } from "./chunks/GuardianAssignments-DyocLrvj.js";
+import { i as l, s as u } from "./chunks/access-Ea_ryMId.js";
+import { t as d } from "./chunks/GuardianErrors-mhgGBfyk.js";
 import { t as f } from "./chunks/GuardianPager-DnfHQ8Kk.js";
 import { t as p } from "./chunks/GuardianState-DytBr9ih.js";
-import { i as m, n as h, t as g } from "./chunks/ui-BHDIeg3q.js";
-import { c as _, i as v, r as y, s as b, t as x } from "./chunks/SsoConnectionFields-BBomoNqB.js";
-import { t as S } from "./chunks/UserSecurity-CIxorfVg.js";
-import { AtriumNoAccess as C, AtriumState as ee, atriumRouter as w, defineAtriumModule as T, mergeAtriumMessages as E, navigateTo as D, useAsyncData as O, useAtrium as k, useAtriumApi as A, useAtriumIntegration as te } from "@refactor-circus/atrium";
-import { Fragment as j, computed as M, createBlock as N, createCommentVNode as P, createElementBlock as F, createElementVNode as I, createTextVNode as L, createVNode as R, defineComponent as z, onBeforeUnmount as ne, openBlock as B, reactive as V, ref as H, renderList as U, shallowRef as re, toDisplayString as W, unref as G, withCtx as K, withModifiers as ie } from "vue";
-import { UAlert as ae, UBadge as oe, UButton as q, UCard as J, UFormField as se, UInput as ce, ULink as Y, USelect as le, UTable as X } from "@refactor-circus/atrium/ui";
+import { c as m, i as h, r as g, s as _, t as v } from "./chunks/SsoConnectionFields-BBomoNqB.js";
+import { t as y } from "./chunks/UserSecurity-C9bX42tG.js";
+import { AtriumNoAccess as b, AtriumSelect as x, AtriumState as S, atriumRouter as C, defineAtriumModule as w, mergeAtriumMessages as T, navigateTo as E, useAsyncData as D, useAtrium as O, useAtriumApi as k, useAtriumIntegration as A } from "@refactor-circus/atrium";
+import { Fragment as j, computed as M, createBlock as N, createCommentVNode as P, createElementBlock as F, createElementVNode as I, createTextVNode as L, createVNode as R, defineComponent as z, onBeforeUnmount as ee, openBlock as B, reactive as V, ref as H, renderList as U, shallowRef as te, toDisplayString as W, unref as G, withCtx as K, withModifiers as q } from "vue";
+import { UAlert as ne, UBadge as re, UButton as J, UCard as Y, UFormField as ie, UInput as ae, ULink as X, USelect as oe, UTable as se } from "@refactor-circus/atrium/ui";
 import { useI18n as Z } from "vue-i18n";
 // src/components/two-factor/handler.ts
-var ue = "guardian.two-factor", de = "Guardian-Two-Factor-Deadline", fe = "guardian.two-factor-deadline", pe = {
+var ce = "guardian.two-factor", le = "Guardian-Two-Factor-Deadline", ue = "guardian.two-factor-deadline", de = {
 	two_factor_challenge_required: o,
 	two_factor_enrollment_required: i
 }, Q = !1;
-function me(e) {
+function fe(e) {
 	return e === "/guardian/two-factor/challenge" || e === "/guardian/two-factor/setup";
 }
-async function he(e) {
+async function pe(e) {
 	if (!(e.headers.get("content-type") ?? "").includes("json")) return null;
 	try {
 		let t = await e.json();
@@ -28,10 +27,10 @@ async function he(e) {
 		return null;
 	}
 }
-function ge(e) {
+function me(e) {
 	return async (t) => {
-		let r = w(), i = t.headers.get(de);
-		if (i && e.notify(fe, {
+		let r = C(), i = t.headers.get(le);
+		if (i && e.notify(ue, {
 			id: i,
 			message: "guardian.two_factor.deadline.notice",
 			params: { deadline: n(i) ?? i },
@@ -40,9 +39,9 @@ function ge(e) {
 				label: "guardian.two_factor.deadline.link"
 			},
 			color: "warning"
-		}), t.status !== 403 || Q || me(r.currentRoute.value.path)) return;
-		let a = pe[await he(t) ?? ""] ?? null;
-		if (!(a === null || Q || me(r.currentRoute.value.path))) {
+		}), t.status !== 403 || Q || fe(r.currentRoute.value.path)) return;
+		let a = de[await pe(t) ?? ""] ?? null;
+		if (!(a === null || Q || fe(r.currentRoute.value.path))) {
 			Q = !0;
 			try {
 				await r.push({
@@ -59,130 +58,127 @@ function ge(e) {
 function $(e) {
 	return typeof e == "number" && Number.isFinite(e) ? String(e) : typeof e == "string" && e !== "" ? e : null;
 }
-function _e(e) {
+function he(e) {
 	return typeof e == "string" && e !== "" ? e : null;
 }
-function ve(e, t) {
+function ge(e, t) {
 	let n = $(t);
 	if (n === null) return null;
-	let r = _e(e.scope_type);
+	let r = he(e.scope_type);
 	return r === null ? { user: n } : {
 		scopeType: r,
 		scopeId: n
 	};
 }
 // src/components/hooks/GuardianAccessTab.vue?vue&type=script&setup=true&lang.ts
-var ye = {
+var _e = {
 	key: 0,
 	"data-testid": "hooks-guardian-access"
-}, be = /* @__PURE__ */ z({
+}, ve = /* @__PURE__ */ z({
 	__name: "GuardianAccessTab",
 	props: {
 		data: {},
 		record: {}
 	},
 	setup(e) {
-		let t = e, n = A(), i = r(), a = M(() => ve(t.data, t.record)), { data: o } = O("guardian-hook-scope-types", async () => {
+		let t = e, n = k(), r = s(), i = M(() => ge(t.data, t.record)), { data: a } = D("guardian-hook-scope-types", async () => {
 			try {
 				return await n("/screens/guardian.role-assignments");
 			} catch {
 				return null;
 			}
-		}, { server: !1 }), s = M(() => u(o.value?.data.options));
-		return (e, t) => G(a) && G(i) ? (B(), F("div", ye, ["user" in G(a) ? (B(), N(c, {
-			key: G(a).user,
-			user: G(a).user,
-			"scope-types": G(s)
+		}, { server: !1 }), o = M(() => u(a.value?.data.options));
+		return (e, t) => G(i) && G(r) ? (B(), F("div", _e, ["user" in G(i) ? (B(), N(c, {
+			key: G(i).user,
+			user: G(i).user,
+			"scope-types": G(o)
 		}, null, 8, ["user", "scope-types"])) : (B(), N(c, {
-			key: `${G(a).scopeType}:${G(a).scopeId}`,
-			"scope-type": G(a).scopeType,
-			"scope-id": G(a).scopeId,
-			"scope-types": G(s)
+			key: `${G(i).scopeType}:${G(i).scopeId}`,
+			"scope-type": G(i).scopeType,
+			"scope-id": G(i).scopeId,
+			"scope-types": G(o)
 		}, null, 8, [
 			"scope-type",
 			"scope-id",
 			"scope-types"
 		]))])) : P("", !0);
 	}
-}), xe = {
+}), ye = {
 	class: "space-y-4",
 	"data-testid": "guardian-scim-tokens"
-}, Se = { class: "flex flex-wrap items-center gap-2" }, Ce = {
+}, be = { class: "flex flex-wrap items-center gap-2" }, xe = {
 	class: "break-all font-mono text-sm",
 	"data-testid": "guardian-scim-plain-token"
-}, we = { class: "font-medium" }, Te = {
+}, Se = { class: "font-medium" }, Ce = {
 	class: "break-all font-mono text-sm",
 	"data-testid": "guardian-scim-base-url"
-}, Ee = { class: "space-y-4" }, De = ["data-testid"], Oe = { class: "font-medium" }, ke = { class: "mt-3" }, Ae = /* @__PURE__ */ z({
+}, we = { class: "space-y-4" }, Te = ["data-testid"], Ee = { class: "font-medium" }, De = { class: "mt-3" }, Oe = /* @__PURE__ */ z({
 	__name: "GuardianScimTokens",
 	props: {
 		organization: {},
 		scimPath: { default: null },
 		client: { default: void 0 }
 	},
-	setup(e) {
-		let r = e, { t: i } = Z(), o = s(), c = s(), { apiBase: u } = te("guardian"), _ = M(() => b(u, r.scimPath, r.organization)), v = H(1), y = M(() => ({
+	setup(r) {
+		let i = r, { t: o } = Z(), s = e(), c = e(), { apiBase: u } = A("guardian"), m = M(() => _(u, i.scimPath, i.organization)), h = H(1), g = M(() => ({
 			per_page: 25,
-			...v.value > 1 ? { page: v.value } : {}
-		})), { client: x, data: S, pending: C, failed: w, status: T, reload: E } = t(async (e) => a(await e.GET("/organizations/{organization}/scim-tokens", { params: {
-			path: { organization: r.organization },
-			query: y.value
-		} })), () => [r.organization, y.value], r.client === void 0 ? void 0 : r.client), D = re([]);
-		x && x.GET("/organizations/{organization}/sso-connections", { params: {
-			path: { organization: r.organization },
+			...h.value > 1 ? { page: h.value } : {}
+		})), { client: v, data: y, pending: b, failed: C, status: w, reload: T } = t(async (e) => a(await e.GET("/organizations/{organization}/scim-tokens", { params: {
+			path: { organization: i.organization },
+			query: g.value
+		} })), () => [i.organization, g.value], i.client === void 0 ? void 0 : i.client), E = te([]);
+		v && v.GET("/organizations/{organization}/sso-connections", { params: {
+			path: { organization: i.organization },
 			query: { per_page: 100 }
-		} }).then((e) => D.value = a(e).data).catch(() => D.value = []);
-		let O = M(() => S.value?.data ?? []), k = M(() => [
+		} }).then((e) => E.value = a(e).data).catch(() => E.value = []);
+		let D = M(() => y.value?.data ?? []), O = M(() => [
 			{
 				id: "name",
-				header: i("guardian.sso.fields.name")
+				header: o("guardian.sso.fields.name")
 			},
 			{
 				id: "connection",
-				header: i("guardian.sso.scim.connection")
+				header: o("guardian.sso.scim.connection")
 			},
 			{
 				id: "last_used",
-				header: i("guardian.sso.scim.last_used"),
+				header: o("guardian.sso.scim.last_used"),
 				meta: { class: { td: "text-muted" } }
 			},
 			{
 				id: "expires",
-				header: i("guardian.sso.scim.expires"),
+				header: o("guardian.sso.scim.expires"),
 				meta: { class: { td: "text-muted" } }
 			},
 			{
 				id: "actions",
 				meta: { class: { td: "text-right" } }
 			}
-		]), A = M(() => [{
-			label: i("guardian.sso.scim.no_connection"),
-			value: g
-		}, ...D.value.map((e) => ({
+		]), k = M(() => E.value.map((e) => ({
 			label: e.name,
 			value: e.slug
-		}))]), j = M(() => l(S.value)), z = V({
+		}))), j = M(() => l(y.value)), z = V({
 			name: "",
 			expires_in_days: "",
 			sso_connection: ""
-		}), U = H(null), Y = H(!1);
-		ne(() => {
+		}), U = H(null), X = H(!1);
+		ee(() => {
 			U.value = null;
 		});
-		function ue(e) {
+		function oe(e) {
 			let t = Number(e);
 			return e === "" || !Number.isFinite(t) ? null : Math.trunc(t);
 		}
-		async function de() {
-			if (!x) return;
-			U.value = null, Y.value = !1;
+		async function ce() {
+			if (!v) return;
+			U.value = null, X.value = !1;
 			let e = { token: null };
-			await o.run(async () => {
-				e.token = a(await x.POST("/organizations/{organization}/scim-tokens", {
-					params: { path: { organization: r.organization } },
+			await s.run(async () => {
+				e.token = a(await v.POST("/organizations/{organization}/scim-tokens", {
+					params: { path: { organization: i.organization } },
 					body: {
 						name: z.name.trim(),
-						expires_in_days: ue(z.expires_in_days),
+						expires_in_days: oe(z.expires_in_days),
 						sso_connection: z.sso_connection === "" ? null : z.sso_connection
 					}
 				})).token;
@@ -190,58 +186,58 @@ var ye = {
 				name: "",
 				expires_in_days: "",
 				sso_connection: ""
-			}), await E());
+			}), await T());
 		}
-		async function fe() {
-			U.value && (await navigator.clipboard?.writeText(U.value), Y.value = !0);
+		async function le() {
+			U.value && (await navigator.clipboard?.writeText(U.value), X.value = !0);
 		}
-		async function pe(e) {
-			x && window.confirm(i("guardian.sso.scim.confirm_revoke", { name: e.name })) && await c.run(async () => a(await x.DELETE("/scim-tokens/{token}", { params: { path: { token: e.id } } }))) && await E();
+		async function ue(e) {
+			v && window.confirm(o("guardian.sso.scim.confirm_revoke", { name: e.name })) && await c.run(async () => a(await v.DELETE("/scim-tokens/{token}", { params: { path: { token: e.id } } }))) && await T();
 		}
-		function Q(e) {
-			v.value = e;
+		function de(e) {
+			h.value = e;
 		}
 		return (e, t) => {
-			let r = q, a = ae, s = J, l = oe, u = ee, g = X, v = ce, y = se, b = le;
-			return B(), F("div", xe, [
-				G(U) ? (B(), N(a, {
+			let r = J, i = ne, a = Y, l = re, u = S, h = se, g = ae, _ = ie, v = x;
+			return B(), F("div", ye, [
+				G(U) ? (B(), N(i, {
 					key: 0,
 					color: "warning",
 					variant: "subtle",
-					title: G(i)("guardian.sso.scim.created"),
+					title: G(o)("guardian.sso.scim.created"),
 					"data-testid": "guardian-scim-plain"
 				}, {
-					description: K(() => [I("div", Se, [I("code", Ce, W(G(U)), 1), R(r, {
+					description: K(() => [I("div", be, [I("code", xe, W(G(U)), 1), R(r, {
 						size: "xs",
 						variant: "soft",
 						icon: "i-lucide-copy",
 						"data-testid": "guardian-scim-copy",
-						onClick: fe
+						onClick: le
 					}, {
-						default: K(() => [L(W(G(Y) ? G(i)("guardian.sso.copied") : G(i)("guardian.sso.copy")), 1)]),
+						default: K(() => [L(W(G(X) ? G(o)("guardian.sso.copied") : G(o)("guardian.sso.copy")), 1)]),
 						_: 1
 					})])]),
 					_: 1
 				}, 8, ["title"])) : P("", !0),
-				R(s, null, {
-					header: K(() => [I("h3", we, W(G(i)("guardian.sso.scim.base_url")), 1)]),
-					default: K(() => [I("code", Te, W(G(_) ?? "—"), 1)]),
+				R(a, null, {
+					header: K(() => [I("h3", Se, W(G(o)("guardian.sso.scim.base_url")), 1)]),
+					default: K(() => [I("code", Ce, W(G(m) ?? "—"), 1)]),
 					_: 1
 				}),
 				R(p, {
-					ready: !G(C) && G(S) !== null,
-					failed: G(w),
-					status: G(T),
+					ready: !G(b) && G(y) !== null,
+					failed: G(C),
+					status: G(w),
 					compact: ""
 				}, {
-					default: K(() => [I("div", Ee, [
+					default: K(() => [I("div", we, [
 						R(d, {
 							action: G(c),
 							testid: "guardian-scim-revoke"
 						}, null, 8, ["action"]),
-						R(g, {
-							data: G(O),
-							columns: G(k)
+						R(h, {
+							data: G(D),
+							columns: G(O)
 						}, {
 							"name-cell": K(({ row: e }) => [I("div", {
 								class: "flex flex-wrap items-center gap-2",
@@ -251,19 +247,19 @@ var ye = {
 								color: "neutral",
 								variant: "subtle"
 							}, {
-								default: K(() => [L(W(G(i)("guardian.sso.scim.revoked")), 1)]),
+								default: K(() => [L(W(G(o)("guardian.sso.scim.revoked")), 1)]),
 								_: 1
 							})) : e.original.usable ? P("", !0) : (B(), N(l, {
 								key: 1,
 								color: "neutral",
 								variant: "subtle"
 							}, {
-								default: K(() => [L(W(G(i)("guardian.sso.scim.expired")), 1)]),
+								default: K(() => [L(W(G(o)("guardian.sso.scim.expired")), 1)]),
 								_: 1
-							}))], 8, De)]),
+							}))], 8, Te)]),
 							"connection-cell": K(({ row: e }) => [L(W(e.original.sso_connection ?? "—"), 1)]),
-							"last_used-cell": K(({ row: e }) => [L(W(G(n)(e.original.last_used_at) ?? G(i)("guardian.sso.never")), 1)]),
-							"expires-cell": K(({ row: e }) => [L(W(G(n)(e.original.expires_at) ?? G(i)("guardian.sso.never")), 1)]),
+							"last_used-cell": K(({ row: e }) => [L(W(G(n)(e.original.last_used_at) ?? G(o)("guardian.sso.never")), 1)]),
+							"expires-cell": K(({ row: e }) => [L(W(G(n)(e.original.expires_at) ?? G(o)("guardian.sso.never")), 1)]),
 							"actions-cell": K(({ row: e }) => [e.original.revoked_at ? P("", !0) : (B(), N(r, {
 								key: 0,
 								size: "xs",
@@ -271,14 +267,14 @@ var ye = {
 								variant: "ghost",
 								icon: "i-lucide-ban",
 								"data-testid": `guardian-scim-revoke-${e.original.id}`,
-								onClick: (t) => pe(e.original)
+								onClick: (t) => ue(e.original)
 							}, {
-								default: K(() => [L(W(G(i)("guardian.sso.scim.revoke")), 1)]),
+								default: K(() => [L(W(G(o)("guardian.sso.scim.revoke")), 1)]),
 								_: 1
 							}, 8, ["data-testid", "onClick"]))]),
 							empty: K(() => [R(u, {
 								compact: "",
-								title: G(i)("guardian.sso.scim.empty"),
+								title: G(o)("guardian.sso.scim.empty"),
 								"data-testid": "guardian-scim-empty"
 							}, null, 8, ["title"])]),
 							_: 1
@@ -287,21 +283,21 @@ var ye = {
 							current: G(j).current,
 							last: G(j).last,
 							testid: "guardian-scim-tokens",
-							onGo: Q
+							onGo: de
 						}, null, 8, ["current", "last"]),
-						R(s, null, {
-							header: K(() => [I("h3", Oe, W(G(i)("guardian.sso.scim.new")), 1)]),
+						R(a, null, {
+							header: K(() => [I("h3", Ee, W(G(o)("guardian.sso.scim.new")), 1)]),
 							default: K(() => [I("form", {
 								class: "flex flex-wrap items-end gap-3",
 								"data-testid": "guardian-scim-form",
-								onSubmit: ie(de, ["prevent"])
+								onSubmit: q(ce, ["prevent"])
 							}, [
-								R(y, {
-									label: G(i)("guardian.sso.fields.name"),
-									error: G(o).error("name"),
+								R(_, {
+									label: G(o)("guardian.sso.fields.name"),
+									error: G(s).error("name"),
 									required: ""
 								}, {
-									default: K(() => [R(v, {
+									default: K(() => [R(g, {
 										modelValue: G(z).name,
 										"onUpdate:modelValue": t[0] ||= (e) => G(z).name = e,
 										class: "w-56",
@@ -309,11 +305,11 @@ var ye = {
 									}, null, 8, ["modelValue"])]),
 									_: 1
 								}, 8, ["label", "error"]),
-								R(y, {
-									label: G(i)("guardian.sso.scim.expires_in_days"),
-									error: G(o).error("expires_in_days")
+								R(_, {
+									label: G(o)("guardian.sso.scim.expires_in_days"),
+									error: G(s).error("expires_in_days")
 								}, {
-									default: K(() => [R(v, {
+									default: K(() => [R(g, {
 										modelValue: G(z).expires_in_days,
 										"onUpdate:modelValue": t[1] ||= (e) => G(z).expires_in_days = e,
 										type: "number",
@@ -324,31 +320,36 @@ var ye = {
 									}, null, 8, ["modelValue"])]),
 									_: 1
 								}, 8, ["label", "error"]),
-								R(y, {
-									label: G(i)("guardian.sso.scim.link_connection"),
-									error: G(o).error("sso_connection")
+								R(_, {
+									label: G(o)("guardian.sso.scim.link_connection"),
+									error: G(s).error("sso_connection")
 								}, {
-									default: K(() => [R(b, {
-										"model-value": G(h)(G(z).sso_connection),
-										items: G(A),
+									default: K(() => [R(v, {
+										modelValue: G(z).sso_connection,
+										"onUpdate:modelValue": t[2] ||= (e) => G(z).sso_connection = e,
+										items: G(k),
+										blank: G(o)("guardian.sso.scim.no_connection"),
 										class: "w-56",
-										"data-testid": "guardian-scim-connection",
-										"onUpdate:modelValue": t[2] ||= (e) => G(z).sso_connection = G(m)(e)
-									}, null, 8, ["model-value", "items"])]),
+										"data-testid": "guardian-scim-connection"
+									}, null, 8, [
+										"modelValue",
+										"items",
+										"blank"
+									])]),
 									_: 1
 								}, 8, ["label", "error"]),
 								R(r, {
 									type: "submit",
 									icon: "i-lucide-plus",
-									loading: G(o).busy.value,
+									loading: G(s).busy.value,
 									"data-testid": "guardian-scim-submit"
 								}, {
-									default: K(() => [L(W(G(i)("guardian.sso.scim.create")), 1)]),
+									default: K(() => [L(W(G(o)("guardian.sso.scim.create")), 1)]),
 									_: 1
 								}, 8, ["loading"])
-							], 32), I("div", ke, [Object.keys(G(o).errors.value).length === 0 ? (B(), N(d, {
+							], 32), I("div", De, [Object.keys(G(s).errors.value).length === 0 ? (B(), N(d, {
 								key: 0,
-								action: G(o),
+								action: G(s),
 								testid: "guardian-scim-issue"
 							}, null, 8, ["action"])) : P("", !0)])]),
 							_: 1
@@ -363,56 +364,56 @@ var ye = {
 			]);
 		};
 	}
-}), je = {
+}), ke = {
 	key: 0,
 	"data-testid": "hooks-guardian-scim"
-}, Me = /* @__PURE__ */ z({
+}, Ae = /* @__PURE__ */ z({
 	__name: "GuardianScimTab",
 	props: {
 		data: {},
 		record: {}
 	},
 	setup(e) {
-		let t = e, n = r(), i = M(() => $(t.record)), a = M(() => typeof t.data.scim_path == "string" ? t.data.scim_path : null);
-		return (e, t) => G(i) && G(n) ? (B(), F("div", je, [(B(), N(Ae, {
-			key: G(i),
-			organization: G(i),
-			"scim-path": G(a)
+		let t = e, n = s(), r = M(() => $(t.record)), i = M(() => typeof t.data.scim_path == "string" ? t.data.scim_path : null);
+		return (e, t) => G(r) && G(n) ? (B(), F("div", ke, [(B(), N(Oe, {
+			key: G(r),
+			organization: G(r),
+			"scim-path": G(i)
 		}, null, 8, ["organization", "scim-path"]))])) : P("", !0);
 	}
-}), Ne = { class: "font-semibold" }, Pe = { class: "divide-y divide-default text-sm" }, Fe = ["data-testid"], Ie = { class: "text-muted" }, Le = /* @__PURE__ */ z({
+}), je = { class: "font-semibold" }, Me = { class: "divide-y divide-default text-sm" }, Ne = ["data-testid"], Pe = { class: "text-muted" }, Fe = /* @__PURE__ */ z({
 	__name: "GuardianSsoIdentities",
 	props: {
 		user: {},
 		client: { default: void 0 }
 	},
-	setup(e) {
-		let r = e, { t: i } = Z(), o = s(), { client: c, data: l, failed: u, status: f, reload: p } = t(async (e) => a(await e.GET("/users/{user}/sso-identities", { params: {
-			path: { user: r.user },
+	setup(r) {
+		let i = r, { t: o } = Z(), s = e(), { client: c, data: l, failed: u, status: f, reload: p } = t(async (e) => a(await e.GET("/users/{user}/sso-identities", { params: {
+			path: { user: i.user },
 			query: { per_page: 50 }
-		} })), () => r.user, r.client === void 0 ? void 0 : r.client), m = M(() => l.value?.data ?? []);
+		} })), () => i.user, i.client === void 0 ? void 0 : i.client), m = M(() => l.value?.data ?? []);
 		async function h(e) {
 			let t = e.email ?? e.subject;
-			c && window.confirm(i("guardian.sso.identities.confirm_unlink", {
+			c && window.confirm(o("guardian.sso.identities.confirm_unlink", {
 				name: t,
 				connection: e.connection
-			})) && await o.run(async () => a(await c.DELETE("/sso-identities/{identity}", { params: { path: { identity: e.id } } }))) && await p();
+			})) && await s.run(async () => a(await c.DELETE("/sso-identities/{identity}", { params: { path: { identity: e.id } } }))) && await p();
 		}
 		return (e, t) => {
-			let r = C, a = q, s = J;
+			let r = b, i = J, a = Y;
 			return G(u) && G(f) === 403 ? (B(), N(r, {
 				key: 0,
 				compact: ""
-			})) : G(m).length > 0 ? (B(), N(s, {
+			})) : G(m).length > 0 ? (B(), N(a, {
 				key: 1,
 				"data-testid": "guardian-sso-identities"
 			}, {
-				header: K(() => [I("h3", Ne, W(G(i)("guardian.sso.identities.title")), 1)]),
-				default: K(() => [I("ul", Pe, [(B(!0), F(j, null, U(G(m), (e) => (B(), F("li", {
+				header: K(() => [I("h3", je, W(G(o)("guardian.sso.identities.title")), 1)]),
+				default: K(() => [I("ul", Me, [(B(!0), F(j, null, U(G(m), (e) => (B(), F("li", {
 					key: e.id,
 					class: "flex items-center justify-between gap-2 py-2",
 					"data-testid": `guardian-sso-identity-${e.id}`
-				}, [I("span", null, [L(W(e.connection) + " — " + W(e.email ?? e.subject) + " ", 1), I("span", Ie, W(G(i)("guardian.sso.identities.last_login")) + ": " + W(G(n)(e.last_login_at) ?? G(i)("guardian.sso.never")), 1)]), R(a, {
+				}, [I("span", null, [L(W(e.connection) + " — " + W(e.email ?? e.subject) + " ", 1), I("span", Pe, W(G(o)("guardian.sso.identities.last_login")) + ": " + W(G(n)(e.last_login_at) ?? G(o)("guardian.sso.never")), 1)]), R(i, {
 					size: "xs",
 					variant: "ghost",
 					color: "error",
@@ -420,108 +421,108 @@ var ye = {
 					"data-testid": `guardian-sso-identity-unlink-${e.id}`,
 					onClick: (t) => h(e)
 				}, {
-					default: K(() => [L(W(G(i)("guardian.sso.identities.unlink")), 1)]),
+					default: K(() => [L(W(G(o)("guardian.sso.identities.unlink")), 1)]),
 					_: 1
-				}, 8, ["data-testid", "onClick"])], 8, Fe))), 128))]), R(d, {
-					action: G(o),
+				}, 8, ["data-testid", "onClick"])], 8, Ne))), 128))]), R(d, {
+					action: G(s),
 					testid: "guardian-sso-identity-unlink"
 				}, null, 8, ["action"])]),
 				_: 1
 			})) : P("", !0);
 		};
 	}
-}), Re = {
+}), Ie = {
 	key: 0,
 	"data-testid": "hooks-guardian-sso-identities"
-}, ze = /* @__PURE__ */ z({
+}, Le = /* @__PURE__ */ z({
 	__name: "GuardianSsoIdentitiesSection",
 	props: {
 		data: {},
 		record: {}
 	},
 	setup(e) {
-		let t = e, n = r(), i = M(() => $(t.record));
-		return (e, t) => G(i) && G(n) ? (B(), F("div", Re, [(B(), N(Le, {
-			key: G(i),
-			user: G(i)
+		let t = e, n = s(), r = M(() => $(t.record));
+		return (e, t) => G(r) && G(n) ? (B(), F("div", Ie, [(B(), N(Fe, {
+			key: G(r),
+			user: G(r)
 		}, null, 8, ["user"]))])) : P("", !0);
 	}
-}), Be = {
+}), Re = {
 	class: "space-y-4",
 	"data-testid": "guardian-sso-connections"
-}, Ve = { class: "space-y-4" }, He = ["data-testid"], Ue = { class: "font-medium" }, We = { class: "flex flex-wrap items-end gap-3" }, Ge = /* @__PURE__ */ z({
+}, ze = { class: "space-y-4" }, Be = ["data-testid"], Ve = { class: "font-medium" }, He = { class: "flex flex-wrap items-end gap-3" }, Ue = /* @__PURE__ */ z({
 	__name: "GuardianSsoConnections",
 	props: {
 		organization: {},
 		client: { default: void 0 }
 	},
 	setup(n) {
-		let r = n, { t: i } = Z(), o = s(), c = H(1), u = M(() => ({
+		let i = n, { t: o } = Z(), s = e(), c = H(1), u = M(() => ({
 			per_page: 25,
 			...c.value > 1 ? { page: c.value } : {}
-		})), { client: m, data: h, pending: g, failed: b, status: S } = t(async (e) => a(await e.GET("/organizations/{organization}/sso-connections", { params: {
-			path: { organization: r.organization },
+		})), { client: _, data: y, pending: b, failed: x, status: C } = t(async (e) => a(await e.GET("/organizations/{organization}/sso-connections", { params: {
+			path: { organization: i.organization },
 			query: u.value
-		} })), () => [r.organization, u.value], r.client === void 0 ? void 0 : r.client), C = M(() => h.value?.data ?? []), w = M(() => l(h.value)), T = M(() => [
+		} })), () => [i.organization, u.value], i.client === void 0 ? void 0 : i.client), w = M(() => y.value?.data ?? []), T = M(() => l(y.value)), D = M(() => [
 			{
 				id: "name",
-				header: i("guardian.sso.fields.name")
+				header: o("guardian.sso.fields.name")
 			},
 			{
 				id: "protocol",
-				header: i("guardian.sso.fields.protocol")
+				header: o("guardian.sso.fields.protocol")
 			},
 			{
 				id: "identities",
-				header: i("guardian.sso.identities.title"),
+				header: o("guardian.sso.identities.title"),
 				meta: { class: {
 					th: "text-right",
 					td: "text-right tabular-nums"
 				} }
 			}
-		]), E = M(() => y.map((e) => ({
-			label: i(`guardian.sso.protocols.${e}`),
+		]), O = M(() => g.map((e) => ({
+			label: o(`guardian.sso.protocols.${e}`),
 			value: e
-		}))), O = V({
+		}))), k = V({
 			name: "",
 			protocol: "oidc"
-		}), k = V({});
-		async function A() {
-			if (!m) return;
-			let t = { connection: null };
-			await o.run(async () => {
-				t.connection = a(await m.POST("/organizations/{organization}/sso-connections", {
-					params: { path: { organization: r.organization } },
-					body: e({
-						name: O.name.trim(),
-						protocol: O.protocol,
-						..._(O.protocol, k)
+		}), A = V({});
+		async function j() {
+			if (!_) return;
+			let e = { connection: null };
+			await s.run(async () => {
+				e.connection = a(await _.POST("/organizations/{organization}/sso-connections", {
+					params: { path: { organization: i.organization } },
+					body: r({
+						name: k.name.trim(),
+						protocol: k.protocol,
+						...m(k.protocol, A)
 					})
 				})).data;
-			}) && t.connection && await D(v(t.connection.slug));
+			}) && e.connection && await E(h(e.connection.slug));
 		}
-		function te(e) {
+		function z(e) {
 			c.value = e;
 		}
 		return (e, t) => {
-			let n = Y, r = oe, a = ee, s = X, c = ce, l = se, u = le, m = q, _ = J;
-			return B(), F("div", Be, [R(p, {
-				ready: !G(g) && G(h) !== null,
-				failed: G(b),
-				status: G(S),
+			let n = X, r = re, i = S, a = se, c = ae, l = ie, u = oe, m = J, g = Y;
+			return B(), F("div", Re, [R(p, {
+				ready: !G(b) && G(y) !== null,
+				failed: G(x),
+				status: G(C),
 				compact: ""
 			}, {
-				default: K(() => [I("div", Ve, [
-					R(s, {
-						data: G(C),
-						columns: G(T)
+				default: K(() => [I("div", ze, [
+					R(a, {
+						data: G(w),
+						columns: G(D)
 					}, {
 						"name-cell": K(({ row: e }) => [I("div", {
 							class: "flex flex-wrap items-center gap-2",
 							"data-testid": `guardian-sso-connection-${e.original.slug}`
 						}, [
 							R(n, {
-								to: G(v)(e.original.slug),
+								to: G(h)(e.original.slug),
 								class: "font-medium hover:underline",
 								"data-testid": "guardian-sso-connection-link"
 							}, {
@@ -533,7 +534,7 @@ var ye = {
 								color: "warning",
 								variant: "subtle"
 							}, {
-								default: K(() => [L(W(G(i)("guardian.sso.enforced_badge")), 1)]),
+								default: K(() => [L(W(G(o)("guardian.sso.enforced_badge")), 1)]),
 								_: 1
 							})) : P("", !0),
 							e.original.enabled ? P("", !0) : (B(), N(r, {
@@ -541,80 +542,80 @@ var ye = {
 								color: "neutral",
 								variant: "subtle"
 							}, {
-								default: K(() => [L(W(G(i)("guardian.sso.disabled_badge")), 1)]),
+								default: K(() => [L(W(G(o)("guardian.sso.disabled_badge")), 1)]),
 								_: 1
 							}))
-						], 8, He)]),
-						"protocol-cell": K(({ row: e }) => [L(W(G(i)(`guardian.sso.protocols.${e.original.protocol}`, e.original.protocol)), 1)]),
+						], 8, Be)]),
+						"protocol-cell": K(({ row: e }) => [L(W(G(o)(`guardian.sso.protocols.${e.original.protocol}`, e.original.protocol)), 1)]),
 						"identities-cell": K(({ row: e }) => [L(W(e.original.identities_count ?? "—"), 1)]),
-						empty: K(() => [R(a, {
+						empty: K(() => [R(i, {
 							compact: "",
-							title: G(i)("guardian.sso.connections.empty"),
+							title: G(o)("guardian.sso.connections.empty"),
 							"data-testid": "guardian-sso-connections-empty"
 						}, null, 8, ["title"])]),
 						_: 1
 					}, 8, ["data", "columns"]),
 					R(f, {
-						current: G(w).current,
-						last: G(w).last,
+						current: G(T).current,
+						last: G(T).last,
 						testid: "guardian-sso-connections",
-						onGo: te
+						onGo: z
 					}, null, 8, ["current", "last"]),
-					R(_, null, {
-						header: K(() => [I("h3", Ue, W(G(i)("guardian.sso.connections.new")), 1)]),
+					R(g, null, {
+						header: K(() => [I("h3", Ve, W(G(o)("guardian.sso.connections.new")), 1)]),
 						default: K(() => [I("form", {
 							class: "space-y-3",
 							"data-testid": "guardian-sso-new-form",
-							onSubmit: ie(A, ["prevent"])
+							onSubmit: q(j, ["prevent"])
 						}, [
-							I("div", We, [R(l, {
-								label: G(i)("guardian.sso.fields.name"),
-								error: G(o).error("name"),
+							I("div", He, [R(l, {
+								label: G(o)("guardian.sso.fields.name"),
+								error: G(s).error("name"),
 								required: ""
 							}, {
 								default: K(() => [R(c, {
-									modelValue: G(O).name,
-									"onUpdate:modelValue": t[0] ||= (e) => G(O).name = e,
+									modelValue: G(k).name,
+									"onUpdate:modelValue": t[0] ||= (e) => G(k).name = e,
 									class: "w-56",
 									"data-testid": "guardian-sso-new-name"
 								}, null, 8, ["modelValue"])]),
 								_: 1
 							}, 8, ["label", "error"]), R(l, {
-								label: G(i)("guardian.sso.fields.protocol"),
-								error: G(o).error("protocol"),
+								label: G(o)("guardian.sso.fields.protocol"),
+								error: G(s).error("protocol"),
 								required: ""
 							}, {
 								default: K(() => [R(u, {
-									modelValue: G(O).protocol,
-									"onUpdate:modelValue": t[1] ||= (e) => G(O).protocol = e,
-									items: G(E),
+									modelValue: G(k).protocol,
+									"onUpdate:modelValue": t[1] ||= (e) => G(k).protocol = e,
+									items: G(O),
 									class: "w-56",
 									"data-testid": "guardian-sso-new-protocol"
 								}, null, 8, ["modelValue", "items"])]),
 								_: 1
 							}, 8, ["label", "error"])]),
-							R(x, {
-								protocol: G(O).protocol,
-								values: G(k),
-								action: G(o),
+							R(v, {
+								protocol: G(k).protocol,
+								values: G(A),
+								action: G(s),
 								testid: "guardian-sso-new"
 							}, null, 8, [
 								"protocol",
 								"values",
 								"action"
 							]),
-							Object.keys(G(o).errors.value).length === 0 ? (B(), N(d, {
+							Object.keys(G(s).errors.value).length === 0 ? (B(), N(d, {
 								key: 0,
-								action: G(o),
+								action: G(s),
 								testid: "guardian-sso-new"
 							}, null, 8, ["action"])) : P("", !0),
 							R(m, {
 								type: "submit",
 								icon: "i-lucide-plus",
-								loading: G(o).busy.value,
+								loading: G(s).busy.value,
 								"data-testid": "guardian-sso-new-submit"
 							}, {
-								default: K(() => [L(W(G(i)("guardian.sso.connections.create")), 1)]),
+								default: K(() => [L(W(G(o)("guardian.sso.connections.create")), 1)]),
 								_: 1
 							}, 8, ["loading"])
 						], 32)]),
@@ -629,39 +630,39 @@ var ye = {
 			])]);
 		};
 	}
-}), Ke = {
+}), We = {
 	key: 0,
 	"data-testid": "hooks-guardian-sso"
-}, qe = /* @__PURE__ */ z({
+}, Ge = /* @__PURE__ */ z({
 	__name: "GuardianSsoTab",
 	props: {
 		data: {},
 		record: {}
 	},
 	setup(e) {
-		let t = e, n = r(), i = M(() => $(t.record));
-		return (e, t) => G(i) && G(n) ? (B(), F("div", Ke, [(B(), N(Ge, {
-			key: G(i),
-			organization: G(i)
+		let t = e, n = s(), r = M(() => $(t.record));
+		return (e, t) => G(r) && G(n) ? (B(), F("div", We, [(B(), N(Ue, {
+			key: G(r),
+			organization: G(r)
 		}, null, 8, ["organization"]))])) : P("", !0);
 	}
-}), Je = {
+}), Ke = {
 	key: 0,
 	"data-testid": "hooks-guardian-user-security"
-}, Ye = /* @__PURE__ */ z({
+}, qe = /* @__PURE__ */ z({
 	__name: "GuardianUserSecurityTab",
 	props: {
 		data: {},
 		record: {}
 	},
 	setup(e) {
-		let t = e, n = r(), i = M(() => $(t.record));
-		return (e, t) => G(i) && G(n) ? (B(), F("div", Je, [(B(), N(S, {
-			key: G(i),
-			user: G(i)
+		let t = e, n = s(), r = M(() => $(t.record));
+		return (e, t) => G(r) && G(n) ? (B(), F("div", Ke, [(B(), N(y, {
+			key: G(r),
+			user: G(r)
 		}, null, 8, ["user"]))])) : P("", !0);
 	}
-}), Xe = { guardian: { access: {
+}), Je = { guardian: { access: {
 	filter: "Filter",
 	clear: "Clear",
 	save: "Save",
@@ -755,7 +756,7 @@ var ye = {
 		confirm_reset_two_factor: "Reset two-factor authentication for {user}? They will have to set it up again.",
 		two_factor_reset: "Two-factor authentication was reset."
 	}
-} } }, Ze = { guardian: { admin: {
+} } }, Ye = { guardian: { admin: {
 	filter: "Filter",
 	clear: "Clear",
 	save: "Save",
@@ -863,7 +864,7 @@ var ye = {
 			grace_days: "Grace days"
 		}
 	}
-} } }, Qe = { guardian: { security: {
+} } }, Xe = { guardian: { security: {
 	title: "My security",
 	two_factor: {
 		title: "Two-factor authentication",
@@ -917,7 +918,7 @@ var ye = {
 		older: "Older",
 		newer: "Newer"
 	}
-} } }, $e = { guardian: { sso: {
+} } }, Ze = { guardian: { sso: {
 	save: "Save",
 	saved: "Saved.",
 	copy: "Copy",
@@ -986,7 +987,7 @@ var ye = {
 		unlink: "Unlink",
 		confirm_unlink: "Unlink the SSO identity {name} from {connection}?"
 	}
-} } }, et = { guardian: { two_factor: {
+} } }, Qe = { guardian: { two_factor: {
 	confirm: "Confirm",
 	cancel: "Cancel",
 	never_used: "never used",
@@ -1076,88 +1077,88 @@ var ye = {
 		deadline: "Set it up by {deadline}.",
 		load_failed: "Two-factor setup could not be loaded."
 	}
-} } }, tt = { guardian: { state: {
+} } }, $e = { guardian: { state: {
 	not_found: "This record was not found.",
 	load_failed: "Guardian could not be loaded."
-} } }, nt = [
+} } }, et = [
 	{
 		path: "/guardian/ip-rules",
 		name: "guardian-ip-rules",
-		component: () => import("./chunks/ip-rules-DC1O90Ex.js")
+		component: () => import("./chunks/ip-rules-BmFcyegX.js")
 	},
 	{
 		path: "/guardian/lockouts",
 		name: "guardian-lockouts",
-		component: () => import("./chunks/lockouts-DtZlySb7.js")
+		component: () => import("./chunks/lockouts-bL7C1bhR.js")
 	},
 	{
 		path: "/guardian/password-policy",
 		name: "guardian-password-policy",
-		component: () => import("./chunks/password-policy-D0nTk8g7.js")
+		component: () => import("./chunks/password-policy-3B_r19sJ.js")
 	},
 	{
 		path: "/guardian/permissions",
 		name: "guardian-permissions",
-		component: () => import("./chunks/permissions-JoLfOecL.js")
+		component: () => import("./chunks/permissions-DtX1aoxk.js")
 	},
 	{
 		path: "/guardian/role-assignments",
 		name: "guardian-role-assignments",
-		component: () => import("./chunks/role-assignments-C5SHM34W.js")
+		component: () => import("./chunks/role-assignments-CVALi6lq.js")
 	},
 	{
 		path: "/guardian/roles/:role",
 		name: "guardian-roles-role",
-		component: () => import("./chunks/_role_-u_ehN5Cx.js")
+		component: () => import("./chunks/_role_-CPocJWWu.js")
 	},
 	{
 		path: "/guardian/roles",
 		name: "guardian-roles",
-		component: () => import("./chunks/roles-CyPBxncs.js")
+		component: () => import("./chunks/roles-ClzbZu0h.js")
 	},
 	{
 		path: "/guardian/security-events/:event",
 		name: "guardian-security-events-event",
-		component: () => import("./chunks/_event_-VLs4n3t4.js")
+		component: () => import("./chunks/_event_-DTTyFljN.js")
 	},
 	{
 		path: "/guardian/security-events",
 		name: "guardian-security-events",
-		component: () => import("./chunks/security-events-Byr3YoLC.js")
+		component: () => import("./chunks/security-events-fCmar8Kk.js")
 	},
 	{
 		path: "/guardian/security",
 		name: "guardian-security",
-		component: () => import("./chunks/security-C663bVJ-.js")
+		component: () => import("./chunks/security-D21uI0UY.js")
 	},
 	{
 		path: "/guardian/sso-connections/:connection",
 		name: "guardian-sso-connections-connection",
-		component: () => import("./chunks/_connection_-CekwaDur.js")
+		component: () => import("./chunks/_connection_-CcoAjpXN.js")
 	},
 	{
 		path: "/guardian/two-factor-policies",
 		name: "guardian-two-factor-policies",
-		component: () => import("./chunks/two-factor-policies-DtkP5x8w.js")
+		component: () => import("./chunks/two-factor-policies-Ck02iwAt.js")
 	},
 	{
 		path: "/guardian/two-factor/challenge",
 		name: "guardian-two-factor-challenge",
-		component: () => import("./chunks/challenge-STBF29qW.js"),
+		component: () => import("./chunks/challenge-CpeDt9O5.js"),
 		meta: { atrium: { public: !0 } }
 	},
 	{
 		path: "/guardian/two-factor/setup",
 		name: "guardian-two-factor-setup",
-		component: () => import("./chunks/setup-cTGlwhX1.js"),
+		component: () => import("./chunks/setup-Cdkk1NTA.js"),
 		meta: { atrium: { public: !0 } }
 	},
 	{
 		path: "/guardian/users/:user",
 		name: "guardian-users-user",
-		component: () => import("./chunks/_user_-BL0CQGTd.js")
+		component: () => import("./chunks/_user_-Cu1656RP.js")
 	}
-], rt = {
+], tt = {
 	"guardian.security": "guardian-security",
 	"guardian.two-factor-challenge": "guardian-two-factor-challenge",
 	"guardian.two-factor-setup": "guardian-two-factor-setup",
@@ -1173,18 +1174,18 @@ var ye = {
 	"guardian.two-factor-policies": "guardian-two-factor-policies",
 	"guardian.password-policy": "guardian-password-policy",
 	"guardian.sso-connection": "guardian-sso-connections-connection"
-}, it = T({
+}, nt = w({
 	key: "guardian",
-	routes: nt,
-	screens: rt,
+	routes: et,
+	screens: tt,
 	extensions: {
-		"guardian.access": be,
-		"guardian.user-security": Ye,
-		"guardian.sso": qe,
-		"guardian.scim": Me,
-		"guardian.sso-identities": ze
+		"guardian.access": ve,
+		"guardian.user-security": qe,
+		"guardian.sso": Ge,
+		"guardian.scim": Ae,
+		"guardian.sso-identities": Le
 	},
-	responseHandlers: { [ue]: ge(k()) },
-	messages: { en: E(Xe, Ze, Qe, $e, et, tt) }
+	responseHandlers: { [ce]: me(O()) },
+	messages: { en: T(Je, Ye, Xe, Ze, Qe, $e) }
 });
-export { it as default, rt as screens };
+export { nt as default, tt as screens };

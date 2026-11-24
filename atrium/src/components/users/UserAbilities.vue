@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import GuardianState from '../two-factor/GuardianState.vue'
 import { guardianData, useGuardianLoad } from '../two-factor/guardian'
-import { choice, NONE, unchoice, type Choice } from '../ui'
+import type { SelectItem } from '@refactor-circus/atrium/ui'
 import { blankToNull, type GuardianScopeType, type GuardianUserAbilities } from '../access/access'
 
 /**
@@ -24,10 +24,7 @@ const { data, pending, failed, status } = useGuardianLoad(async guardian =>
     }
   })).data, query)
 
-const scopes = computed<Choice[]>(() => [
-  { label: t('guardian.access.scopes.global'), value: NONE },
-  ...props.scopeTypes.map(scope => ({ label: scope.key, value: scope.type }))
-])
+const scopes = computed<SelectItem[]>(() => props.scopeTypes.map(scope => ({ label: scope.key, value: scope.type })))
 
 function apply(): void {
   const scopeType = blankToNull(form.scope_type)
@@ -44,7 +41,7 @@ function apply(): void {
     <div class="space-y-3">
       <form class="flex flex-wrap items-end gap-3" data-testid="guardian-abilities-scope" @submit.prevent="apply">
         <UFormField :label="t('guardian.access.assignments.fields.scope_type')">
-          <USelect :model-value="choice(form.scope_type)" :items="scopes" class="w-44" data-testid="guardian-abilities-scope-type" @update:model-value="form.scope_type = unchoice($event)" />
+          <AtriumSelect v-model="form.scope_type" :items="scopes" :blank="t('guardian.access.scopes.global')" class="w-44" data-testid="guardian-abilities-scope-type" />
         </UFormField>
         <UFormField v-if="form.scope_type" :label="t('guardian.access.assignments.fields.scope_id')">
           <UInput v-model="form.scope_id" class="w-32" data-testid="guardian-abilities-scope-id" />

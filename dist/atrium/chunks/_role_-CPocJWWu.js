@@ -1,8 +1,8 @@
-import { t as e } from "./GuardianErrors-DtyToZz8.js";
-import { t } from "./GuardianRolePermissions-BMs9t7kQ.js";
-import { c as ee, n, o as r, s as i, t as a } from "./access-CMUXpA7X.js";
+import { t as e } from "./GuardianErrors-mhgGBfyk.js";
+import { t } from "./GuardianRolePermissions-2WU66JHq.js";
+import { c as ee, n, o as r, s as i, t as a } from "./access-Ea_ryMId.js";
 import { t as o } from "./GuardianState-DytBr9ih.js";
-import { d as s, o as c, u as l } from "./guardian-D9MeowUD.js";
+import { d as s, f as c, o as l } from "./guardian-BXKFb2X7.js";
 import { AtriumIntegrationScreen as u, useAtriumScreen as d, useHead as f } from "@refactor-circus/atrium";
 import { computed as p, createBlock as m, createCommentVNode as h, createElementBlock as g, createElementVNode as _, createTextVNode as v, createVNode as y, defineComponent as b, openBlock as x, reactive as S, ref as C, toDisplayString as w, unref as T, watch as E, withCtx as D, withModifiers as te } from "vue";
 import { UAlert as ne, UBadge as re, UButton as O, UCard as k, UDashboardNavbar as A, UDashboardPanel as j, UFormField as M, UInput as N, UTextarea as P } from "@refactor-circus/atrium/ui";
@@ -19,7 +19,7 @@ var R = {
 }, H = /* @__PURE__ */ b({
 	__name: "[role]",
 	setup(b) {
-		let { t: H } = F(), ie = I(), U = L(), W = l(), G = l(), K = p(() => String(ie.params.role)), { data: q } = d("guardian.role", K), J = p(() => i(q.value?.data.options)), { client: Y, data: X, pending: ae, failed: oe, status: se, reload: ce } = s(async (e) => c(await e.GET("/roles/{role}", { params: { path: { role: K.value } } })).data, K), Z = ee(Y), Q = S({
+		let { t: H } = F(), ie = I(), U = L(), W = s(), G = s(), K = p(() => String(ie.params.role)), { data: q } = d("guardian.role", K), J = p(() => i(q.value?.data.options)), { client: Y, data: X, pending: ae, failed: oe, status: se, reload: ce } = c(async (e) => l(await e.GET("/roles/{role}", { params: { path: { role: K.value } } })).data, K), Z = ee(Y), Q = S({
 			name: "",
 			description: "",
 			permissions: []
@@ -34,7 +34,7 @@ var R = {
 			if (!Y || !X.value) return;
 			let e = X.value;
 			$.value = !1, $.value = await W.run(async () => {
-				c(await Y.PATCH("/roles/{role}", {
+				l(await Y.PATCH("/roles/{role}", {
 					params: { path: { role: e.slug } },
 					body: {
 						name: Q.name.trim(),
@@ -47,7 +47,7 @@ var R = {
 		async function de() {
 			if (!Y || !X.value || !window.confirm(H("guardian.access.roles.confirm_delete", { name: X.value.name }))) return;
 			let e = X.value;
-			await G.run(async () => c(await Y.DELETE("/roles/{role}", { params: { path: { role: e.slug } } }))) && await U.push("/guardian/roles");
+			await G.run(async () => l(await Y.DELETE("/roles/{role}", { params: { path: { role: e.slug } } }))) && await U.push("/guardian/roles");
 		}
 		return (ee, n) => {
 			let r = O, i = A, a = re, s = ne, c = N, l = M, d = P, f = k, p = u, b = j;

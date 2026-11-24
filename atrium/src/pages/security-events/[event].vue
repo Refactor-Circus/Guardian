@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AtriumDetailsItem } from '@refactor-circus/atrium'
 import { contextValue } from '../../components/admin/admin'
 import { userPath } from '../../components/access/access'
 import type { GuardianSecurityEvent } from '../../components/security/security'
@@ -20,6 +21,29 @@ const { data: event, pending, failed, status } = useGuardianLoad(async guardian 
 
 const context = computed(() => Object.entries(event.value?.context ?? {}))
 
+const facts = computed<AtriumDetailsItem[]>(() => {
+  const current = event.value
+
+  return current
+    ? [
+        { label: t('guardian.admin.events.fields.type'), value: current.type, mono: true, testid: 'guardian-event-type' },
+        { label: t('guardian.admin.events.fields.user'), value: current.user_id, href: current.user_id ? userPath(current.user_id) : null, testid: 'guardian-event-user' },
+        { label: t('guardian.admin.events.fields.ip'), value: current.ip },
+        { label: t('guardian.admin.event.user_agent'), value: current.user_agent },
+        { label: t('guardian.admin.event.identifier_hash'), value: current.identifier_hash, mono: true },
+        { label: t('guardian.admin.events.fields.occurred_at'), value: formatDate(current.occurred_at) }
+      ]
+    : []
+})
+
+// No `key`: a context key names no slot of <AtriumDetails>.
+const contextItems = computed<AtriumDetailsItem[]>(() => context.value.map(([key, value]) => ({
+  label: key,
+  value: contextValue(value),
+  mono: true,
+  testid: `guardian-event-context-${key}`
+})))
+
 useHead({ title: () => event.value?.type ?? t('guardian.admin.event.title') })
 </script>
 
@@ -37,35 +61,14 @@ useHead({ title: () => event.value?.type ?? t('guardian.admin.event.title') })
         <GuardianState :ready="!pending && event !== null" :failed="failed" :status="status" :not-found="t('guardian.admin.event.not_found')">
           <div v-if="event" class="space-y-4" data-testid="guardian-security-event">
             <UCard>
-              <dl class="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[12rem_1fr]">
-                <dt class="text-muted">{{ t('guardian.admin.events.fields.type') }}</dt>
-                <dd class="font-mono" data-testid="guardian-event-type">{{ event.type }}</dd>
-                <dt class="text-muted">{{ t('guardian.admin.events.fields.user') }}</dt>
-                <dd data-testid="guardian-event-user">
-                  <ULink v-if="event.user_id" :to="userPath(event.user_id)" class="hover:underline">{{ event.user_id }}</ULink>
-                  <span v-else>—</span>
-                </dd>
-                <dt class="text-muted">{{ t('guardian.admin.events.fields.ip') }}</dt>
-                <dd>{{ event.ip ?? '—' }}</dd>
-                <dt class="text-muted">{{ t('guardian.admin.event.user_agent') }}</dt>
-                <dd class="break-all">{{ event.user_agent ?? '—' }}</dd>
-                <dt class="text-muted">{{ t('guardian.admin.event.identifier_hash') }}</dt>
-                <dd class="break-all font-mono text-xs">{{ event.identifier_hash ?? '—' }}</dd>
-                <dt class="text-muted">{{ t('guardian.admin.events.fields.occurred_at') }}</dt>
-                <dd>{{ formatDate(event.occurred_at) }}</dd>
-              </dl>
+              <AtriumDetails :items="facts" />
             </UCard>
             <UCard>
               <template #header>
                 <h2 class="font-semibold">{{ t('guardian.admin.event.context') }}</h2>
               </template>
               <AtriumState v-if="context.length === 0" compact :title="t('guardian.admin.event.no_context')" data-testid="guardian-event-context-empty" />
-              <dl v-else class="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[12rem_1fr]" data-testid="guardian-event-context">
-                <template v-for="[key, value] in context" :key="key">
-                  <dt class="font-mono text-muted">{{ key }}</dt>
-                  <dd class="break-all" :data-testid="`guardian-event-context-${key}`">{{ contextValue(value) }}</dd>
-                </template>
-              </dl>
+              <AtriumDetails v-else :items="contextItems" data-testid="guardian-event-context" />
             </UCard>
           </div>
         </GuardianState>

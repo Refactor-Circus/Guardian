@@ -1,5 +1,5 @@
 import { t as e } from "./client-DewBS3Os.js";
-import { a as t, c as n, o as r, u as i } from "./guardian-D9MeowUD.js";
+import { a as t, d as n, l as r, o as i } from "./guardian-BXKFb2X7.js";
 import { t as a } from "./GuardianActionError-DKEMy_E4.js";
 import { n as o, r as s } from "./webauthn-DJJMk2td.js";
 import { AtriumErrorCard as c, atriumStatus as l, useAtriumShellStore as u, useHead as ee } from "@refactor-circus/atrium";
@@ -26,7 +26,7 @@ var N = { class: "text-lg font-semibold" }, P = { class: "text-sm text-muted" },
 }, z = /* @__PURE__ */ te({
 	__name: "challenge",
 	setup(te) {
-		let { t: z } = A(), B = j(), V = M(), H = u(), U = e(), W = i();
+		let { t: z } = A(), B = j(), V = M(), H = u(), U = e(), W = n();
 		ee({ title: () => z("guardian.two_factor.challenge.title") });
 		let G = b("loading"), K = S(null), q = b(null), J = b(""), Y = b(!1), X = f(() => {
 			let e = K.value;
@@ -50,7 +50,7 @@ var N = { class: "text-lg font-semibold" }, P = { class: "text-sm text-muted" },
 		async function ce() {
 			G.value = "loading";
 			try {
-				K.value = r(await U.GET("/two-factor")).data, G.value = "ready";
+				K.value = i(await U.GET("/two-factor")).data, G.value = "ready";
 			} catch (e) {
 				G.value = l(e) === 429 ? "throttled" : "failed";
 			}
@@ -65,7 +65,7 @@ var N = { class: "text-lg font-semibold" }, P = { class: "text-sm text-muted" },
 		async function ue() {
 			let e = q.value;
 			(e === "email" || e === "sms") && (Y.value = await W.run(async () => {
-				r(await U.POST("/two-factor/challenge/send", { body: { method: e } }));
+				i(await U.POST("/two-factor/challenge/send", { body: { method: e } }));
 			}), await Z(!1));
 		}
 		async function Q() {
@@ -76,13 +76,13 @@ var N = { class: "text-lg font-semibold" }, P = { class: "text-sm text-muted" },
 				code: J.value.trim()
 			};
 			J.value = "", await Z(await W.run(async () => {
-				r(await U.POST("/two-factor/challenge", { body: t }));
+				i(await U.POST("/two-factor/challenge", { body: t }));
 			}));
 		}
 		async function de() {
 			await Z(await W.run(async () => {
-				let e = r(await U.POST("/two-factor/challenge/passkey-options")).data, t = await o(e);
-				r(await U.POST("/two-factor/challenge", { body: n({
+				let e = i(await U.POST("/two-factor/challenge/passkey-options")).data, t = await o(e);
+				i(await U.POST("/two-factor/challenge", { body: r({
 					method: "passkey",
 					assertion: t
 				}) }));

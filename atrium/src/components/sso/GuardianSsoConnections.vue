@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TableColumn } from '@nuxt/ui'
+import type { TableColumn } from '@refactor-circus/atrium/ui'
 import GuardianErrors from '../access/GuardianErrors.vue'
 import GuardianPager from '../access/GuardianPager.vue'
 import { pageOf } from '../access/access'

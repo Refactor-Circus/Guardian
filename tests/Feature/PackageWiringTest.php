@@ -56,25 +56,9 @@ describe('composer.json', function (): void {
         expect(guardianComposer()['name'])->toBe('refactor-circus/guardian');
     });
 
-    it('requires only php, Laravel and Keystone', function (): void {
-        $require = guardianComposer()['require'];
-
-        expect($require)->toHaveKeys(['php', 'laravel/framework', 'refactor-circus/keystone'])
-            ->and(array_keys($require))->toHaveCount(3)
-            ->and($require['php'])->toBe('^8.5')
-            ->and($require['refactor-circus/keystone'])->toBe('^0.1')
-            ->and($require['laravel/framework'])->toBe(keenComposer()['require']['laravel/framework']);
-    });
-
-    it('suggests Roster, Atrium, laravel/mcp and the four SSO vendors', function (): void {
-        $suggest = guardianComposer()['suggest'];
-
-        expect(array_keys($suggest))->toEqualCanonicalizing([
-            'refactor-circus/roster',
-            'refactor-circus/atrium',
-            'laravel/mcp',
-            ...array_keys(ROSTER_SSO_VENDOR_SUGGESTIONS),
-        ]);
+    // Requirements, suggestions and the branch alias: tests/Feature/ComposerTest.php.
+    it('matches Keen\'s Laravel constraint', function (): void {
+        expect(guardianComposer()['require']['laravel/framework'])->toBe(keenComposer()['require']['laravel/framework']);
     });
 
     it('words the SSO vendor suggestions as Roster does at the pinned commit', function (): void {
@@ -85,10 +69,10 @@ describe('composer.json', function (): void {
         }
     });
 
-    it('develops against Roster, Atrium, Keen, Ringside, Standards, the SSO vendors and Keen\'s dev tools', function (): void {
+    it('develops against Roster, Keen, Ringside, Standards, the SSO vendors and Keen\'s dev tools', function (): void {
         $requireDev = guardianComposer()['require-dev'];
 
-        foreach (['roster' => '^0.1', 'atrium' => '^0.1', 'keen' => '^0.1', 'ringside' => 'dev-main', 'standards' => 'dev-main'] as $package => $constraint) {
+        foreach (['roster' => '^2.0', 'keen' => '^2.0', 'ringside' => 'dev-main', 'standards' => 'dev-main'] as $package => $constraint) {
             expect($requireDev['refactor-circus/'.$package] ?? null)->toBe($constraint, 'refactor-circus/'.$package);
         }
 
@@ -101,7 +85,8 @@ describe('composer.json', function (): void {
         expect($requireDev['laravel/pint'] ?? null)->toBe('^1.32.1, !=1.32.2');
 
         foreach (keenComposer()['require-dev'] as $package => $constraint) {
-            if (! str_starts_with($package, 'refactor-circus/') && ! in_array($package, ['laravel/mcp', 'laravel/pint'], true)) {
+            // v2 has no browser suite (criterion 2).
+            if (! str_starts_with($package, 'refactor-circus/') && ! in_array($package, ['laravel/mcp', 'laravel/pint', 'pestphp/pest-plugin-browser'], true)) {
                 expect($requireDev[$package] ?? null)->toBe($constraint, $package);
             }
         }
@@ -117,7 +102,7 @@ describe('composer.json', function (): void {
 
         expect(array_values($urls))->toEqualCanonicalizing(array_map(
             fn (string $repo): string => 'https://github.com/Refactor-Circus/'.$repo.'.git',
-            ['Keystone', 'Roster', 'Atrium', 'Keen', 'Ringside', 'Standards'],
+            ['Keystone', 'Roster', 'Keen', 'Ringside', 'Standards'],
         ));
 
         $suite = array_filter(
@@ -132,12 +117,6 @@ describe('composer.json', function (): void {
         }
     });
 
-    it('refuses Atrium releases older than the screen extensions registry', function (): void {
-        $conflict = guardianComposer()['conflict'];
-
-        expect($conflict)->toBe(['refactor-circus/atrium' => '<0.1.0']);
-    });
-
     it('registers the service provider and the Guardian facade alias', function (): void {
         expect(guardianComposer()['extra']['laravel'])->toBe([
             'providers' => ['RefactorCircus\\Guardian\\GuardianServiceProvider'],
@@ -147,14 +126,17 @@ describe('composer.json', function (): void {
 });
 
 describe('local install', function (): void {
-    it('has Keen\'s scripts, with Keen\'s local:install and local:update, plus test:browser', function (): void {
+    it('has Keen\'s scripts, with Keen\'s local:install and local:update, and no without-Atrium suite', function (): void {
         $scripts = guardianComposer()['scripts'];
         $keen = keenComposer()['scripts'];
 
-        // `composer test:browser` runs the moved SSO and SCIM browser tests,
-        // outside `composer test` (criterion 29).
-        expect($scripts['test:browser'] ?? null)->toBe(['vendor/bin/pest --testsuite=Browser']);
-        unset($scripts['test:browser']);
+        // v2 has no Atrium, so no without-Atrium suite (criterion 2). Both
+        // have a client generator, compared on its own (OpenApiTest), as
+        // each exports its document its own way (criterion 55).
+        unset($keen['test:without-atrium'], $keen['client:generate']);
+
+        expect($scripts)->toHaveKey('client:generate');
+        unset($scripts['client:generate']);
 
         expect(array_keys($scripts))->toBe(array_keys($keen))
             ->and($scripts['local:install'])->toBe($keen['local:install'])
@@ -166,15 +148,14 @@ describe('local install', function (): void {
             ->toBe(file_get_contents(KEEN_ROOT.'/bin/composer-local.php'));
     });
 
-    it('runs the Arch, Feature and Modes suites, and Browser only when asked', function (): void {
+    it('runs the Arch, Feature and Modes suites', function (): void {
         $phpunit = simplexml_load_file(GUARDIAN_ROOT.'/phpunit.xml.dist');
 
         expect($phpunit)->not->toBeFalse();
 
         $suites = array_map(fn (SimpleXMLElement $suite): string => (string) $suite['name'], $phpunit->xpath('//testsuite') ?: []);
 
-        // Browser tests need Playwright: a bare `pest` leaves them out.
-        expect($suites)->toBe(['Arch', 'Feature', 'Modes', 'Browser'])
+        expect($suites)->toBe(['Arch', 'Feature', 'Modes'])
             ->and((string) $phpunit['defaultTestSuite'])->toBe('Arch,Feature,Modes');
     });
 
@@ -233,7 +214,7 @@ describe('Ring Master files', function (): void {
 
     it('describes Guardian\'s role in the suite in CLAUDE.md', function (): void {
         expect(file_get_contents(GUARDIAN_ROOT.'/CLAUDE.md'))
-            ->toContain('## Role in the suite', 'refactor-circus/keystone', 'refactor-circus/roster', 'refactor-circus/atrium');
+            ->toContain('## Role in the suite', 'refactor-circus/keystone', 'refactor-circus/roster');
     });
 
     it('lists SSO and SCIM as done, and MFA, session policies and IP rules as planned', function (): void {

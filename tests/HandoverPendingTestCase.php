@@ -50,6 +50,6 @@ abstract class HandoverPendingTestCase extends TestCase
      */
     protected function guardianMigrations(): array
     {
-        return array_values(array_filter((array) glob(dirname(__DIR__).'/database/migrations/*.php'), is_string(...)));
+        return array_values(array_filter([...(array) glob(dirname(__DIR__).'/database/migrations/*.php'), ...(array) glob(dirname(__DIR__).'/database/migrations/roster/*.php')], is_string(...)));
     }
 }

@@ -10,6 +10,7 @@ use RefactorCircus\Guardian\Domains\Scim\Models\ScimTokenModel;
 use RefactorCircus\Guardian\Domains\Scim\Models\ScimUserModel;
 use RefactorCircus\Guardian\Domains\Scim\Services\ScimContext;
 use RefactorCircus\Guardian\Domains\Scim\Support\ScimAudit;
+use RefactorCircus\Guardian\Support\Authorization;
 use RefactorCircus\Guardian\Upgrade\Handover;
 use RefactorCircus\Keystone\Audit\AuditHooks;
 use RefactorCircus\Keystone\Audit\Contracts\AuditTrail;
@@ -17,18 +18,16 @@ use RefactorCircus\Keystone\Packages\PackageRegistry;
 use RefactorCircus\Keystone\Support\ServiceProvider;
 use RefactorCircus\Keystone\Support\Surface;
 use RefactorCircus\Roster\Domains\Organization\Services\MembershipSources;
-use RefactorCircus\Roster\Domains\Permission\Services\PermissionCatalogue;
-use RefactorCircus\Roster\Domains\Permission\Services\Resources;
 use Throwable;
 
 /**
  * SCIM 2.0 provisioning and the tokens that authenticate it.
  *
- * Registered only while a Roster with the seams is installed. Everything
- * reaches Roster through its public seams: the `guardian.scim` resource and
- * the `guardian.scim.manage` permission, granted to admins and answered by
- * the token policy from `guardian.policies`, and the `scim` membership
- * source the members SCIM provisions join with. Its audit entries get the
+ * Registered only while a Roster with the seams is installed. The
+ * `guardian.scim.manage` ability (Guardian's, in Keystone's `Abilities`) is answered by the
+ * token policy from `guardian.policies`, in the token's Roster organization.
+ * Roster is reached through its public seams: the `scim` membership source
+ * the members SCIM provisions join with. Its audit entries get the
  * organization Roster gave them, and Roster's entries the token a change
  * came through.
  *
@@ -84,15 +83,13 @@ class ScimServiceProvider extends ServiceProvider
     }
 
     /**
-     * The `guardian.scim` resource and its permission, through the seams
-     * every package uses. Policies come from `guardian.policies`.
+     * The token policy as the answer to `guardian.scim.manage` (defined with
+     * Guardian's other abilities, criterion 8). Policies come from
+     * `guardian.policies`.
      */
     private function registerAuthorization(): void
     {
-        $this->app->make(Resources::class)->resource('guardian.scim', ScimTokenModel::class);
-
-        $this->app->make(PermissionCatalogue::class)
-            ->permission('guardian.scim.manage', 'Issue and revoke SCIM provisioning tokens.', ['admin']);
+        $this->app->make(Authorization::class)->resource('guardian.scim', ScimTokenModel::class);
     }
 
     /**

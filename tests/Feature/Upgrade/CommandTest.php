@@ -24,7 +24,7 @@ beforeEach(function (): void {
 
 function guardianMigrationsPath(): string
 {
-    return (string) realpath(dirname(__DIR__, 3).'/database/migrations');
+    return (string) realpath(dirname(__DIR__, 3).'/database/migrations/roster');
 }
 
 it('prints the report', function (): void {
@@ -96,7 +96,7 @@ it('records the migration while the handover is pending, so the command finishes
 });
 
 it('undoes nothing on rollback', function (): void {
-    $migration = require dirname(__DIR__, 3).'/database/migrations/2026_11_01_000000_upgrade_guardian_from_roster.php';
+    $migration = require dirname(__DIR__, 3).'/database/migrations/roster/2026_11_01_000000_upgrade_guardian_from_roster.php';
     seedUpgradeRows('roster');
     runUpgrade();
 

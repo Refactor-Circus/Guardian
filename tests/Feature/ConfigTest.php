@@ -3,16 +3,38 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use RefactorCircus\Guardian\Domains\LoginProtection\Models\IpRuleModel;
+use RefactorCircus\Guardian\Domains\LoginProtection\Policies\IpRulePolicy;
+use RefactorCircus\Guardian\Domains\Password\Models\PasswordHistoryModel;
+use RefactorCircus\Guardian\Domains\Password\Policies\PasswordHistoryPolicy;
+use RefactorCircus\Guardian\Domains\Permission\Models\PermissionModel;
+use RefactorCircus\Guardian\Domains\Permission\Policies\PermissionPolicy;
+use RefactorCircus\Guardian\Domains\Role\Models\RoleAssignmentModel;
+use RefactorCircus\Guardian\Domains\Role\Models\RoleModel;
+use RefactorCircus\Guardian\Domains\Role\Policies\RoleAssignmentPolicy;
+use RefactorCircus\Guardian\Domains\Role\Policies\RolePolicy;
 use RefactorCircus\Guardian\Domains\Scim\Models\ScimGroupModel;
 use RefactorCircus\Guardian\Domains\Scim\Models\ScimTokenModel;
 use RefactorCircus\Guardian\Domains\Scim\Models\ScimUserModel;
 use RefactorCircus\Guardian\Domains\Scim\Policies\ScimGroupPolicy;
 use RefactorCircus\Guardian\Domains\Scim\Policies\ScimTokenPolicy;
 use RefactorCircus\Guardian\Domains\Scim\Policies\ScimUserPolicy;
+use RefactorCircus\Guardian\Domains\SecurityEvent\Models\SecurityEventModel;
+use RefactorCircus\Guardian\Domains\SecurityEvent\Policies\SecurityEventPolicy;
+use RefactorCircus\Guardian\Domains\Session\Models\DeviceModel;
+use RefactorCircus\Guardian\Domains\Session\Models\SessionModel;
+use RefactorCircus\Guardian\Domains\Session\Policies\SessionPolicy;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
 use RefactorCircus\Guardian\Domains\Sso\Policies\SsoConnectionPolicy;
 use RefactorCircus\Guardian\Domains\Sso\Policies\SsoIdentityPolicy;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\OneTimeCodeModel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\PasskeyModel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\RecoveryCodeModel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorPolicyModel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Policies\TwoFactorMethodPolicy;
+use RefactorCircus\Guardian\Domains\TwoFactor\Policies\TwoFactorPolicyPolicy;
 use Workbench\App\Models\User;
 
 /*
@@ -111,10 +133,13 @@ it('keeps the API routes off by default, behind Guardian\'s limiter', function (
     ]);
 });
 
-it('has the rate limit, audit and rollback defaults', function (): void {
+it('has the authorization, rate limit, audit and rollback defaults', function (): void {
     $config = shippedGuardianConfig();
 
-    expect($config['rate_limit'])->toBe(['per_minute' => 120])
+    expect($config['authorization'])->toBe(['enabled' => true, 'bind' => true])
+        ->and($config['super_admins'])->toBe([])
+        ->and($config['permission_cache'])->toBe(['ttl' => 0, 'store' => null])
+        ->and($config['rate_limit'])->toBe(['per_minute' => 120])
         ->and($config['audit'])->toBe(['enabled' => true])
         ->and($config['migrations'])->toBe(['force_rollback' => false])
         ->and(config('guardian.migrations.force_rollback'))->toBeFalse();
@@ -155,38 +180,140 @@ it('maps every model to its policy and every table to its default name', functio
         ScimTokenModel::class => ScimTokenPolicy::class,
         ScimUserModel::class => ScimUserPolicy::class,
         ScimGroupModel::class => ScimGroupPolicy::class,
+        RoleModel::class => RolePolicy::class,
+        RoleAssignmentModel::class => RoleAssignmentPolicy::class,
+        PermissionModel::class => PermissionPolicy::class,
+        SecurityEventModel::class => SecurityEventPolicy::class,
+        TwoFactorMethodModel::class => TwoFactorMethodPolicy::class,
+        RecoveryCodeModel::class => TwoFactorMethodPolicy::class,
+        OneTimeCodeModel::class => TwoFactorMethodPolicy::class,
+        PasskeyModel::class => TwoFactorMethodPolicy::class,
+        TwoFactorPolicyModel::class => TwoFactorPolicyPolicy::class,
+        DeviceModel::class => SessionPolicy::class,
+        SessionModel::class => SessionPolicy::class,
+        PasswordHistoryModel::class => PasswordHistoryPolicy::class,
+        IpRuleModel::class => IpRulePolicy::class,
     ])->and($config['tables'])->toBe([
         'sso_connections' => 'guardian_sso_connections',
         'sso_identities' => 'guardian_sso_identities',
         'scim_tokens' => 'guardian_scim_tokens',
         'scim_users' => 'guardian_scim_users',
         'scim_groups' => 'guardian_scim_groups',
+        'permissions' => 'guardian_permissions',
+        'roles' => 'guardian_roles',
+        'permission_role' => 'guardian_permission_role',
+        'role_assignments' => 'guardian_role_assignments',
+        'security_events' => 'guardian_security_events',
+        'two_factor_methods' => 'guardian_two_factor_methods',
+        'recovery_codes' => 'guardian_recovery_codes',
+        'passkeys' => 'guardian_passkeys',
+        'one_time_codes' => 'guardian_one_time_codes',
+        'two_factor_policies' => 'guardian_two_factor_policies',
+        'devices' => 'guardian_devices',
+        'sessions' => 'guardian_sessions',
+        'password_histories' => 'guardian_password_histories',
+        'ip_rules' => 'guardian_ip_rules',
     ]);
 });
 
-it('places the tabs and section on Roster\'s screens, and links back to the organization', function (): void {
-    expect(shippedGuardianConfig()['atrium'])->toBe([
-        'screens' => [
-            'roster.organization' => ['guardian.sso', 'guardian.scim'],
-            'roster.user' => ['aside' => 'guardian.sso-identities'],
+it('has the users and roles defaults', function (): void {
+    $config = shippedGuardianConfig();
+
+    expect($config['users'])->toBe(['model' => null, 'key_type' => 'int'])
+        ->and($config['labels'])->toBe([])
+        ->and($config['roles'])->toBe(['built_in' => [
+            'super-admin' => ['name' => 'Super admin', 'scope' => 'global', 'super' => true],
+            'admin' => ['name' => 'Admin', 'scope' => 'any', 'super' => false],
+            'member' => ['name' => 'Member', 'scope' => 'any', 'super' => false],
+        ]]);
+});
+
+it('has the adoption defaults: Roster v0.1\'s table names and model classes', function (): void {
+    expect(shippedGuardianConfig()['adopt'])->toBe([
+        'roster_tables' => [
+            'permissions' => 'roster_permissions',
+            'roles' => 'roster_roles',
+            'permission_role' => 'roster_permission_role',
+            'role_assignments' => 'roster_role_assignments',
         ],
-        'organization_route' => 'atrium.roster.organizations.show',
+        'scope_types' => [
+            'organization' => 'RefactorCircus\\Roster\\Domains\\Organization\\Models\\OrganizationModel',
+            'team' => 'RefactorCircus\\Roster\\Domains\\Team\\Models\\TeamModel',
+        ],
     ]);
 });
 
-it('turns its Atrium screens on by default, as every suite package does (D-038)', function (): void {
-    expect(shippedGuardianConfig()['ui'])->toBe(['enabled' => true])
-        ->and(config('guardian.ui.enabled'))->toBeTrue();
+it('has the two-factor defaults', function (): void {
+    expect(shippedGuardianConfig()['two_factor'])->toBe([
+        'required' => false,
+        'issuer' => null,
+        'one_time_codes' => ['ttl_minutes' => 10],
+        'passkeys' => ['rp_id' => null, 'rp_name' => null, 'origins' => null],
+    ]);
+});
+
+it('has the session and device defaults', function (): void {
+    expect(shippedGuardianConfig()['sessions'])->toBe(['touch_seconds' => 60])
+        ->and(shippedGuardianConfig()['devices'])->toBe(['notify' => true, 'notify_via' => ['mail']]);
+});
+
+it('has the password defaults', function (): void {
+    expect(shippedGuardianConfig()['passwords'])->toBe([
+        'column' => 'password',
+        'min_length' => 12,
+        'max_length' => 128,
+        'mixed_case' => false,
+        'numbers' => false,
+        'symbols' => false,
+        'letters' => false,
+        'uncompromised' => true,
+        'uncompromised_threshold' => 0,
+        'history' => 5,
+        'max_age_days' => null,
+        'check_per_minute' => 10,
+    ]);
+});
+
+it('has the token defaults: no driver', function (): void {
+    expect(shippedGuardianConfig()['tokens'])->toBe(['driver' => null, 'abilities' => ['*'], 'max_lifetime_days' => 365]);
+});
+
+it('has the login protection and IP rule defaults', function (): void {
+    expect(shippedGuardianConfig()['login'])->toBe(['identifier_field' => 'email', 'max_attempts' => 5, 'decay_minutes' => 15, 'ip_max_attempts' => 50])
+        ->and(shippedGuardianConfig()['ip_rules'])->toBe(['mode' => 'denylist']);
+});
+
+it('has the security log defaults', function (): void {
+    expect(shippedGuardianConfig()['security_log'])->toBe([
+        'enabled' => true,
+        'retention_days' => 90,
+        'identifier_keys' => ['email', 'username'],
+    ]);
 });
 
 it('has exactly the documented sections, each under a banner', function (): void {
     $source = (string) file_get_contents(dirname(__DIR__, 2).'/config/guardian.php');
 
     expect(array_keys(shippedGuardianConfig()))->toBe([
-        'sso', 'scim', 'routes', 'rate_limit', 'audit', 'policies', 'tables', 'mcp', 'cortex', 'migrations', 'ui', 'atrium',
+        'sso', 'scim', 'routes', 'authorization', 'super_admins', 'permission_cache', 'rate_limit', 'audit', 'users', 'labels', 'roles', 'adopt', 'security_log', 'two_factor', 'sessions', 'devices', 'passwords', 'tokens', 'login', 'ip_rules', 'policies', 'tables', 'mcp', 'cortex', 'migrations',
     ])->and(substr_count($source, '|--------------------------------------------------------------------------'))
         ->toBe(2 * count(shippedGuardianConfig()));
 });
+
+it('puts a banner over each section criterion 56 names', function (string $section): void {
+    $source = (string) file_get_contents(dirname(__DIR__, 2).'/config/guardian.php');
+    $rule = '    \|-{74}\n';
+
+    expect(preg_match('/'.$rule.'    \| [^\n]+\n'.$rule.'(?:    \|[^\n]*\n)+    \*\/\n\n    \''.preg_quote($section, '/').'\' =>/', $source))->toBe(1, "config/guardian.php has no banner over '{$section}'");
+})->with(['authorization', 'users', 'labels', 'roles', 'super_admins', 'permission_cache', 'adopt', 'two_factor', 'sessions', 'devices', 'passwords', 'tokens', 'login', 'ip_rules', 'security_log']);
+
+it('describes the whole API, MCP server and Cortex reach in their banners, not only SSO and SCIM', function (string $section): void {
+    $source = (string) file_get_contents(dirname(__DIR__, 2).'/config/guardian.php');
+    $end = (int) strpos($source, "    '{$section}' =>");
+    $banner = substr($source, (int) strrpos(substr($source, 0, $end), '/*'), $end - (int) strrpos(substr($source, 0, $end), '/*'));
+
+    expect($banner)->toContain('roles')->toContain('two-factor');
+})->with(['routes', 'mcp', 'cortex']);
 
 it('never names a roster.* config key', function (): void {
     $source = (string) file_get_contents(dirname(__DIR__, 2).'/config/guardian.php');

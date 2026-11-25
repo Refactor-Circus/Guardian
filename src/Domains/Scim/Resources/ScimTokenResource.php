@@ -49,6 +49,7 @@ final class ScimTokenResource extends JsonResource
             'name' => $this->name,
             'organization' => $organization?->slug,
             'sso_connection' => $this->ssoConnection?->slug,
+            /** @var string|null */
             'base_url' => $organization !== null && Route::has('guardian.scim.users.index') ? str_replace('/Users', '', route('guardian.scim.users.index', $organization->slug)) : null,
             'usable' => $this->isUsable(),
             'last_used_at' => $this->last_used_at?->toIso8601String(),

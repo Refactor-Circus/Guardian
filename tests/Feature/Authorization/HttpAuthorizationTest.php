@@ -29,13 +29,29 @@ it('rejects guests with 401', function (string $method, string $name, Closure $p
     $world = authorizationWorld();
 
     $this->json($method, route($name, $parameters($world)), $body)->assertUnauthorized();
-})->with(apiRoutes());
+})->with(signedInRoutes());
+
+it('lets guests use the public routes', function (string $method, string $name, Closure $parameters, array $body): void {
+    $world = authorizationWorld();
+
+    expect($this->json($method, route($name, $parameters($world)), $body)->status())->not->toBeIn([401, 403]);
+})->with(array_intersect_key(apiRoutes(), array_flip(PUBLIC_ROUTES)));
 
 it('rejects users without the permission with 403', function (string $method, string $name, Closure $parameters, array $body): void {
     $world = authorizationWorld();
 
     $this->actingAs(user())->json($method, route($name, $parameters($world)), $body)->assertForbidden();
-})->with(apiRoutes());
+})->with(permissionRoutes());
+
+it('lets any signed-in user use the self-service routes', function (string $method, string $name, Closure $parameters, array $body): void {
+    $world = authorizationWorld();
+
+    // Past authorization: the answer is the route's own (200, 201, 404 for
+    // another user's record, 422 for a missing code).
+    $status = $this->actingAs(user())->json($method, route($name, $parameters($world)), $body)->status();
+
+    expect($status)->not->toBeIn([401, 403]);
+})->with(array_intersect_key(apiRoutes(), array_flip(SELF_SERVICE_ROUTES)));
 
 it('lets a super-admin through', function (string $method, string $name, Closure $parameters, array $body): void {
     $world = authorizationWorld();

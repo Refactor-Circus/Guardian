@@ -9,12 +9,11 @@ use Closure;
 /**
  * Which of the packages Guardian builds on are installed, and new enough.
  *
- * Guardian works on refactor-circus/roster's users and organizations through
- * Roster's seams, and adds its screens through refactor-circus/atrium's
- * screen extensions registry. Both are optional: without a Roster that has
- * the seams, Guardian registers nothing past its config, translations and
- * package entry; without an Atrium that has the registry, it adds nothing
- * to Atrium. Classes are named as strings, so asking never loads them.
+ * SSO and SCIM work on refactor-circus/roster's users and organizations
+ * through Roster's seams. Roster is optional: without a Roster that has the
+ * seams, Guardian skips only the SSO and SCIM domains (criterion 3); every
+ * other domain needs nothing from Roster. Classes are named as strings, so
+ * asking never loads them.
  *
  * The checks are injected, so tests can stand in a package that is missing,
  * or one too old for Guardian.
@@ -31,17 +30,14 @@ final class Integration
     private const array ROSTER_METHODS = ['requireSignIn', 'provisionedStatus'];
 
     /**
-     * The Roster seams Guardian registers with.
+     * The Roster seams SSO and SCIM register with. Permissions and roles
+     * come from Keystone's authorization contract, not Roster.
      *
      * @var list<string>
      */
     private const array ROSTER_SEAMS = [
-        'RefactorCircus\\Roster\\Domains\\Permission\\Services\\Resources',
-        'RefactorCircus\\Roster\\Domains\\Permission\\Services\\PermissionCatalogue',
         'RefactorCircus\\Roster\\Domains\\Organization\\Services\\MembershipSources',
     ];
-
-    private const string SCREEN_EXTENSIONS = 'RefactorCircus\\Atrium\\Domains\\Screens\\Services\\ScreenExtensions';
 
     /**
      * @var Closure(string): bool
@@ -64,8 +60,9 @@ final class Integration
     }
 
     /**
-     * Whether a Roster Guardian can work with is installed: one with the
-     * sign-in and provisioning methods and the seams Guardian registers with.
+     * Whether a Roster SSO and SCIM can work with is installed: one with the
+     * sign-in and provisioning methods and the seams they register with.
+     * Only the SSO and SCIM domains wait on it.
      */
     public function rosterInstalled(): bool
     {
@@ -98,13 +95,5 @@ final class Integration
     public function rosterPresent(): bool
     {
         return ($this->classExists)(self::ROSTER);
-    }
-
-    /**
-     * Whether an Atrium with the screen extensions registry is installed.
-     */
-    public function atriumInstalled(): bool
-    {
-        return ($this->classExists)(self::SCREEN_EXTENSIONS);
     }
 }

@@ -10,16 +10,18 @@ use RefactorCircus\Guardian\Domains\Scim\Models\ScimTokenModel;
 use RefactorCircus\Guardian\Domains\Scim\Policies\ScimTokenPolicy;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Domains\Sso\Policies\SsoConnectionPolicy;
-use RefactorCircus\Roster\Domains\Permission\Models\PermissionModel;
-use RefactorCircus\Roster\Domains\Permission\Services\Authorizer;
-use RefactorCircus\Roster\Domains\Permission\Services\PermissionCatalogue;
-use RefactorCircus\Roster\Domains\Permission\Services\Permissions;
-use RefactorCircus\Roster\Domains\Permission\Services\Resources;
-use RefactorCircus\Roster\Domains\Role\Models\RoleModel;
-use RefactorCircus\Roster\Domains\Role\Support\BuiltInRoles;
+use RefactorCircus\Guardian\Support\Authorization;
+use RefactorCircus\Keystone\Authorization\Abilities;
+use RefactorCircus\Keystone\Authorization\Contracts\Permissions;
+use RefactorCircus\Keystone\Authorization\Contracts\Roles;
+use RefactorCircus\Keystone\Testing\FakePermissions;
+use RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel;
 
-// Criterion 10: the SSO and SCIM domains register their resources and
-// permissions through Roster's public seams, and their policies answer them.
+// Criterion 5: the SSO and SCIM abilities are defined in Keystone's
+// Abilities and checked through Keystone's bound Permissions, in the Roster
+// organization, where the organization's owner rule still applies through
+// Roster's Scope. Roles are Guardian's own (grant()); one test binds
+// Keystone's FakePermissions instead.
 
 const SSO_PERMISSIONS = [
     'guardian.sso.manage' => 'Configure single sign-on connections.',
@@ -43,58 +45,17 @@ final class RefusingSsoConnectionPolicy
 
 beforeEach(fn () => authorizationOn());
 
-it('registers the guardian.sso resource on Roster\'s registry', function (): void {
-    expect(app(Resources::class)->model('guardian.sso'))->toBe(SsoConnectionModel::class)
-        ->and(Gate::getPolicyFor(SsoConnectionModel::class))->toBeInstanceOf(SsoConnectionPolicy::class);
-});
+it('defines the SSO and SCIM abilities in Keystone\'s Abilities, granted to admin', function (): void {
+    $abilities = app(Abilities::class)->all();
 
-it('registers the SSO permissions for admins on Roster\'s catalogue', function (): void {
-    $catalogue = app(PermissionCatalogue::class);
-
-    foreach (SSO_PERMISSIONS as $permission => $description) {
-        expect($catalogue->has($permission))->toBeTrue()
-            ->and($catalogue->all()[$permission])->toBe(['description' => $description, 'grantTo' => ['admin']]);
+    foreach ([...SSO_PERMISSIONS, ...SCIM_PERMISSIONS] as $ability => $description) {
+        expect($abilities[$ability] ?? null)->toBe(['description' => $description, 'grantTo' => ['admin']]);
     }
 });
 
-it('creates the SSO permissions as system permissions, held by a newly created admin role', function (): void {
-    PermissionModel::query()->whereIn('name', array_keys(SSO_PERMISSIONS))->delete();
-    RoleModel::query()->whereNull('organization_id')->where('slug', 'admin')->delete();
-
-    BuiltInRoles::sync();
-
-    $admin = RoleModel::query()->whereNull('organization_id')->where('slug', 'admin')->sole();
-
-    expect(PermissionModel::query()->whereIn('name', array_keys(SSO_PERMISSIONS))->where('system', true)->orderBy('name')->pluck('description', 'name')->all())
-        ->toBe(SSO_PERMISSIONS)
-        ->and($admin->permissions()->pluck('name')->all())->toContain(...array_keys(SSO_PERMISSIONS));
-});
-
-it('registers the guardian.scim resource on Roster\'s registry', function (): void {
-    expect(app(Resources::class)->model('guardian.scim'))->toBe(ScimTokenModel::class)
+it('answers the SSO and SCIM abilities with the connection and token policies', function (): void {
+    expect(Gate::getPolicyFor(SsoConnectionModel::class))->toBeInstanceOf(SsoConnectionPolicy::class)
         ->and(Gate::getPolicyFor(ScimTokenModel::class))->toBeInstanceOf(ScimTokenPolicy::class);
-});
-
-it('registers the SCIM permission for admins on Roster\'s catalogue', function (): void {
-    $catalogue = app(PermissionCatalogue::class);
-
-    foreach (SCIM_PERMISSIONS as $permission => $description) {
-        expect($catalogue->has($permission))->toBeTrue()
-            ->and($catalogue->all()[$permission])->toBe(['description' => $description, 'grantTo' => ['admin']]);
-    }
-});
-
-it('creates the SCIM permission as a system permission, held by a newly created admin role', function (): void {
-    PermissionModel::query()->whereIn('name', array_keys(SCIM_PERMISSIONS))->delete();
-    RoleModel::query()->whereNull('organization_id')->where('slug', 'admin')->delete();
-
-    BuiltInRoles::sync();
-
-    $admin = RoleModel::query()->whereNull('organization_id')->where('slug', 'admin')->sole();
-
-    expect(PermissionModel::query()->whereIn('name', array_keys(SCIM_PERMISSIONS))->where('system', true)->pluck('description', 'name')->all())
-        ->toBe(SCIM_PERMISSIONS)
-        ->and($admin->permissions()->pluck('name')->all())->toContain(...array_keys(SCIM_PERMISSIONS));
 });
 
 it('answers guardian.scim.manage per organization', function (): void {
@@ -103,10 +64,46 @@ it('answers guardian.scim.manage per organization', function (): void {
     $ada = user();
     grant($ada, 'admin', $acme);
 
-    $authorizer = app(Authorizer::class);
+    $authorization = app(Authorization::class);
 
-    expect($authorizer->check($ada, 'guardian.scim.manage', $acme))->toBeTrue()
-        ->and($authorizer->check($ada, 'guardian.scim.manage', $globex))->toBeFalse();
+    expect($authorization->check($ada, 'guardian.scim.manage', $acme))->toBeTrue()
+        ->and($authorization->check($ada, 'guardian.scim.manage', $globex))->toBeFalse();
+});
+
+it('answers through whatever Keystone\'s Permissions is bound to, here a FakePermissions', function (): void {
+    $acme = organization(attributes: ['name' => 'Acme']);
+    $globex = organization(attributes: ['name' => 'Globex']);
+    $ada = user();
+
+    FakePermissions::install()->grant($ada, 'guardian.sso.view', $acme);
+
+    $authorization = app(Authorization::class);
+
+    expect($authorization->check($ada, 'guardian.sso.view', $acme))->toBeTrue()
+        ->and($authorization->check($ada, 'guardian.sso.view', $globex))->toBeFalse()
+        ->and($authorization->check($ada, 'guardian.sso.manage', $acme))->toBeFalse()
+        ->and($authorization->check(null, 'guardian.sso.view', $acme))->toBeFalse();
+});
+
+it('lets an organization\'s owner use the abilities there, through Roster\'s Scope', function (): void {
+    $owner = user();
+    $acme = organization($owner, ['name' => 'Acme']);
+    $globex = organization(attributes: ['name' => 'Globex']);
+
+    $authorization = app(Authorization::class);
+
+    expect($authorization->check($owner, 'guardian.sso.manage', $acme))->toBeTrue()
+        ->and($authorization->check($owner, 'guardian.scim.manage', $acme))->toBeTrue()
+        ->and($authorization->check($owner, 'guardian.sso.manage', $globex))->toBeFalse();
+});
+
+it('grants the SSO and SCIM abilities to Guardian\'s built-in admin role', function (): void {
+    $ada = user();
+    grant($ada, 'admin', organization(attributes: ['name' => 'Acme']));
+
+    expect(app(Roles::class)->of($ada, OrganizationModel::query()->where('name', 'Acme')->sole()))->toBe(['admin'])
+        ->and(app(Permissions::class)->abilities($ada, OrganizationModel::query()->where('name', 'Acme')->sole()))
+        ->toContain('guardian.sso.view', 'guardian.sso.manage', 'guardian.scim.manage');
 });
 
 it('answers guardian.sso.manage through the connection policy, per organization', function (): void {
@@ -115,16 +112,20 @@ it('answers guardian.sso.manage through the connection policy, per organization'
     $ada = user();
     grant($ada, 'admin', $acme);
 
-    $authorizer = app(Authorizer::class);
+    $authorization = app(Authorization::class);
 
-    expect($authorizer->check($ada, 'guardian.sso.manage', $acme))->toBeTrue()
-        ->and($authorizer->check($ada, 'guardian.sso.manage', $globex))->toBeFalse();
+    expect($authorization->check($ada, 'guardian.sso.manage', $acme))->toBeTrue()
+        ->and($authorization->check($ada, 'guardian.sso.manage', $globex))->toBeFalse();
 
     Gate::policy(SsoConnectionModel::class, RefusingSsoConnectionPolicy::class);
-    // Remembered answers go when Permissions forgets anything.
-    app(Permissions::class)->flush();
 
-    expect($authorizer->check($ada, 'guardian.sso.manage', $acme))->toBeFalse();
+    expect($authorization->check($ada, 'guardian.sso.manage', $acme))->toBeFalse();
+});
+
+it('lets everything through with guardian.authorization.enabled off', function (): void {
+    config(['guardian.authorization.enabled' => false]);
+
+    expect(app(Authorization::class)->check(null, 'guardian.sso.manage', organization()))->toBeTrue();
 });
 
 it('names no roster.sso or roster.scim permission outside the upgrade', function (): void {

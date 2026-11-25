@@ -3,17 +3,16 @@
 declare(strict_types=1);
 
 require_once __DIR__.'/helpers.php';
-require_once dirname(__DIR__).'/Authorization/fixtures.php';
 
 use Illuminate\Support\Facades\DB;
-use RefactorCircus\Roster\Domains\Permission\Models\PermissionModel;
-use RefactorCircus\Roster\Domains\Permission\Services\Authorizer;
-use RefactorCircus\Roster\Domains\Role\Models\RoleModel;
+use Illuminate\Support\Str;
 
 /*
- * Criterion 22, grants: Roster's SSO and SCIM permissions become Guardian's,
- * and every role keeps what it held. One transaction, so a failed run leaves
- * the old state and the next run completes.
+ * Criterion 22, grants: Roster's SSO and SCIM permissions become Guardian's
+ * in Roster's (v0.1) role tables, and every role keeps what it held. One
+ * transaction, so a failed run leaves the old state and the next run
+ * completes. Roster v2 keeps no roles, so the tables are Roster v0.1's
+ * (tests/Fixtures/roster-roles); Guardian's own role tables adopt them.
  */
 
 beforeEach(function (): void {
@@ -25,43 +24,56 @@ beforeEach(function (): void {
  *
  * @return list<string>
  */
-function heldSsoScimPermissions(RoleModel $role): array
+function heldSsoScimPermissions(string $role): array
 {
-    return $role->permissions()
-        ->where(fn ($query) => $query->where('name', 'like', 'roster.s%')->orWhere('name', 'like', 'guardian.%'))
-        ->orderBy('name')
-        ->pluck('name')
+    return DB::table('roster_permission_role')
+        ->join('roster_permissions', 'roster_permissions.id', '=', 'roster_permission_role.permission_id')
+        ->where('roster_permission_role.role_id', $role)
+        ->where(fn ($query) => $query->where('roster_permissions.name', 'like', 'roster.s%')->orWhere('roster_permissions.name', 'like', 'guardian.%'))
+        ->orderBy('roster_permissions.name')
+        ->pluck('roster_permissions.name')
+        ->map(strval(...))
         ->all();
 }
 
-function adminRole(): RoleModel
+function adminRole(): string
 {
-    return RoleModel::query()->whereNull('organization_id')->where('slug', 'admin')->sole();
+    return (string) DB::table('roster_roles')->whereNull('organization_id')->where('slug', 'admin')->value('id');
+}
+
+function permissionId(string $name): ?string
+{
+    $id = DB::table('roster_permissions')->where('name', $name)->value('id');
+
+    return is_string($id) ? $id : null;
+}
+
+/**
+ * A permission row in Roster's table, granted to the admin role.
+ */
+function rosterPermission(string $name): void
+{
+    $id = (string) Str::ulid();
+
+    DB::table('roster_permissions')->insert(['id' => $id, 'name' => $name, 'system' => true, 'created_at' => now(), 'updated_at' => now()]);
+    DB::table('roster_permission_role')->insert(['role_id' => adminRole(), 'permission_id' => $id]);
 }
 
 /**
  * A custom role holding one permission, by name.
  */
-function customRoleHolding(string $permission): RoleModel
+function customRoleHolding(string $permission): string
 {
-    $role = RoleModel::query()->create(['name' => 'Identity', 'slug' => 'identity', 'scope' => 'organization']);
+    $role = (string) Str::ulid();
 
-    DB::table('roster_permission_role')->insert([
-        'role_id' => $role->id,
-        'permission_id' => PermissionModel::query()->where('name', $permission)->value('id'),
-    ]);
+    DB::table('roster_roles')->insert(['id' => $role, 'name' => 'Identity', 'slug' => 'identity', 'scope' => 'organization', 'created_at' => now(), 'updated_at' => now()]);
+    DB::table('roster_permission_role')->insert(['role_id' => $role, 'permission_id' => permissionId($permission)]);
 
     return $role;
 }
 
-it('renames an old permission in place when Guardian\'s does not exist yet, and the admin passes the check', function (): void {
-    authorizationOn();
-    PermissionModel::query()->where('name', 'like', 'guardian.%')->delete();
-
-    $acme = organization(attributes: ['name' => 'Acme']);
-    $ada = user();
-    grant($ada, 'admin', $acme);
-    $oldId = PermissionModel::query()->where('name', 'roster.sso.manage')->value('id');
+it('renames an old permission in place when Guardian\'s does not exist yet', function (): void {
+    $oldId = permissionId('roster.sso.manage');
 
     expect(heldSsoScimPermissions(adminRole()))->toBe(['roster.scim.manage', 'roster.sso.manage', 'roster.sso.view']);
 
@@ -72,38 +84,50 @@ it('renames an old permission in place when Guardian\'s does not exist yet, and 
         'roster.sso.manage' => 'guardian.sso.manage',
         'roster.scim.manage' => 'guardian.scim.manage',
     ])
-        ->and(PermissionModel::query()->where('name', 'guardian.sso.manage')->value('id'))->toBe($oldId)
-        ->and(heldSsoScimPermissions(adminRole()))->toBe(['guardian.scim.manage', 'guardian.sso.manage', 'guardian.sso.view'])
-        ->and(app(Authorizer::class)->check($ada, 'guardian.sso.manage', $acme))->toBeTrue();
+        ->and(permissionId('guardian.sso.manage'))->toBe($oldId)
+        ->and(heldSsoScimPermissions(adminRole()))->toBe(['guardian.scim.manage', 'guardian.sso.manage', 'guardian.sso.view']);
 });
 
 it('merges the old grants into Guardian\'s permission when both exist, and drops the old row', function (): void {
+    foreach (['guardian.sso.view', 'guardian.sso.manage', 'guardian.scim.manage'] as $name) {
+        rosterPermission($name);
+    }
+
     $role = customRoleHolding('roster.sso.manage');
 
     expect(heldSsoScimPermissions(adminRole()))->toContain('roster.sso.manage', 'guardian.sso.manage');
 
     runUpgrade();
 
-    expect(PermissionModel::query()->where('name', 'like', 'roster.s%')->exists())->toBeFalse()
+    expect(DB::table('roster_permissions')->where('name', 'like', 'roster.s%')->exists())->toBeFalse()
         ->and(heldSsoScimPermissions($role))->toBe(['guardian.sso.manage'])
         ->and(heldSsoScimPermissions(adminRole()))->toBe(['guardian.scim.manage', 'guardian.sso.manage', 'guardian.sso.view']);
 });
 
 it('changes nothing when neither name exists, or only Guardian\'s', function (): void {
-    PermissionModel::query()->where('name', 'like', 'roster.s%')->delete();
+    DB::table('roster_permissions')->where('name', 'like', 'roster.s%')->delete();
     $before = DB::table('roster_permission_role')->count();
 
     expect(runUpgrade()->grants)->toBe([])
         ->and(DB::table('roster_permission_role')->count())->toBe($before);
 
-    PermissionModel::query()->where('name', 'like', 'guardian.%')->delete();
+    rosterPermission('guardian.sso.manage');
 
     expect(runUpgrade()->grants)->toBe([])
-        ->and(PermissionModel::query()->where('name', 'like', 'guardian.%')->exists())->toBeFalse();
+        ->and(permissionId('guardian.sso.manage'))->not->toBeNull();
+});
+
+it('changes nothing without Roster\'s role tables', function (): void {
+    foreach (['roster_role_assignments', 'roster_permission_role', 'roster_roles', 'roster_permissions'] as $table) {
+        DB::getSchemaBuilder()->drop($table);
+    }
+
+    expect(runUpgrade()->grants)->toBe([]);
 });
 
 it('keeps a custom role\'s grant through a failed run, and the next run completes', function (): void {
     $role = customRoleHolding('roster.sso.manage');
+    rosterPermission('guardian.sso.manage');
 
     $failed = false;
     DB::connection()->beforeExecuting(function (string $query) use (&$failed): void {
@@ -117,10 +141,10 @@ it('keeps a custom role\'s grant through a failed run, and the next run complete
     expect(fn () => runUpgrade())->toThrow(RuntimeException::class, 'Injected failure');
 
     expect(heldSsoScimPermissions($role))->toBe(['roster.sso.manage'])
-        ->and(PermissionModel::query()->where('name', 'roster.sso.view')->exists())->toBeTrue();
+        ->and(permissionId('roster.sso.view'))->not->toBeNull();
 
     runUpgrade();
 
     expect(heldSsoScimPermissions($role))->toBe(['guardian.sso.manage'])
-        ->and(PermissionModel::query()->where('name', 'like', 'roster.s%')->exists())->toBeFalse();
+        ->and(DB::table('roster_permissions')->where('name', 'like', 'roster.s%')->exists())->toBeFalse();
 });

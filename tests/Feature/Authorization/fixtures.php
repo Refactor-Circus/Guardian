@@ -2,9 +2,21 @@
 
 declare(strict_types=1);
 
+use RefactorCircus\Guardian\Domains\LoginProtection\Models\IpRuleModel;
+use RefactorCircus\Guardian\Domains\Role\Models\RoleAssignmentModel;
+use RefactorCircus\Guardian\Domains\Role\Models\RoleModel;
 use RefactorCircus\Guardian\Domains\Scim\Models\ScimTokenModel;
+use RefactorCircus\Guardian\Domains\SecurityEvent\Actions\RecordSecurityEventAction;
+use RefactorCircus\Guardian\Domains\SecurityEvent\Data\RecordSecurityEventData;
+use RefactorCircus\Guardian\Domains\SecurityEvent\Enums\SecurityEventType;
+use RefactorCircus\Guardian\Domains\Session\Models\DeviceModel;
+use RefactorCircus\Guardian\Domains\Session\Models\SessionModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoConnectionModel;
 use RefactorCircus\Guardian\Domains\Sso\Models\SsoIdentityModel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Enums\TwoFactorMethodType;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\PasskeyModel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorMethodModel;
+use RefactorCircus\Guardian\Domains\TwoFactor\Models\TwoFactorPolicyModel;
 use RefactorCircus\Roster\Domains\Organization\Actions\AddMemberAction;
 use RefactorCircus\Roster\Domains\Organization\Data\AddMemberData;
 
@@ -12,7 +24,10 @@ use RefactorCircus\Roster\Domains\Organization\Data\AddMemberData;
  * The SSO and SCIM cases of Roster's tests/Authorization/fixtures.php at the
  * pinned SHA (tests/moved-tests.json), with Guardian's route names: an
  * organization `acme` with a member `target`, a connection `acme-okta`, the
- * target's identity on it and a SCIM token.
+ * target's identity on it and a SCIM token; plus a shared role `editor`,
+ * held by the target, a security event of the target's and their
+ * confirmed authenticator and passkey, and a two-factor policy (not
+ * required) for the editor role.
  *
  * @return array<string, mixed>
  */
@@ -27,16 +42,32 @@ function authorizationWorld(): array
 
     $scimToken = ScimTokenModel::query()->create(['organization_id' => $acme->id, 'name' => 'Okta', 'token_hash' => hash('sha256', 'x')]);
 
-    return compact('acme', 'target', 'connection', 'identity', 'scimToken');
+    $role = RoleModel::query()->create(['name' => 'Editor', 'slug' => 'editor', 'scope' => RoleModel::ANY]);
+    $assignment = RoleAssignmentModel::query()->create(['role_id' => $role->id, 'user_id' => $target->getKey()]);
+
+    $twoFactorMethod = TwoFactorMethodModel::query()->create(['user_id' => $target->getKey(), 'type' => TwoFactorMethodType::Totp, 'secret' => 'JBSWY3DPEHPK3PXP', 'confirmed_at' => now()]);
+
+    $passkey = PasskeyModel::query()->create(['user_id' => $target->getKey(), 'credential_id' => 'target-credential', 'public_key' => 'x']);
+
+    $twoFactorPolicy = TwoFactorPolicyModel::query()->create(['role' => 'editor', 'required' => false]);
+
+    $device = DeviceModel::query()->create(['user_id' => $target->getKey(), 'fingerprint_hash' => 'target-device', 'first_seen_at' => now(), 'last_seen_at' => now()]);
+    $session = SessionModel::query()->create(['user_id' => $target->getKey(), 'device_id' => $device->id, 'key_hash' => 'target-session', 'last_active_at' => now()]);
+
+    $ipRule = IpRuleModel::query()->create(['cidr' => '192.0.2.0/24', 'action' => 'deny']);
+
+    $securityEvent = app(RecordSecurityEventAction::class)->execute(new RecordSecurityEventData(type: SecurityEventType::LoginSucceeded, user: (string) $target->getKey()));
+
+    return compact('acme', 'target', 'connection', 'identity', 'scimToken', 'role', 'assignment', 'securityEvent', 'twoFactorMethod', 'passkey', 'twoFactorPolicy', 'device', 'session', 'ipRule');
 }
 
 /**
- * Turn Roster's authorization back on, as Roster's AuthorizationTestCase
- * does: the base TestCase turns it off for surface tests.
+ * Turn Guardian's authorization back on: the base TestCase turns it off for
+ * surface tests.
  */
 function authorizationOn(): void
 {
-    config(['roster.authorization' => true]);
+    config(['guardian.authorization.enabled' => true]);
 }
 
 /**
@@ -59,6 +90,118 @@ function apiRoutes(): array
         'sso-identities.destroy' => ['DELETE', 'guardian.sso-identities.destroy', fn (array $w): array => [$w['identity']->id], []],
         'scim-tokens.index' => ['GET', 'guardian.organizations.scim-tokens.index', $org, []],
         'scim-tokens.store' => ['POST', 'guardian.organizations.scim-tokens.store', $org, ['name' => 'Okta']],
+        'roles.index' => ['GET', 'guardian.roles.index', fn (): array => [], []],
+        'roles.store' => ['POST', 'guardian.roles.store', fn (): array => [], ['name' => 'X']],
+        'roles.show' => ['GET', 'guardian.roles.show', fn (): array => ['editor'], []],
+        'roles.update' => ['PATCH', 'guardian.roles.update', fn (): array => ['editor'], ['name' => 'Y']],
+        'roles.destroy' => ['DELETE', 'guardian.roles.destroy', fn (): array => ['editor'], []],
+        'role-assignments.index' => ['GET', 'guardian.role-assignments.index', fn (): array => [], []],
+        'role-assignments.store' => ['POST', 'guardian.role-assignments.store', fn (): array => [], ['user' => 'x', 'role' => 'member']],
+        'role-assignments.destroy' => ['DELETE', 'guardian.role-assignments.destroy', fn (array $w): array => [$w['assignment']->id], []],
+        'users.abilities.index' => ['GET', 'guardian.users.abilities.index', $user, []],
+        'permissions.index' => ['GET', 'guardian.permissions.index', fn (): array => [], []],
+        'permissions.store' => ['POST', 'guardian.permissions.store', fn (): array => [], ['name' => 'a.b']],
+        'permissions.update' => ['PATCH', 'guardian.permissions.update', fn (): array => ['guardian.sso.view'], ['description' => 'x']],
+        'permissions.destroy' => ['DELETE', 'guardian.permissions.destroy', fn (): array => ['guardian.sso.view'], []],
+        'security-events.index' => ['GET', 'guardian.security-events.index', fn (): array => [], []],
+        'security-events.show' => ['GET', 'guardian.security-events.show', fn (array $w): array => [$w['securityEvent']->id], []],
+        'me.security-events.index' => ['GET', 'guardian.me.security-events.index', fn (): array => [], []],
+        'two-factor.show' => ['GET', 'guardian.two-factor.show', fn (): array => [], []],
+        'two-factor.totp.store' => ['POST', 'guardian.two-factor.totp.store', fn (): array => [], []],
+        'two-factor.totp.confirm' => ['POST', 'guardian.two-factor.totp.confirm', fn (): array => [], ['code' => '123456']],
+        'two-factor.one-time-codes.store' => ['POST', 'guardian.two-factor.one-time-codes.store', fn (): array => [], ['type' => 'email', 'destination' => 'me@example.com']],
+        'two-factor.one-time-codes.confirm' => ['POST', 'guardian.two-factor.one-time-codes.confirm', fn (): array => [], ['type' => 'email', 'code' => '123456']],
+        'two-factor.passkeys.options' => ['POST', 'guardian.two-factor.passkeys.options', fn (): array => [], []],
+        'two-factor.passkeys.index' => ['GET', 'guardian.two-factor.passkeys.index', fn (): array => [], []],
+        'two-factor.passkeys.store' => ['POST', 'guardian.two-factor.passkeys.store', fn (): array => [], []],
+        'two-factor.passkeys.destroy' => ['DELETE', 'guardian.two-factor.passkeys.destroy', fn (array $w): array => [$w['passkey']->id], []],
+        'two-factor.challenge' => ['POST', 'guardian.two-factor.challenge', fn (): array => [], ['method' => 'totp', 'code' => '123456']],
+        'two-factor.challenge.send' => ['POST', 'guardian.two-factor.challenge.send', fn (): array => [], ['method' => 'email']],
+        'two-factor.challenge.passkey-options' => ['POST', 'guardian.two-factor.challenge.passkey-options', fn (): array => [], []],
+        'two-factor.recovery-codes.store' => ['POST', 'guardian.two-factor.recovery-codes.store', fn (): array => [], []],
+        'two-factor.methods.destroy' => ['DELETE', 'guardian.two-factor.methods.destroy', fn (array $w): array => [$w['twoFactorMethod']->id], []],
+        'two-factor-policies.index' => ['GET', 'guardian.two-factor-policies.index', fn (): array => [], []],
+        'two-factor-policies.store' => ['POST', 'guardian.two-factor-policies.store', fn (): array => [], []],
+        'two-factor-policies.update' => ['PATCH', 'guardian.two-factor-policies.update', fn (array $w): array => [$w['twoFactorPolicy']->id], ['grace_days' => 3]],
+        'two-factor-policies.destroy' => ['DELETE', 'guardian.two-factor-policies.destroy', fn (array $w): array => [$w['twoFactorPolicy']->id], []],
+        'sessions.index' => ['GET', 'guardian.sessions.index', fn (): array => [], []],
+        'sessions.others.destroy' => ['DELETE', 'guardian.sessions.others.destroy', fn (): array => [], []],
+        'sessions.destroy' => ['DELETE', 'guardian.sessions.destroy', fn (array $w): array => [$w['session']->id], []],
+        'devices.index' => ['GET', 'guardian.devices.index', fn (): array => [], []],
+        'devices.destroy' => ['DELETE', 'guardian.devices.destroy', fn (array $w): array => [$w['device']->id], []],
+        'users.sessions.index' => ['GET', 'guardian.users.sessions.index', $user, []],
+        'users.sessions.destroy' => ['DELETE', 'guardian.users.sessions.destroy', $user, []],
+        'password-policy.show' => ['GET', 'guardian.password-policy.show', fn (): array => [], []],
+        'passwords.check' => ['POST', 'guardian.passwords.check', fn (): array => [], ['password' => 'a fine long passphrase']],
+        'tokens.index' => ['GET', 'guardian.tokens.index', fn (): array => [], []],
+        'tokens.store' => ['POST', 'guardian.tokens.store', fn (): array => [], ['name' => 'CLI']],
+        'tokens.destroy' => ['DELETE', 'guardian.tokens.destroy', fn (): array => ['x'], []],
+        'users.tokens.index' => ['GET', 'guardian.users.tokens.index', $user, []],
+        'users.tokens.destroy' => ['DELETE', 'guardian.users.tokens.destroy', $user, []],
+        'lockouts.destroy' => ['DELETE', 'guardian.lockouts.destroy', fn (): array => [], ['identifier' => 'ada@example.com']],
+        'ip-rules.index' => ['GET', 'guardian.ip-rules.index', fn (): array => [], []],
+        'ip-rules.store' => ['POST', 'guardian.ip-rules.store', fn (): array => [], ['cidr' => '198.51.100.0/24', 'action' => 'deny']],
+        'ip-rules.destroy' => ['DELETE', 'guardian.ip-rules.destroy', fn (array $w): array => [$w['ipRule']->id], []],
+        'users.two-factor.destroy' => ['DELETE', 'guardian.users.two-factor.destroy', $user, []],
         'scim-tokens.destroy' => ['DELETE', 'guardian.scim-tokens.destroy', fn (array $w): array => [$w['scimToken']->id], []],
     ];
+}
+
+/**
+ * The routes every signed-in user may use on themselves, so a user without
+ * any permission is not refused.
+ */
+const SELF_SERVICE_ROUTES = [
+    'me.security-events.index',
+    'two-factor.show',
+    'two-factor.totp.store',
+    'two-factor.totp.confirm',
+    'two-factor.one-time-codes.store',
+    'two-factor.one-time-codes.confirm',
+    'two-factor.passkeys.options',
+    'two-factor.passkeys.index',
+    'two-factor.passkeys.store',
+    'two-factor.passkeys.destroy',
+    'two-factor.challenge',
+    'two-factor.challenge.send',
+    'two-factor.challenge.passkey-options',
+    'two-factor.recovery-codes.store',
+    'two-factor.methods.destroy',
+    'sessions.index',
+    'sessions.others.destroy',
+    'sessions.destroy',
+    'devices.index',
+    'devices.destroy',
+    'tokens.index',
+    'tokens.store',
+    'tokens.destroy',
+];
+
+/**
+ * The routes anyone may use, signed in or not: a sign-up form needs the
+ * password rules before there is a user.
+ */
+const PUBLIC_ROUTES = [
+    'password-policy.show',
+    'passwords.check',
+];
+
+/**
+ * Every Guardian JSON API route that needs a signed-in user.
+ *
+ * @return array<string, array{0: string, 1: string, 2: Closure(array<string, mixed>): array<int, mixed>, 3: array<string, mixed>}>
+ */
+function signedInRoutes(): array
+{
+    return array_diff_key(apiRoutes(), array_flip(PUBLIC_ROUTES));
+}
+
+/**
+ * Every Guardian JSON API route that needs a permission.
+ *
+ * @return array<string, array{0: string, 1: string, 2: Closure(array<string, mixed>): array<int, mixed>, 3: array<string, mixed>}>
+ */
+function permissionRoutes(): array
+{
+    return array_diff_key(apiRoutes(), array_flip([...SELF_SERVICE_ROUTES, ...PUBLIC_ROUTES]));
 }

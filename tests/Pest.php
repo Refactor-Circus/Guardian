@@ -2,59 +2,39 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Http;
+use Laravel\Mcp\Request;
 use Laravel\Mcp\Server\Testing\TestResponse;
 use Laravel\Mcp\Server\Tool;
-use RefactorCircus\Atrium\Testing\ResetsScreenExtensions;
+use Laravel\Mcp\Server\Tools\SearchTools;
+use Laravel\Mcp\Server\Transport\FakeTransporter;
 use RefactorCircus\Guardian\Mcp\GuardianServer;
-use RefactorCircus\Guardian\Tests\Browser\BrowserTestCase;
 use RefactorCircus\Guardian\Tests\HandoverPendingTestCase;
 use RefactorCircus\Guardian\Tests\Modes\SsoUnavailable\SsoUnavailableTestCase;
 use RefactorCircus\Guardian\Tests\RenamedTablesTestCase;
 use RefactorCircus\Guardian\Tests\StandaloneTestCase;
 use RefactorCircus\Guardian\Tests\TestCase;
-use RefactorCircus\Guardian\Tests\WithoutAtriumTestCase;
+use RefactorCircus\Keystone\Authorization\Contracts\Roles;
 use RefactorCircus\Keystone\Testing\McpTools;
 use RefactorCircus\Keystone\Testing\Parity;
 use RefactorCircus\Roster\Domains\Organization\Actions\CreateOrganizationAction;
 use RefactorCircus\Roster\Domains\Organization\Data\CreateOrganizationData;
 use RefactorCircus\Roster\Domains\Organization\Models\OrganizationModel;
-use RefactorCircus\Roster\Domains\Permission\Services\Permissions;
-use RefactorCircus\Roster\Domains\Role\Models\RoleAssignmentModel;
-use RefactorCircus\Roster\Domains\Role\Models\RoleModel;
-use RefactorCircus\Roster\Domains\Team\Models\TeamModel;
 use RefactorCircus\Standards\Pest\ArchPreset;
 use Workbench\App\Models\User;
 use Workbench\Database\Factories\UserFactory;
 
-// pest-plugin-browser removes its output directories with @rmdir() when it
-// boots. A missing directory raises a (suppressed) warning that failOnWarning
-// turns into a failed run, even with every test passing, so make sure each
-// one it removes exists; empty directories remove cleanly.
-foreach (['Traces', 'Screenshots', 'Screenshots/Sliders', 'Screenshots/ImageDiffView'] as $directory) {
-    if (! is_dir(__DIR__.'/Browser/'.$directory)) {
-        @mkdir(__DIR__.'/Browser/'.$directory, recursive: true);
-    }
-}
+// No test may reach the network: the breach check (HIBP) and every other
+// HTTP call must be faked (criterion 40).
+uses(TestCase::class)->beforeEach(fn () => Http::preventStrayRequests())->in('Feature');
 
-uses(TestCase::class)->in('Feature');
-
-// Screen extensions live on Atrium's app-lifetime registry: whatever a test
-// registers is gone after it. Atrium is optional, so only while it is installed.
-if (trait_exists(ResetsScreenExtensions::class)) {
-    uses(ResetsScreenExtensions::class)->in('Feature', 'Browser');
-}
-
-// `composer test:browser` only: Playwright drives Atrium in a real browser.
-uses(BrowserTestCase::class)->in('Browser');
 uses(RenamedTablesTestCase::class)->in('Modes/RenamedTables');
 uses(SsoUnavailableTestCase::class)->in('Modes/SsoUnavailable');
 uses(HandoverPendingTestCase::class)->in('Modes/HandoverPending');
-// Also run by the `standalone` CI job, with Roster, Atrium and Keen
-// uninstalled: nothing it loads may name them.
+// Also run by the `standalone` CI job, with Roster and Keen uninstalled:
+// nothing it loads may name them.
 uses(StandaloneTestCase::class)->in('Modes/Standalone');
-// Also run by the `without-atrium` CI job, with Atrium uninstalled: nothing
-// it loads may name an Atrium class.
-uses(WithoutAtriumTestCase::class)->in('Modes/WithoutAtrium');
 
 ArchPreset::register();
 
@@ -71,6 +51,65 @@ function mcpTool(string $tool, array $arguments = []): TestResponse
 }
 
 /**
+ * The names of every tool in GuardianServer's catalog, browsed as an MCP
+ * client browses it through `search_tools`: that answers at most 50 a call
+ * and has no offset, so once a page says there is more, the client pages on
+ * by searching each word of the tool names it has seen ("list", "role",
+ * "scim", ...), 50 at a time, until no search turns up a tool it has not
+ * seen. Names are kept in the order they were first seen: the first page is
+ * the catalog's own order.
+ *
+ * @return list<string>
+ */
+function toolCatalog(): array
+{
+    $search = (new GuardianServer(new FakeTransporter))->createContext()->tools()
+        ->first(fn (object $tool): bool => $tool instanceof SearchTools);
+
+    expect($search)->toBeInstanceOf(SearchTools::class);
+
+    /** @var SearchTools $search */
+    $page = function (string $query) use ($search): array {
+        /** @var array{tools: list<array{name: string}>, hasMore: bool} $result */
+        $result = json_decode((string) $search->handle(new Request(['query' => $query, 'limit' => 50]))->content(), true, 512, JSON_THROW_ON_ERROR);
+
+        return $result;
+    };
+
+    $first = $page('');
+    $names = array_column($first['tools'], 'name');
+
+    if (! $first['hasMore']) {
+        return $names;
+    }
+
+    $searched = [];
+
+    do {
+        $found = false;
+
+        foreach ($names as $name) {
+            foreach (explode('-', $name) as $term) {
+                if ($term === 'tool' || isset($searched[$term])) {
+                    continue;
+                }
+
+                $searched[$term] = true;
+
+                foreach (array_column($page($term)['tools'], 'name') as $match) {
+                    if (! in_array($match, $names, true)) {
+                        $names[] = $match;
+                        $found = true;
+                    }
+                }
+            }
+        }
+    } while ($found);
+
+    return $names;
+}
+
+/**
  * @param  array<string, mixed>  $attributes
  */
 function user(array $attributes = []): User
@@ -79,20 +118,12 @@ function user(array $attributes = []): User
 }
 
 /**
- * Give a user a Roster role by slug: global, in an organization, or on a team.
+ * Give a user a role by slug, globally, in an organization, or on a team,
+ * through Guardian's role store (bound as Keystone's Roles).
  */
-function grant(User $user, string $slug, ?OrganizationModel $organization = null, ?TeamModel $team = null): void
+function grant(User $user, string $slug, ?Model $organization = null, ?Model $team = null): void
 {
-    $role = RoleModel::query()->where('slug', $slug)->firstOrFail();
-
-    RoleAssignmentModel::query()->create([
-        'role_id' => $role->getKey(),
-        'user_id' => $user->getKey(),
-        'organization_id' => $organization?->getKey() ?? $team?->organization_id,
-        'team_id' => $team?->getKey(),
-    ]);
-
-    app(Permissions::class)->flush();
+    expect(app(Roles::class)->assign($user, $slug, $team ?? $organization))->toBeTrue("No {$slug} role there");
 }
 
 /**
@@ -132,6 +163,32 @@ const PARITY_EXCEPTIONS = [
     // identity provider; there is nothing for an API caller to send.
     'SsoLoginAction' => ['http', 'mcp'],
     'LinkSsoIdentityAction' => ['http', 'mcp'],
+    // Only Guardian writes the security log, from the events it observes;
+    // nobody may add to it over the API or MCP.
+    'RecordSecurityEventAction' => ['http', 'mcp'],
+    // Enrolment answers a TOTP secret, and regeneration recovery codes:
+    // secrets an agent must never be handed (D-021).
+    'StartTotpEnrolmentAction' => ['mcp'],
+    'ConfirmTotpAction' => ['mcp'],
+    'RegenerateRecoveryCodesAction' => ['mcp'],
+    // Enrolling an email address or phone number sends a code an agent
+    // would then read back (D-021).
+    'StartOneTimeCodeEnrolmentAction' => ['mcp'],
+    'ConfirmOneTimeCodeAction' => ['mcp'],
+    // A passkey ceremony happens between the browser and its
+    // authenticator; there is nothing an agent could send (D-021).
+    'StartPasskeyRegistrationAction' => ['mcp'],
+    'RegisterPasskeyAction' => ['mcp'],
+    // The challenge confirms a browser session: an agent has none (D-021).
+    'PassChallengeAction' => ['mcp'],
+    'SendChallengeCodeAction' => ['mcp'],
+    'StartPasskeyChallengeAction' => ['mcp'],
+    // Checking a password sends it: an agent must never be handed one, nor
+    // send one (D-021).
+    'CheckPasswordAction' => ['mcp'],
+    // Issuing answers a usable API token: an agent must never receive one
+    // (D-017, D-021).
+    'IssueTokenAction' => ['mcp'],
 ];
 
 /**
@@ -159,8 +216,7 @@ function phpFiles(string $directory): array
 }
 
 /**
- * Actions missing from the JSON API, MCP or a UI: Guardian's Atrium plugin
- * and screens, plus the browser pages a domain serves itself (SSO sign-in).
+ * Actions missing from the JSON API or MCP.
  *
  * @return array<string, array<int, string>>
  */
@@ -171,9 +227,5 @@ function parityGaps(): array
     return Parity::gaps($root.'/Domains/*/Actions/*.php', [
         'http' => $root.'/Domains/*/Http/Requests/*.php',
         'mcp' => $root.'/Domains/*/Mcp/Requests/*.php',
-        'ui' => [
-            ...phpFiles($root.'/Atrium'),
-            $root.'/Domains/*/Http/Controllers/*WebController.php',
-        ],
     ], PARITY_EXCEPTIONS);
 }

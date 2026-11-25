@@ -3,23 +3,30 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Mcp\Server\Transport\FakeTransporter;
 use RefactorCircus\Guardian\Domains\DomainServiceProvider;
+use RefactorCircus\Guardian\Domains\Permission\Services\GuardianPermissions;
+use RefactorCircus\Guardian\Domains\Role\Services\GuardianRoles;
 use RefactorCircus\Guardian\Domains\Scim\ScimServiceProvider;
 use RefactorCircus\Guardian\Domains\Sso\SsoServiceProvider;
 use RefactorCircus\Guardian\GuardianServiceProvider;
 use RefactorCircus\Guardian\Mcp\GuardianServer;
 use RefactorCircus\Guardian\Support\Integration;
+use RefactorCircus\Keystone\Authorization\Contracts\Permissions;
+use RefactorCircus\Keystone\Authorization\Contracts\Roles;
 use RefactorCircus\Keystone\Packages\PackageRegistry;
 
 /*
- * Without Roster, Guardian is inert (criterion 7, D-023, D-032): it boots,
- * says why in `php artisan about`, and registers nothing else. These tests
- * also run in the `standalone` CI job, with Roster, Atrium and Keen
+ * Without Roster, Guardian works (criterion 3, D-003): it boots, migrates and
+ * registers everything but SSO and SCIM, which build on Roster's users and
+ * organizations, and `php artisan about` says what SSO and SCIM need. These
+ * tests also run in the `standalone` CI job, with Roster and Keen
  * uninstalled, so they name none of their classes.
  */
 
@@ -39,96 +46,132 @@ function standaloneAbout(): array
 }
 
 /**
- * Asserts Guardian registered nothing beyond its config, translations,
- * package entry, rate limiter and about section.
+ * Asserts Guardian registered everything but SSO and SCIM.
  */
-function assertGuardianRegisteredNothing(): void
+function assertOnlySsoAndScimSkipped(): void
 {
     $routes = array_filter(
         array_keys(Route::getRoutes()->getRoutesByName()),
-        fn (string $name): bool => str_starts_with($name, 'guardian.') || str_starts_with($name, 'atrium.guardian.'),
+        fn (string $name): bool => str_starts_with($name, 'guardian.') && (str_contains($name, 'sso') || str_contains($name, 'scim')),
     );
 
+    $tools = (new GuardianServer(new FakeTransporter))->createContext()->tools()
+        ->map(fn (object $tool): string => $tool::class)
+        ->all();
+
+    $migrationPaths = array_map(fn (string $path): string|false => realpath($path), app('migrator')->paths());
+
     expect($routes)->toBe([])
-        ->and(app()->getProviders(DomainServiceProvider::class))->toBe([])
+        ->and(app()->getProviders(DomainServiceProvider::class))->not->toBe([])
         ->and(app()->getProviders(SsoServiceProvider::class))->toBe([])
         ->and(app()->getProviders(ScimServiceProvider::class))->toBe([])
-        ->and((new GuardianServer(new FakeTransporter))->createContext()->tools())->toHaveCount(0)
-        ->and(ServiceProvider::pathsToPublish(GuardianServiceProvider::class, 'guardian-migrations'))->toBe([])
-        ->and(array_filter(
-            app('migrator')->paths(),
-            fn (string $path): bool => realpath($path) === realpath(dirname(__DIR__, 3).'/database/migrations'),
-        ))->toBe([])
-        ->and(array_filter(
-            array_keys(Gate::policies()),
-            fn (string $model): bool => str_starts_with($model, 'RefactorCircus\\Guardian\\'),
-        ))->toBe([])
-        ->and(array_filter(
-            array_keys(Artisan::all()),
-            fn (string $command): bool => str_starts_with($command, 'guardian:'),
-        ))->toBe([]);
-
-    $atrium = 'RefactorCircus\\Atrium\\Atrium';
-
-    if (! class_exists($atrium)) {
-        return;
-    }
-
-    $registrations = app($atrium)->screens()->snapshot();
-    $keys = [];
-
-    array_walk_recursive($registrations, function (mixed $value) use (&$keys): void {
-        if (is_object($value) && property_exists($value, 'key')) {
-            $keys[] = $value->key;
-        }
-    });
-
-    expect(app($atrium)->pluginRegistry()->has('guardian'))->toBeFalse()
-        ->and(array_filter($keys, fn (mixed $key): bool => is_string($key) && str_starts_with($key, 'guardian.')))->toBe([]);
+        ->and(array_filter($tools, fn (string $tool): bool => str_contains($tool, '\\Domains\\Sso\\') || str_contains($tool, '\\Domains\\Scim\\')))->toBe([])
+        ->and($migrationPaths)->toContain(realpath(dirname(__DIR__, 3).'/database/migrations'))
+        ->and($migrationPaths)->not->toContain(realpath(dirname(__DIR__, 3).'/database/migrations/roster'))
+        ->and(array_keys(Artisan::all()))->not->toContain('guardian:upgrade-from-roster')
+        ->and(Gate::policies())->not->toBe([]);
 }
 
-it('sees neither Roster nor Atrium', function (): void {
+it('does not see Roster', function (): void {
     expect(app(Integration::class)->rosterInstalled())->toBeFalse()
-        ->and(app(Integration::class)->rosterPresent())->toBeFalse()
-        ->and(app(Integration::class)->atriumInstalled())->toBeFalse();
+        ->and(app(Integration::class)->rosterPresent())->toBeFalse();
 });
 
-it('says in php artisan about that Roster is needed', function (): void {
-    expect(standaloneAbout())->toBe(['status' => 'Inactive: install refactor-circus/roster']);
+it('is active, and says in php artisan about that SSO and SCIM need Roster', function (): void {
+    expect(standaloneAbout())->toBe([
+        'status' => 'Active',
+        'sso_and_scim' => 'Inactive: install refactor-circus/roster',
+    ]);
 });
 
-it('registers nothing but its config, translations and package entry', function (): void {
-    assertGuardianRegisteredNothing();
+it('skips only the SSO and SCIM providers, routes, tools, migrations and upgrade command', function (): void {
+    assertOnlySsoAndScimSkipped();
 });
 
-it('still boots its config, translations, package entry and rate limiter', function (): void {
+it('migrates without Roster: the role tables and built-in roles, but no SSO or SCIM table', function (): void {
+    expect(Artisan::call('migrate', ['--force' => true]))->toBe(0)
+        ->and(Schema::hasTable('guardian_roles'))->toBeTrue()
+        ->and(Schema::hasTable('guardian_role_assignments'))->toBeTrue()
+        ->and(DB::table('guardian_roles')->orderBy('slug')->pluck('slug')->all())->toBe(['admin', 'member', 'super-admin'])
+        ->and(DB::table('guardian_permissions')->where('name', 'guardian.roles.view')->exists())->toBeTrue()
+        ->and(Schema::hasTable('guardian_sso_connections'))->toBeFalse()
+        ->and(Schema::hasTable('guardian_scim_tokens'))->toBeFalse()
+        ->and(array_keys(Artisan::all()))->toContain('guardian:sync-permissions');
+});
+
+it('is Keystone\'s role store without Roster', function (): void {
+    expect(app(Permissions::class))->toBeInstanceOf(GuardianPermissions::class)
+        ->and(app(Roles::class))->toBeInstanceOf(GuardianRoles::class);
+});
+
+it('boots its config, translations, package entry and rate limiter', function (): void {
     expect(config('guardian.sso.prefix'))->toBe('roster/sso')
         ->and(config('guardian.scim.middleware'))->toBe(['api', 'throttle:guardian'])
-        ->and(__('guardian::guardian.sso'))->toBe('Single sign-on')
+        ->and(__('guardian::guardian.sso_not_found'))->toBe('No single sign-on is set up for this email domain.')
         ->and(app(PackageRegistry::class)->has('guardian'))->toBeTrue()
-        ->and(RateLimiter::limiter('guardian'))->not->toBeNull();
+        ->and(RateLimiter::limiter('guardian'))->not->toBeNull()
+        ->and(ServiceProvider::pathsToPublish(GuardianServiceProvider::class, 'guardian-config'))->toHaveCount(1);
 });
 
 describe('a Roster without the seams Guardian uses', function (): void {
-    it('falls back to the inactive path, saying a newer Roster is needed', function (Integration $integration): void {
+    it('skips SSO and SCIM, saying a newer Roster is needed', function (Integration $integration): void {
         $this->bootWith($integration);
 
         expect(app(Integration::class)->rosterInstalled())->toBeFalse()
             ->and(app(Integration::class)->rosterPresent())->toBeTrue()
-            ->and(standaloneAbout())->toBe(['status' => 'Inactive: needs a newer refactor-circus/roster']);
+            ->and(standaloneAbout())->toBe([
+                'status' => 'Active',
+                'sso_and_scim' => 'Inactive: needs a newer refactor-circus/roster',
+            ]);
 
-        assertGuardianRegisteredNothing();
+        assertOnlySsoAndScimSkipped();
     })->with([
         // Roster's class is there, but neither requireSignIn() nor provisionedStatus().
         'without the seam methods' => fn (): Integration => new Integration(
             fn (string $class): bool => true,
             fn (string $class, string $method): bool => false,
         ),
-        // Roster and its methods are there, but not the seam classes.
+        // Roster and its methods are there, but not the membership sources seam.
         'without the seam classes' => fn (): Integration => new Integration(
-            fn (string $class): bool => $class === 'RefactorCircus\\Roster\\Roster'
-                || $class === 'RefactorCircus\\Atrium\\Domains\\Screens\\Services\\ScreenExtensions',
+            fn (string $class): bool => $class === 'RefactorCircus\\Roster\\Roster',
             fn (string $class, string $method): bool => true,
         ),
     ]);
+});
+
+it('serves the role, permission and security log API without Roster (criterion 3)', function (): void {
+    $names = array_values(array_filter(
+        array_keys(Route::getRoutes()->getRoutesByName()),
+        fn (string $name): bool => str_starts_with($name, 'guardian.roles.') || str_starts_with($name, 'guardian.permissions.') || str_contains($name, 'security-events'),
+    ));
+
+    $tools = toolCatalog();
+
+    expect($names)->toContain('guardian.roles.index', 'guardian.roles.store', 'guardian.roles.show', 'guardian.roles.update', 'guardian.roles.destroy')
+        ->and($names)->toContain('guardian.permissions.index', 'guardian.security-events.index', 'guardian.security-events.show', 'guardian.me.security-events.index')
+        ->and($tools)->toContain('list-roles-tool', 'show-role-tool', 'create-role-tool', 'update-role-tool', 'delete-role-tool')
+        ->and($tools)->toContain('list-permissions-tool', 'list-role-assignments-tool', 'list-security-events-tool', 'list-my-security-events-tool')
+        ->and(array_filter($tools, fn (string $tool): bool => str_contains($tool, 'sso') || str_contains($tool, 'scim')))->toBe([]);
+});
+
+it('registers every documented non-SSO/SCIM route and every non-SSO/SCIM tool without Roster', function (): void {
+    /** @var array<string, array<string, array{operationId?: string}>> $paths */
+    $paths = json_decode((string) file_get_contents(dirname(__DIR__, 3).'/openapi.json'), true, flags: JSON_THROW_ON_ERROR)['paths'];
+    $documented = [];
+
+    foreach ($paths as $item) {
+        foreach ($item as $operation) {
+            $documented[] = (string) ($operation['operationId'] ?? '');
+        }
+    }
+
+    $standalone = array_values(array_filter($documented, fn (string $name): bool => preg_match('/(^|\.)(sso|scim)[-.]/', $name) !== 1));
+    $expectedTools = array_values(array_filter(
+        GuardianServer::TOOLS,
+        fn (string $tool): bool => ! str_contains($tool, '\\Domains\\Sso\\') && ! str_contains($tool, '\\Domains\\Scim\\'),
+    ));
+
+    expect(count($standalone))->toBeGreaterThan(40)
+        ->and(array_diff($standalone, array_keys(Route::getRoutes()->getRoutesByName())))->toBe([])
+        ->and(array_diff(array_map(fn (string $tool): string => app($tool)->name(), $expectedTools), toolCatalog()))->toBe([]);
 });

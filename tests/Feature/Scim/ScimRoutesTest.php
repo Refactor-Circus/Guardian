@@ -7,8 +7,6 @@ use Illuminate\Support\Facades\Route;
 use RefactorCircus\Guardian\Domains\Scim\Http\Middleware\AuthenticateScimToken;
 use RefactorCircus\Guardian\Domains\Scim\ScimServiceProvider;
 use RefactorCircus\Guardian\Tests\TestCase;
-use RefactorCircus\Roster\Domains\Permission\Services\PermissionCatalogue;
-use RefactorCircus\Roster\Domains\Permission\Services\Resources;
 
 // Criterion 25: the SCIM token JSON API loads under `guardian.routes` with
 // guardian.* names, and the SCIM 2.0 server under `guardian.scim.prefix`,
@@ -79,10 +77,7 @@ it('serves no SCIM endpoint while guardian.scim.enabled is off', function (): vo
     config()->set('guardian.scim.enabled', false);
     $this->app['router']->setRoutes(new RouteCollection);
 
-    // Boot the SCIM domain again; Roster's registries refuse a taken name.
-    $this->app->forgetInstance(Resources::class);
-    $this->app->forgetInstance(PermissionCatalogue::class);
-
+    // Boot the SCIM domain again; it defines its abilities only once.
     $this->app->register(ScimServiceProvider::class, true);
 
     // Routes named after they are added reach the name lookup on refresh,

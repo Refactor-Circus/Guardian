@@ -5,17 +5,15 @@ declare(strict_types=1);
 namespace RefactorCircus\Guardian\Tests;
 
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Gate;
 use Laravel\Mcp\Server\McpServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
-use RefactorCircus\Atrium\AtriumServiceProvider;
 use RefactorCircus\Guardian\GuardianServiceProvider;
 use RefactorCircus\Guardian\Upgrade\Handover;
 use RefactorCircus\Roster\RosterServiceProvider;
 use Workbench\App\Models\User;
 
 /**
- * Guardian as an application installs it: with Roster and Atrium, on an
+ * Guardian as an application installs it: with Roster, on an
  * in-memory database migrated per test with foreign keys enforced.
  *
  * Roster here may be the seams branch, which still ships its own SSO and
@@ -44,20 +42,11 @@ abstract class TestCase extends Orchestra
     public static bool $mcpServers = false;
 
     /**
-     * Whether anyone signed in may open the Atrium dashboard (its
-     * `viewAtrium` gate), as in Roster's suite: Guardian's screens are then
-     * answered by their own permission checks alone.
+     * Whether the next application boots with Guardian bound as Keystone's
+     * role store (`guardian.authorization.bind`, on as shipped). Roles are
+     * then Guardian's own: `grant()` in tests/Pest.php assigns them.
      */
-    protected bool $openAtrium = true;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        if ($this->openAtrium) {
-            Gate::define('viewAtrium', fn (): bool => true);
-        }
-    }
+    public static bool $bindAuthorization = true;
 
     /**
      * @return array<int, class-string>
@@ -66,10 +55,24 @@ abstract class TestCase extends Orchestra
     {
         return [
             McpServiceProvider::class,
-            AtriumServiceProvider::class,
             RosterServiceProvider::class,
             GuardianServiceProvider::class,
         ];
+    }
+
+    /**
+     * Guardian decides its bindings while providers register, which
+     * Testbench does before `defineEnvironment()`: set what it reads there
+     * first, as an app's config file would.
+     */
+    protected function resolveApplicationConfiguration($app): void
+    {
+        parent::resolveApplicationConfiguration($app);
+
+        $app['config']->set('guardian.authorization.bind', self::$bindAuthorization);
+        // The host's user model, as an app's auth config names it: Guardian
+        // watches it for password changes while providers boot.
+        $app['config']->set('auth.providers.users.model', User::class);
     }
 
     protected function defineEnvironment($app): void
@@ -86,9 +89,10 @@ abstract class TestCase extends Orchestra
             $app['config']->set('guardian.mcp.web.enabled', true);
             $app['config']->set('guardian.mcp.local.enabled', true);
         }
-        // Surface tests cover behaviour; tests/Feature/Authorization turns it
-        // back on, as Roster's suite does.
+        // Surface tests cover behaviour; tests/Feature/Authorization turns
+        // Guardian's back on, as Roster's suite does.
         $app['config']->set('roster.authorization', false);
+        $app['config']->set('guardian.authorization.enabled', false);
         // Roster at the seams branch still ships SSO and SCIM: keep its live
         // routes off Guardian's identical URIs (criterion 28).
         $app['config']->set('roster.sso.prefix', 'roster-legacy/sso');
@@ -137,7 +141,6 @@ abstract class TestCase extends Orchestra
         // SHA, so the upgrade has something to move whichever Roster is
         // installed: one that still ships SSO and SCIM has made them already.
         $this->loadMigrationsFrom(__DIR__.'/Fixtures/roster-sso-scim');
-        $this->loadMigrationsFrom(dirname(__DIR__).'/vendor/refactor-circus/atrium/database/migrations');
         $this->loadMigrationsFrom(['--path' => $this->guardianMigrations()]);
     }
 
@@ -147,7 +150,7 @@ abstract class TestCase extends Orchestra
     protected function guardianMigrations(): array
     {
         return array_values(array_filter(
-            (array) glob(dirname(__DIR__).'/database/migrations/*.php'),
+            [...(array) glob(dirname(__DIR__).'/database/migrations/*.php'), ...(array) glob(dirname(__DIR__).'/database/migrations/roster/*.php')],
             fn (mixed $path): bool => is_string($path) && ! str_ends_with($path, '_upgrade_guardian_from_roster.php'),
         ));
     }

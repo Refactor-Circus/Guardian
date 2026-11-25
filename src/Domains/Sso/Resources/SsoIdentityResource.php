@@ -44,6 +44,7 @@ final class SsoIdentityResource extends JsonResource
             'id' => $this->id,
             'connection' => $this->connection?->slug,
             'organization' => $this->connection?->organization?->slug,
+            /** @var UserSummaryResource|null */
             'user' => $user instanceof Model ? (new UserSummaryResource($user))->resolve($request) : null,
             'subject' => $this->subject,
             'email' => $this->email,

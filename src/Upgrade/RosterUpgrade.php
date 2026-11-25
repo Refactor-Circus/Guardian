@@ -9,7 +9,7 @@ use Illuminate\Database\Connection;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Facades\Date;
 use RefactorCircus\Guardian\Support\Tables;
-use RefactorCircus\Roster\Domains\Permission\Services\Permissions;
+use RefactorCircus\Keystone\Authorization\Contracts\Permissions;
 
 /**
  * Carries an install's SSO and SCIM data over from Roster (criterion 22).
@@ -226,9 +226,9 @@ final class RosterUpgrade
         }
 
         if ($moved !== []) {
-            // Written without Roster's models, so its remembered grants and
-            // any cached copy go too.
-            $this->permissions->forgetCache();
+            // Written without any role store's models, so whatever the bound
+            // Permissions remembers goes too.
+            $this->permissions->forget();
         }
     }
 

@@ -30,7 +30,7 @@ const GUARDIAN_TABLES = [
 
 function guardianMigrations(): string
 {
-    return (string) realpath(dirname(__DIR__, 2).'/database/migrations');
+    return (string) realpath(dirname(__DIR__, 2).'/database/migrations/roster');
 }
 
 /**

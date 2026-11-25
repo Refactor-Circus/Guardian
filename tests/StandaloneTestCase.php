@@ -13,18 +13,14 @@ use RefactorCircus\Guardian\GuardianServiceProvider;
 use RefactorCircus\Guardian\Support\Integration;
 
 /**
- * Guardian without Roster and without Atrium (D-023, D-032).
+ * Guardian without Roster (D-023, D-032).
  *
- * The bound Integration reports neither installed, so this runs the same
- * inside `composer test`, where both are dev dependencies, and in the
- * `standalone` CI job, where they are uninstalled. It names no Roster, Atrium
- * or Keen class: Atrium's provider is registered only when it is installed,
- * so Guardian is shown an Atrium it must leave alone.
+ * The bound Integration reports Roster missing, so this runs the same inside
+ * `composer test`, where it is a dev dependency, and in the `standalone` CI
+ * job, where it is uninstalled. It names no Roster or Keen class.
  */
 abstract class StandaloneTestCase extends Orchestra
 {
-    private const string ATRIUM_PROVIDER = 'RefactorCircus\\Atrium\\AtriumServiceProvider';
-
     /**
      * The Integration the next boot binds, in place of the default one.
      */
@@ -46,10 +42,7 @@ abstract class StandaloneTestCase extends Orchestra
      */
     protected function getPackageProviders($app): array
     {
-        return array_values(array_filter(
-            [McpServiceProvider::class, self::ATRIUM_PROVIDER, GuardianServiceProvider::class],
-            fn (string $provider): bool => class_exists($provider),
-        ));
+        return [McpServiceProvider::class, GuardianServiceProvider::class];
     }
 
     protected function defineEnvironment($app): void
